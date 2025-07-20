@@ -1,0 +1,38 @@
+appId: com.smartfile.ai
+productName: SmartFile AI
+directories:
+  output: dist
+  buildResources: build
+files:
+  - build/**/*
+  - public/electron.js
+  - node_modules/**/*
+  - backend/**/*
+  - "!backend/__pycache__"
+  - "!backend/**/*.pyc"
+extraResources:
+  - from: backend
+    to: backend
+    filter:
+      - "**/*"
+      - "!__pycache__"
+      - "!**/*.pyc"
+mac:
+  category: public.app-category.productivity
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  hardenedRuntime: true
+  gatekeeperAssess: false
+win:
+  target: nsis
+linux:
+  target: AppImage
+  category: Office
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+publish:
+  provider: generic
+  url: https://releases.smartfile.ai
