@@ -23,7 +23,7 @@ class GeminiClient:
         self.api_key =(
                 api_key or
                 os.getenv('GEMINI_API_KEY') or
-                os.getenv('GOOGLE_API_KEY') or 'AIzaSyCca0TY4Wbx2u4LKXSMApSjCG1uCoIwpZ0' or
+                os.getenv('GOOGLE_API_KEY') or 
                 self._load_api_key_from_storage()
         )
         self.base_url = "https://generativelanguage.googleapis.com/v1beta"

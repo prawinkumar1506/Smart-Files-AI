@@ -13262,3 +13262,73 @@ struct process {
 2025-07-19 17:03:26,830 - services.vector_store - INFO - search:276 - Search completed: 449 similarities calculated, 1 results above threshold
 2025-07-19 17:03:26,832 - main - INFO - search_files:625 - Search completed: 1 results found
 2025-07-19 17:03:26,835 - main - INFO - search_files:627 -   Result 1: rrprac.c (score: 0.324)
+2025-07-20 09:32:26,835 - asyncio - DEBUG - __init__:629 - Using proactor: IocpProactor
+2025-07-20 09:32:27,034 - main - INFO - startup_event:507 - ==================================================
+2025-07-20 09:32:27,036 - main - INFO - startup_event:508 - STARTING SMARTFILE AI BACKEND
+2025-07-20 09:32:27,036 - main - INFO - startup_event:509 - ==================================================
+2025-07-20 09:32:27,036 - main - INFO - startup_event:512 - Initializing vector store...
+2025-07-20 09:32:27,036 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-20 09:32:27,039 - services.vector_store - INFO - _create_tables:44 - Creating database tables...
+2025-07-20 09:32:27,046 - services.vector_store - INFO - _create_tables:90 - Database tables created successfully
+2025-07-20 09:32:27,046 - services.vector_store - INFO - initialize:32 - Database initialized with stats: {'folders': 4, 'files': 213, 'chunks': 449, 'file_types': {'.c': 7, '.pdf': 204, '.txt': 2}, 'recent_files': [{'name': 'rrprac.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\rrprac.c'}, {'name': 'priorpreem.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priorpreem.c'}, {'name': 'priornonpre.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priornonpre.c'}, {'name': 'memalloc.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\memalloc.c'}, {'name': 'LRU.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\LRU.c'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-20 09:32:27,047 - main - INFO - startup_event:515 - Vector store initialized successfully
+2025-07-20 09:32:27,047 - main - INFO - startup_event:517 - Initializing file indexer...
+2025-07-20 09:32:27,047 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-20 09:33:12,482 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-20 09:33:12,482 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-20 09:33:12,485 - urllib3.connectionpool - DEBUG - _new_conn:1049 - Starting new HTTPS connection (1): huggingface.co:443
+2025-07-20 09:33:12,966 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json HTTP/1.1" 307 0
+2025-07-20 09:33:13,033 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json HTTP/1.1" 200 0
+2025-07-20 09:33:13,340 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json HTTP/1.1" 307 0
+2025-07-20 09:33:13,416 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json HTTP/1.1" 200 0
+2025-07-20 09:33:13,764 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json HTTP/1.1" 307 0
+2025-07-20 09:33:13,856 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json HTTP/1.1" 200 0
+2025-07-20 09:33:14,148 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md HTTP/1.1" 307 0
+2025-07-20 09:33:14,216 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/README.md HTTP/1.1" 200 0
+2025-07-20 09:33:14,578 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json HTTP/1.1" 307 0
+2025-07-20 09:33:14,655 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json HTTP/1.1" 200 0
+2025-07-20 09:33:15,047 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json HTTP/1.1" 307 0
+2025-07-20 09:33:15,181 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/sentence_bert_config.json HTTP/1.1" 200 0
+2025-07-20 09:33:15,514 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json HTTP/1.1" 404 0
+2025-07-20 09:33:15,965 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json HTTP/1.1" 307 0
+2025-07-20 09:33:16,033 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json HTTP/1.1" 200 0
+2025-07-20 09:33:18,000 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-07-20 09:33:18,067 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/tokenizer_config.json HTTP/1.1" 200 0
+2025-07-20 09:33:18,370 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "GET /api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-07-20 09:33:18,787 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json HTTP/1.1" 307 0
+2025-07-20 09:33:18,871 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/1_Pooling%2Fconfig.json HTTP/1.1" 200 0
+2025-07-20 09:33:19,165 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "GET /api/models/sentence-transformers/all-MiniLM-L6-v2 HTTP/1.1" 200 6849
+2025-07-20 09:33:19,381 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-20 09:33:19,381 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-20 09:33:19,381 - services.indexer - INFO - __init__:168 -  FileIndexer initialized with supported extensions: {'.html', '.docx', '.pdf', '.txt', '.odt', '.js', '.yaml', '.json', '.yml', '.xml', '.doc', '.md', '.css', '.c', '.rtf', '.py'}
+2025-07-20 09:33:19,381 - main - INFO - startup_event:519 - File indexer initialized successfully
+2025-07-20 09:33:19,381 - main - INFO - startup_event:521 - Initializing LLM client...
+2025-07-20 09:33:19,381 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-20 09:33:19,381 - main - INFO - startup_event:523 - LLM client initialized successfully
+2025-07-20 09:33:19,381 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,388 - services.vector_store - INFO - get_indexed_files:337 - Retrieved 213 indexed files
+2025-07-20 09:33:19,388 - main - INFO - startup_event:528 - Database status: 4 folders, 213 files indexed
+2025-07-20 09:33:19,388 - main - INFO - startup_event:530 - SmartFile AI Backend started successfully!
+2025-07-20 09:33:19,388 - main - INFO - startup_event:531 - ==================================================
+2025-07-20 09:33:19,565 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,578 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-20 09:33:19,578 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,580 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,584 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-20 09:33:19,584 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,584 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,691 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-20 09:33:19,691 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:19,691 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-20 09:33:26,300 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-20 09:33:26,301 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:26,301 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-20 09:33:26,301 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-20 09:33:26,301 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-20 09:33:26,301 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-20 09:33:27,098 - main - INFO - get_indexed_files:727 - Getting indexed files list...
+2025-07-20 09:33:27,101 - services.vector_store - INFO - get_indexed_files:337 - Retrieved 213 indexed files
+2025-07-20 09:33:27,101 - main - INFO - get_indexed_files:729 - Retrieved 213 indexed files
+2025-07-20 09:33:27,109 - main - INFO - get_indexed_files:727 - Getting indexed files list...
+2025-07-20 09:33:27,111 - services.vector_store - INFO - get_indexed_files:337 - Retrieved 213 indexed files
+2025-07-20 09:33:27,111 - main - INFO - get_indexed_files:729 - Retrieved 213 indexed files
