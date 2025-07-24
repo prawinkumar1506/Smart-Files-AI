@@ -335,7 +335,15 @@ const Files: React.FC = () => {
     const loadFiles = async () => {
         try {
             const response = await ApiService.getIndexedFiles()
-            setFiles(response.files || [])
+            console.log("API response for files:", response) // Log the raw response
+            
+            if (response.files) {
+                // Remove duplicates before setting state
+                const uniqueFiles = Array.from(new Map(response.files.map((file: FileInfo) => [file.id, file])).values()) as FileInfo[];
+                setFiles(uniqueFiles)
+            } else {
+                setFiles([])
+            }
         } catch (error) {
             console.error("Error loading files:", error)
         } finally {

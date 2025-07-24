@@ -8,6 +8,7 @@ import { ApiService } from "../services/api"
 interface FolderInfo {
   id: number
   path: string
+  name: string
   file_count: number
   last_indexed: string
 }
@@ -145,7 +146,10 @@ const Folders: React.FC = () => {
                 <Folder size={24} />
               </div>
               <div className="folder-info">
-                <h3>{folder.path}</h3>
+                <h3>{folder.name}</h3>
+                <p className="folder-path" title={folder.path}>
+                  {folder.path}
+                </p>
                 <div className="folder-stats">
                   <span>{folder.file_count} files</span>
                   <span>Last indexed: {new Date(folder.last_indexed).toLocaleDateString()}</span>

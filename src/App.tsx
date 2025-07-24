@@ -7,6 +7,7 @@ import Search from "./components/Search"
 import Query from "./components/Query"
 import Folders from "./components/Folders"
 import Files from "./components/Files"
+import FileOrganiser from "./components/FileOrganiser"
 import Settings from "./components/Settings"
 import { ApiService } from "./services/api"
 import "./App.css"
@@ -45,10 +46,10 @@ function App() {
 
   if (!isBackendReady) {
     return (
-        <div className="app-loading">
-          <div className="loading-spinner"></div>
-          <p>Starting SmartFile AI...</p>
-        </div>
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Starting SmartFile AI...</p>
+      </div>
     )
   }
 
@@ -58,6 +59,8 @@ function App() {
         return <Search />
       case "query":
         return <Query />
+      case "organiser":
+        return <FileOrganiser />
       case "folders":
         return <Folders />
       case "files":
@@ -70,10 +73,10 @@ function App() {
   }
 
   return (
-      <div className="app">
-        <Sidebar currentView={currentView} onViewChange={setCurrentView} />
-        <main className="main-content">{renderCurrentView()}</main>
-      </div>
+    <div className="app">
+      <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+      <main className="main-content">{renderCurrentView()}</main>
+    </div>
   )
 }
 

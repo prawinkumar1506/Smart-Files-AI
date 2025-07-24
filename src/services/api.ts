@@ -111,6 +111,17 @@ export interface QueryRequest {
     question: string
 }
 
+export interface OrganiseRequest {
+  folder_id: number;
+  dry_run?: boolean;
+}
+
+export interface ExecuteOrganiseRequest {
+  folder_id: number;
+  actions: any[];
+  confirm?: boolean;
+}
+
 export class ApiService {
     static async healthCheck() {
         const response = await api.get("/health")
@@ -155,5 +166,22 @@ export class ApiService {
     static async clearIndex() {
         const response = await api.delete("/api/index/clear")
         return response.data
+    }
+
+    static async getFolderHierarchy(rootId?: number) {
+        const response = await api.get("/api/folders/hierarchy", {
+            params: rootId ? { root_id: rootId } : {},
+        });
+        return response.data;
+    }
+
+    static async analyzeFolderForOrganisation(request: OrganiseRequest) {
+        const response = await api.post("/api/organise/analyze", request);
+        return response.data;
+    }
+
+    static async executeOrganisation(request: ExecuteOrganiseRequest) {
+        const response = await api.post("/api/organise/execute", request);
+        return response.data;
     }
 }

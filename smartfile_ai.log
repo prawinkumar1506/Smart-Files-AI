@@ -13332,3 +13332,1123 @@ struct process {
 2025-07-20 09:33:27,109 - main - INFO - get_indexed_files:727 - Getting indexed files list...
 2025-07-20 09:33:27,111 - services.vector_store - INFO - get_indexed_files:337 - Retrieved 213 indexed files
 2025-07-20 09:33:27,111 - main - INFO - get_indexed_files:729 - Retrieved 213 indexed files
+2025-07-24 00:06:59,313 - asyncio - DEBUG - __init__:629 - Using proactor: IocpProactor
+2025-07-24 00:06:59,527 - main - INFO - startup_event:507 - ==================================================
+2025-07-24 00:06:59,527 - main - INFO - startup_event:508 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:06:59,527 - main - INFO - startup_event:509 - ==================================================
+2025-07-24 00:06:59,527 - main - INFO - startup_event:512 - Initializing vector store...
+2025-07-24 00:06:59,527 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:06:59,570 - services.vector_store - INFO - _create_tables:44 - Creating database tables...
+2025-07-24 00:06:59,570 - services.vector_store - INFO - _create_tables:90 - Database tables created successfully
+2025-07-24 00:06:59,570 - services.vector_store - INFO - initialize:32 - Database initialized with stats: {'folders': 4, 'files': 213, 'chunks': 449, 'file_types': {'.c': 7, '.pdf': 204, '.txt': 2}, 'recent_files': [{'name': 'rrprac.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\rrprac.c'}, {'name': 'priorpreem.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priorpreem.c'}, {'name': 'priornonpre.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priornonpre.c'}, {'name': 'memalloc.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\memalloc.c'}, {'name': 'LRU.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\LRU.c'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:06:59,570 - main - INFO - startup_event:515 - Vector store initialized successfully
+2025-07-24 00:06:59,570 - main - INFO - startup_event:517 - Initializing file indexer...
+2025-07-24 00:06:59,570 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:07:43,645 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:07:43,645 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:07:43,645 - urllib3.connectionpool - DEBUG - _new_conn:1049 - Starting new HTTPS connection (1): huggingface.co:443
+2025-07-24 00:07:44,454 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json HTTP/1.1" 307 0
+2025-07-24 00:07:44,454 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json HTTP/1.1" 200 0
+2025-07-24 00:07:44,707 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json HTTP/1.1" 307 0
+2025-07-24 00:07:44,707 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json HTTP/1.1" 200 0
+2025-07-24 00:07:44,956 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json HTTP/1.1" 307 0
+2025-07-24 00:07:44,956 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json HTTP/1.1" 200 0
+2025-07-24 00:07:45,205 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md HTTP/1.1" 307 0
+2025-07-24 00:07:45,220 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/README.md HTTP/1.1" 200 0
+2025-07-24 00:07:45,456 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json HTTP/1.1" 307 0
+2025-07-24 00:07:45,472 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json HTTP/1.1" 200 0
+2025-07-24 00:07:45,706 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json HTTP/1.1" 307 0
+2025-07-24 00:07:45,723 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/sentence_bert_config.json HTTP/1.1" 200 0
+2025-07-24 00:07:45,956 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json HTTP/1.1" 404 0
+2025-07-24 00:07:46,179 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json HTTP/1.1" 307 0
+2025-07-24 00:07:46,194 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json HTTP/1.1" 200 0
+2025-07-24 00:07:47,974 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-07-24 00:07:47,992 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/tokenizer_config.json HTTP/1.1" 200 0
+2025-07-24 00:07:48,226 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "GET /api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-07-24 00:07:48,502 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json HTTP/1.1" 307 0
+2025-07-24 00:07:48,520 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "HEAD /api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/1_Pooling%2Fconfig.json HTTP/1.1" 200 0
+2025-07-24 00:07:48,763 - urllib3.connectionpool - DEBUG - _make_request:544 - https://huggingface.co:443 "GET /api/models/sentence-transformers/all-MiniLM-L6-v2 HTTP/1.1" 200 6849
+2025-07-24 00:07:48,965 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:07:48,965 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:07:48,965 - services.indexer - INFO - __init__:168 -  FileIndexer initialized with supported extensions: {'.c', '.txt', '.pdf', '.js', '.docx', '.yaml', '.rtf', '.md', '.py', '.doc', '.css', '.odt', '.html', '.yml', '.xml', '.json'}
+2025-07-24 00:07:48,965 - main - INFO - startup_event:519 - File indexer initialized successfully
+2025-07-24 00:07:48,965 - main - INFO - startup_event:521 - Initializing LLM client...
+2025-07-24 00:07:48,965 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:07:48,965 - main - INFO - startup_event:523 - LLM client initialized successfully
+2025-07-24 00:07:48,965 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-24 00:07:48,965 - services.vector_store - INFO - get_indexed_files:337 - Retrieved 213 indexed files
+2025-07-24 00:07:48,981 - main - INFO - startup_event:528 - Database status: 4 folders, 213 files indexed
+2025-07-24 00:07:48,981 - main - INFO - startup_event:530 - SmartFile AI Backend started successfully!
+2025-07-24 00:07:48,981 - main - INFO - startup_event:531 - ==================================================
+2025-07-24 00:07:49,084 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,087 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-24 00:07:49,087 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,087 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,104 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-24 00:07:49,104 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,104 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,165 - main - INFO - get_indexed_folders:740 - Getting indexed folders list...
+2025-07-24 00:07:49,166 - services.vector_store - INFO - get_indexed_folders:370 - Retrieved 4 indexed folders
+2025-07-24 00:07:49,166 - main - INFO - get_indexed_folders:742 - Retrieved 4 indexed folders
+2025-07-24 00:29:21,080 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:29:21,246 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:29:21,246 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:29:21,246 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:29:21,246 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:29:21,797 - services.vector_store - ERROR - _create_tables:132 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 123, in _create_tables
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id)")
+sqlite3.OperationalError: no such column: parent_id
+
+2025-07-24 00:29:21,814 - services.vector_store - ERROR - initialize:37 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 29, in initialize
+    await self._create_tables()
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 123, in _create_tables
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id)")
+sqlite3.OperationalError: no such column: parent_id
+
+2025-07-24 00:29:21,814 - __main__ - ERROR - lifespan:88 - Failed to initialize backend: no such column: parent_id
+2025-07-24 00:29:21,814 - __main__ - ERROR - lifespan:89 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\main.py", line 63, in lifespan
+    await vector_store.initialize()
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 29, in initialize
+    await self._create_tables()
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 123, in _create_tables
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id)")
+sqlite3.OperationalError: no such column: parent_id
+
+2025-07-24 00:29:21,814 - __main__ - INFO - lifespan:93 - Shutting down SmartFile AI Backend...
+2025-07-24 00:29:21,814 - __main__ - ERROR - lifespan:98 - Error during shutdown: object NoneType can't be used in 'await' expression
+2025-07-24 00:32:00,512 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:32:00,814 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:32:00,814 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:32:00,814 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:32:00,814 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:32:00,814 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:32:00,814 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:32:00,814 - services.vector_store - INFO - _create_tables:51 - Migrating folders table: adding parent_id and level columns
+2025-07-24 00:32:01,020 - services.vector_store - INFO - _create_tables:137 - Database tables created successfully
+2025-07-24 00:32:01,021 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 4, 'files': 213, 'chunks': 449, 'file_types': {'.c': 7, '.pdf': 204, '.txt': 2}, 'recent_files': [{'name': 'rrprac.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\rrprac.c'}, {'name': 'priorpreem.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priorpreem.c'}, {'name': 'priornonpre.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priornonpre.c'}, {'name': 'memalloc.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\memalloc.c'}, {'name': 'LRU.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\LRU.c'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:32:01,021 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:32:01,021 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:32:01,021 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:36:22,263 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:36:22,406 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:36:22,406 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:36:22,406 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:36:22,406 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:36:22,406 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:36:22,406 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:36:22,408 - services.vector_store - INFO - _create_tables:137 - Database tables created successfully
+2025-07-24 00:36:22,408 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 4, 'files': 213, 'chunks': 449, 'file_types': {'.c': 7, '.pdf': 204, '.txt': 2}, 'recent_files': [{'name': 'rrprac.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\rrprac.c'}, {'name': 'priorpreem.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priorpreem.c'}, {'name': 'priornonpre.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\priornonpre.c'}, {'name': 'memalloc.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\memalloc.c'}, {'name': 'LRU.c', 'path': 'C:\\Users\\SSBSPK\\Downloads\\codes\\LRU.c'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:36:22,408 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:36:22,410 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:36:22,410 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:36:48,952 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:36:48,952 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:36:58,642 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:36:58,642 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:36:58,642 - services.indexer - INFO - __init__:168 -  FileIndexer initialized with supported extensions: {'.docx', '.yaml', '.yml', '.xml', '.js', '.py', '.doc', '.odt', '.c', '.css', '.html', '.json', '.md', '.rtf', '.pdf', '.txt'}
+2025-07-24 00:36:58,642 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 00:36:58,642 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 00:36:58,650 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:36:58,650 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 00:36:58,650 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 00:36:58,650 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 00:36:58,651 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:36:58,655 - services.vector_store - INFO - get_indexed_files:604 - Retrieved 213 indexed files
+2025-07-24 00:36:58,655 - __main__ - INFO - lifespan:81 - Database status: 4 folders, 213 files indexed
+2025-07-24 00:36:58,655 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 00:36:58,655 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 00:36:58,850 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:36:58,948 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:36:58,950 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:36:58,950 - __main__ - INFO - get_indexed_folders:398 - Retrieved 4 indexed folders
+2025-07-24 00:36:58,965 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:36:58,965 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:36:58,965 - __main__ - INFO - get_indexed_folders:398 - Retrieved 4 indexed folders
+2025-07-24 00:36:59,045 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:36:59,045 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:36:59,045 - __main__ - INFO - get_indexed_folders:398 - Retrieved 4 indexed folders
+2025-07-24 00:37:07,918 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:37:07,918 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:37:07,918 - __main__ - INFO - get_indexed_folders:398 - Retrieved 4 indexed folders
+2025-07-24 00:37:07,923 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:37:07,923 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 4 indexed folders
+2025-07-24 00:37:07,923 - __main__ - INFO - get_indexed_folders:398 - Retrieved 4 indexed folders
+2025-07-24 00:37:10,442 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 27
+2025-07-24 00:37:10,443 - services.vector_store - INFO - remove_folder:652 - Removing folder: C:\Users\SSBSPK\Downloads\codes
+2025-07-24 00:37:10,448 - services.vector_store - INFO - remove_folder:655 - Folder removed successfully
+2025-07-24 00:37:10,448 - __main__ - INFO - remove_folder:411 - Folder 27 removed successfully
+2025-07-24 00:37:12,309 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 21
+2025-07-24 00:37:12,309 - services.vector_store - INFO - remove_folder:652 - Removing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:37:12,309 - services.vector_store - INFO - remove_folder:655 - Folder removed successfully
+2025-07-24 00:37:12,309 - __main__ - INFO - remove_folder:411 - Folder 21 removed successfully
+2025-07-24 00:37:14,682 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 20
+2025-07-24 00:37:14,682 - services.vector_store - INFO - remove_folder:652 - Removing folder: C:\Users\SSBSPK\Downloads\CVs1
+2025-07-24 00:37:14,751 - services.vector_store - INFO - remove_folder:655 - Folder removed successfully
+2025-07-24 00:37:14,751 - __main__ - INFO - remove_folder:411 - Folder 20 removed successfully
+2025-07-24 00:37:16,944 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 18
+2025-07-24 00:37:16,945 - services.vector_store - INFO - remove_folder:652 - Removing folder: C:\Users\SSBSPK\Downloads\price
+2025-07-24 00:37:16,965 - services.vector_store - INFO - remove_folder:655 - Folder removed successfully
+2025-07-24 00:37:16,965 - __main__ - INFO - remove_folder:411 - Folder 18 removed successfully
+2025-07-24 00:37:35,217 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:37:35,219 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:37:35,219 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:37:35,219 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:37:35,219 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:37:35,219 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:37:35,297 - __main__ - INFO - run_indexing:459 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:37:35,297 - __main__ - INFO - run_indexing:462 - Total files to process: 3
+2025-07-24 00:37:35,297 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:37:35,300 - services.vector_store - ERROR - add_folder:217 - Error adding folder C:\Users\SSBSPK\Downloads\test: table folders has no column named name
+2025-07-24 00:37:35,300 - __main__ - ERROR - run_indexing:490 - Indexing error: table folders has no column named name
+2025-07-24 00:37:35,304 - __main__ - ERROR - run_indexing:491 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\main.py", line 473, in run_indexing
+    async for file_path, progress in file_indexer.index_folder(folder_path):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\indexer.py", line 202, in index_folder
+    folder_id = await self.vector_store.add_folder(str(folder_path))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 208, in add_folder
+    cursor.execute(
+sqlite3.OperationalError: table folders has no column named name
+
+2025-07-24 00:37:36,328 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:37:36,328 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 0 indexed folders
+2025-07-24 00:37:36,328 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:37:38,219 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:37:38,220 - services.vector_store - ERROR - get_folder_hierarchy:278 - Error getting folder hierarchy: no such column: name
+2025-07-24 00:37:38,220 - __main__ - ERROR - get_folder_hierarchy:318 - Error getting folder hierarchy: no such column: name
+2025-07-24 00:37:38,221 - __main__ - ERROR - http_exception_handler:500 - HTTP error 500: no such column: name
+2025-07-24 00:37:38,222 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:37:38,222 - services.vector_store - ERROR - get_folder_hierarchy:278 - Error getting folder hierarchy: no such column: name
+2025-07-24 00:37:38,222 - __main__ - ERROR - get_folder_hierarchy:318 - Error getting folder hierarchy: no such column: name
+2025-07-24 00:37:38,222 - __main__ - ERROR - http_exception_handler:500 - HTTP error 500: no such column: name
+2025-07-24 00:37:40,458 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:37:40,458 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 0 indexed folders
+2025-07-24 00:37:40,458 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:37:40,462 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:37:40,462 - services.vector_store - INFO - get_indexed_folders:636 - Retrieved 0 indexed folders
+2025-07-24 00:37:40,462 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:14,691 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:39:15,026 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:39:15,026 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:39:15,026 - services.vector_store - INFO - _create_tables:137 - Database tables created successfully
+2025-07-24 00:39:15,026 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 0, 'files': 0, 'chunks': 0, 'file_types': {}, 'recent_files': [], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:39:15,026 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:39:15,026 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:39:30,526 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:39:30,526 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:39:39,146 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:39:39,146 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:39:39,146 - services.indexer - INFO - __init__:168 -  FileIndexer initialized with supported extensions: {'.html', '.js', '.c', '.pdf', '.docx', '.yaml', '.json', '.py', '.odt', '.doc', '.xml', '.txt', '.css', '.md', '.yml', '.rtf'}
+2025-07-24 00:39:39,146 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 00:39:39,148 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 00:39:39,148 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:39:39,148 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 00:39:39,148 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 00:39:39,148 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 00:39:39,150 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,150 - services.vector_store - INFO - get_indexed_files:582 - Retrieved 0 indexed files
+2025-07-24 00:39:39,150 - __main__ - INFO - lifespan:81 - Database status: 0 folders, 0 files indexed
+2025-07-24 00:39:39,150 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 00:39:39,158 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 00:39:39,203 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,278 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:39,278 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,278 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,301 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:39,302 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,302 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,312 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:39,316 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:39,316 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:46,237 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:46,237 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:46,239 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:46,241 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:46,241 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:46,250 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:52,248 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:39:52,249 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:39:52,249 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:39:52,249 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:39:52,249 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:39:52,260 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:39:52,290 - __main__ - INFO - run_indexing:459 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:39:52,290 - __main__ - INFO - run_indexing:462 - Total files to process: 3
+2025-07-24 00:39:52,290 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:39:52,296 - services.vector_store - ERROR - add_folder:217 - Error adding folder C:\Users\SSBSPK\Downloads\test: table folders has no column named name
+2025-07-24 00:39:52,296 - __main__ - ERROR - run_indexing:490 - Indexing error: table folders has no column named name
+2025-07-24 00:39:52,296 - __main__ - ERROR - run_indexing:491 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\main.py", line 473, in run_indexing
+    async for file_path, progress in file_indexer.index_folder(folder_path):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\indexer.py", line 202, in index_folder
+    folder_id = await self.vector_store.add_folder(str(folder_path))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 208, in add_folder
+    cursor.execute(
+sqlite3.OperationalError: table folders has no column named name
+
+2025-07-24 00:39:53,313 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:53,313 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:53,313 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:54,817 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:39:54,820 - services.vector_store - INFO - get_indexed_files:582 - Retrieved 0 indexed files
+2025-07-24 00:39:54,820 - __main__ - INFO - get_indexed_files:385 - Retrieved 0 indexed files
+2025-07-24 00:39:54,827 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:39:54,828 - services.vector_store - INFO - get_indexed_files:582 - Retrieved 0 indexed files
+2025-07-24 00:39:54,828 - __main__ - INFO - get_indexed_files:385 - Retrieved 0 indexed files
+2025-07-24 00:39:55,532 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:55,532 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:55,532 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:39:55,539 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:39:55,539 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:39:55,539 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:40:15,542 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:40:15,542 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:40:15,542 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:40:15,542 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:40:15,542 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:40:15,542 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:40:15,555 - __main__ - INFO - run_indexing:459 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:40:15,555 - __main__ - INFO - run_indexing:462 - Total files to process: 3
+2025-07-24 00:40:15,555 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:40:15,560 - services.vector_store - ERROR - add_folder:217 - Error adding folder C:\Users\SSBSPK\Downloads\test: table folders has no column named name
+2025-07-24 00:40:15,560 - __main__ - ERROR - run_indexing:490 - Indexing error: table folders has no column named name
+2025-07-24 00:40:15,560 - __main__ - ERROR - run_indexing:491 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\main.py", line 473, in run_indexing
+    async for file_path, progress in file_indexer.index_folder(folder_path):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\indexer.py", line 202, in index_folder
+    folder_id = await self.vector_store.add_folder(str(folder_path))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 208, in add_folder
+    cursor.execute(
+sqlite3.OperationalError: table folders has no column named name
+
+2025-07-24 00:40:16,581 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:40:16,581 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:40:16,581 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:42:00,939 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:42:02,406 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:42:02,406 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:42:02,406 - services.vector_store - INFO - _create_tables:137 - Database tables created successfully
+2025-07-24 00:42:02,406 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 0, 'files': 0, 'chunks': 0, 'file_types': {}, 'recent_files': [], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:42:02,406 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:42:02,406 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:42:31,414 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:42:31,414 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:42:37,353 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:42:37,355 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:42:37,355 - services.indexer - INFO - __init__:168 -  FileIndexer initialized with supported extensions: {'.txt', '.xml', '.py', '.js', '.css', '.rtf', '.html', '.yaml', '.pdf', '.yml', '.docx', '.md', '.c', '.json', '.doc', '.odt'}
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 00:42:37,355 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 00:42:37,355 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:42:37,355 - services.vector_store - INFO - get_indexed_files:582 - Retrieved 0 indexed files
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:81 - Database status: 0 folders, 0 files indexed
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 00:42:37,355 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 00:42:38,842 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,107 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:42:39,107 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,107 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,124 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:42:39,124 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,124 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,230 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:42:39,230 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:42:39,230 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:43:00,039 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:43:00,039 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:43:00,039 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:43:00,048 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:43:00,049 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:43:00,049 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:43:04,672 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:43:04,672 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:43:04,672 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:43:04,672 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:43:04,672 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,672 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:43:04,682 - services.indexer - INFO - count_files:175 - Counting files in: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,682 - services.indexer - INFO - count_files:184 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,682 - __main__ - INFO - run_indexing:459 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,683 - __main__ - INFO - run_indexing:462 - Total files to process: 3
+2025-07-24 00:43:04,683 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,683 - services.indexer - INFO - index_folder:195 - Starting to index folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:43:04,683 - services.vector_store - ERROR - add_folder:217 - Error adding folder C:\Users\SSBSPK\Downloads\test: table folders has no column named name
+2025-07-24 00:43:04,684 - __main__ - ERROR - run_indexing:490 - Indexing error: table folders has no column named name
+2025-07-24 00:43:04,685 - __main__ - ERROR - run_indexing:491 - Traceback: Traceback (most recent call last):
+  File "D:\DOWNLOADS\smartfile-ai\backend\main.py", line 473, in run_indexing
+    async for file_path, progress in file_indexer.index_folder(folder_path):
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\indexer.py", line 202, in index_folder
+  File "D:\DOWNLOADS\smartfile-ai\backend\services\vector_store.py", line 208, in add_folder
+    cursor.execute(
+sqlite3.OperationalError: table folders has no column named name
+
+2025-07-24 00:43:05,702 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:43:05,702 - services.vector_store - INFO - get_indexed_folders:614 - Retrieved 0 indexed folders
+2025-07-24 00:43:05,702 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:00,520 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:50:00,873 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:50:00,873 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:50:00,873 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:50:00,873 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:50:00,873 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:50:00,873 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:50:00,873 - services.vector_store - INFO - _create_tables:53 - Migrating folders table: adding parent_id and level columns
+2025-07-24 00:50:00,933 - services.vector_store - INFO - _create_tables:148 - Database tables created successfully
+2025-07-24 00:50:00,933 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 0, 'files': 0, 'chunks': 0, 'file_types': {}, 'recent_files': [], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:50:00,933 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:50:00,933 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:50:00,933 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:50:21,593 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:50:21,593 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:50:27,794 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:50:27,794 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:50:27,794 - services.indexer - INFO - __init__:25 -  FileIndexer initialized with supported extensions: {'.md', '.xml', '.json', '.docx', '.rtf', '.html', '.js', '.pdf', '.py', '.css', '.c', '.doc', '.yaml', '.yml', '.txt', '.odt'}
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 00:50:27,794 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 00:50:27,794 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,794 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 0 indexed files
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:81 - Database status: 0 folders, 0 files indexed
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 00:50:27,794 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 00:50:27,846 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,951 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:27,951 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,951 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,956 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:27,957 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,957 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,972 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:27,992 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:27,992 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:33,171 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:50:33,171 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 0 indexed files
+2025-07-24 00:50:33,173 - __main__ - INFO - get_indexed_files:385 - Retrieved 0 indexed files
+2025-07-24 00:50:33,179 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:50:33,179 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 0 indexed files
+2025-07-24 00:50:33,179 - __main__ - INFO - get_indexed_files:385 - Retrieved 0 indexed files
+2025-07-24 00:50:34,777 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:34,778 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:34,778 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:34,778 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:34,778 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 0 indexed folders
+2025-07-24 00:50:34,778 - __main__ - INFO - get_indexed_folders:398 - Retrieved 0 indexed folders
+2025-07-24 00:50:41,157 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:50:41,158 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:50:41,158 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:50:41,158 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:50:41,158 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,158 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:50:41,158 - services.indexer - INFO - count_files:32 - Counting files in: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,158 - services.indexer - INFO - count_files:41 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,158 - __main__ - INFO - run_indexing:459 - Found 3 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,158 - __main__ - INFO - run_indexing:462 - Total files to process: 3
+2025-07-24 00:50:41,158 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,158 - services.indexer - INFO - index_folder:52 - Starting to index folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:50:41,208 - services.vector_store - INFO - add_folder:225 - Added folder to database: C:\Users\SSBSPK\Downloads\test (ID: 1, Level: 0)
+2025-07-24 00:50:41,208 - services.indexer - INFO - index_folder:60 - Added folder to database with ID: 1
+2025-07-24 00:50:41,208 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf
+2025-07-24 00:50:45,220 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf with 13 chunks
+2025-07-24 00:50:45,220 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t1.txt
+2025-07-24 00:50:45,483 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t1.txt with 1 chunks
+2025-07-24 00:50:45,483 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t2.txt
+2025-07-24 00:50:45,729 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t2.txt with 1 chunks
+2025-07-24 00:50:45,729 - services.indexer - INFO - index_folder:92 - Completed indexing folder C:\Users\SSBSPK\Downloads\test: 3 files processed
+2025-07-24 00:50:45,729 - __main__ - INFO - run_indexing:483 - Indexing completed successfully! Processed 3 files.
+2025-07-24 00:50:45,729 - __main__ - INFO - run_indexing:487 - Final database stats: {'folders': 1, 'files': 3, 'chunks': 15, 'file_types': {'.pdf': 1, '.txt': 2}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:50:46,263 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:46,263 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:50:46,263 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:50:48,564 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:50:48,565 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 3 indexed files
+2025-07-24 00:50:48,565 - __main__ - INFO - get_indexed_files:385 - Retrieved 3 indexed files
+2025-07-24 00:50:48,570 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:50:48,571 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 3 indexed files
+2025-07-24 00:50:48,571 - __main__ - INFO - get_indexed_files:385 - Retrieved 3 indexed files
+2025-07-24 00:50:50,596 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:50,596 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:50:50,596 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:50:50,598 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:50,598 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:50:50,598 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:50:51,799 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:50:51,841 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:50:51,848 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:50:51,848 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:50:54,192 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:50:54,192 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:50:59,327 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:59,328 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:50:59,328 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:50:59,330 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:50:59,330 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:50:59,330 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:51:20,786 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:51:20,786 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:51:20,786 - __main__ - INFO - index_folders:146 - Folders to index: ['D:\\DESKTOP\\SPK\\linkedin-extension-generate-email']
+2025-07-24 00:51:20,786 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:51:20,786 - __main__ - INFO - index_folders:158 - Valid folder: D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,788 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:51:20,788 - services.indexer - INFO - count_files:32 - Counting files in: D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,862 - services.indexer - INFO - count_files:41 - Found 25 supported files in D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,862 - __main__ - INFO - run_indexing:459 - Found 25 supported files in D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,862 - __main__ - INFO - run_indexing:462 - Total files to process: 25
+2025-07-24 00:51:20,862 - __main__ - INFO - run_indexing:472 - Processing folder: D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,862 - services.indexer - INFO - index_folder:52 - Starting to index folder: D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:51:20,870 - services.vector_store - INFO - add_folder:225 - Added folder to database: D:\DESKTOP\SPK\linkedin-extension-generate-email (ID: 2, Level: 0)
+2025-07-24 00:51:20,870 - services.indexer - INFO - index_folder:60 - Added folder to database with ID: 2
+2025-07-24 00:51:20,896 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\content.js
+2025-07-24 00:51:22,412 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\content.js with 5 chunks
+2025-07-24 00:51:22,412 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\manifest.json
+2025-07-24 00:51:22,614 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\manifest.json with 1 chunks
+2025-07-24 00:51:22,614 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\popup.html
+2025-07-24 00:51:22,863 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\popup.html with 1 chunks
+2025-07-24 00:51:22,863 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\popup.js
+2025-07-24 00:51:23,600 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\popup.js with 3 chunks
+2025-07-24 00:51:23,601 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:51:23,601 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:51:23,601 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:51:23,602 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\README.md
+2025-07-24 00:51:23,815 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v1\README.md with 1 chunks
+2025-07-24 00:51:23,815 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\background.js
+2025-07-24 00:51:24,357 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\background.js with 2 chunks
+2025-07-24 00:51:24,358 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\content.js
+2025-07-24 00:51:24,453 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\content.js with 1 chunks
+2025-07-24 00:51:24,462 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\manifest.json
+2025-07-24 00:51:25,169 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\manifest.json with 4 chunks
+2025-07-24 00:51:25,170 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\modules.xml
+2025-07-24 00:51:25,261 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\modules.xml with 1 chunks
+2025-07-24 00:51:25,273 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\vcs.xml
+2025-07-24 00:51:25,530 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\vcs.xml with 1 chunks
+2025-07-24 00:51:25,530 - __main__ - INFO - run_indexing:480 - Progress: 10/25 files processed (40%)
+2025-07-24 00:51:25,530 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\workspace.xml
+2025-07-24 00:51:26,986 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\.idea\workspace.xml with 4 chunks
+2025-07-24 00:51:26,987 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.css
+2025-07-24 00:51:26,990 - services.indexer - WARNING - _index_file:122 - No content extracted from D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.css
+2025-07-24 00:51:27,011 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.html
+2025-07-24 00:51:27,504 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.html with 2 chunks
+2025-07-24 00:51:27,505 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.js
+2025-07-24 00:51:28,443 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\popup\popup.js with 4 chunks
+2025-07-24 00:51:28,443 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.css
+2025-07-24 00:51:31,272 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.css with 13 chunks
+2025-07-24 00:51:31,273 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:51:31,273 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 18 indexed files
+2025-07-24 00:51:31,273 - __main__ - INFO - get_indexed_files:385 - Retrieved 18 indexed files
+2025-07-24 00:51:31,279 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.html
+2025-07-24 00:51:31,396 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.html with 1 chunks
+2025-07-24 00:51:31,396 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:51:31,396 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 19 indexed files
+2025-07-24 00:51:31,396 - __main__ - INFO - get_indexed_files:385 - Retrieved 19 indexed files
+2025-07-24 00:51:31,402 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.js
+2025-07-24 00:51:43,360 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\sidepanel\sidepanel.js with 49 chunks
+2025-07-24 00:51:43,360 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:51:43,362 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:51:43,362 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:51:43,362 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\api.js
+2025-07-24 00:51:43,698 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\api.js with 1 chunks
+2025-07-24 00:51:43,698 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\auth.js
+2025-07-24 00:51:44,307 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\auth.js with 4 chunks
+2025-07-24 00:51:44,309 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:51:44,310 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:51:44,310 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:51:44,310 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\emailPersonalizer.js
+2025-07-24 00:51:47,210 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\emailPersonalizer.js with 10 chunks
+2025-07-24 00:51:47,210 - __main__ - INFO - run_indexing:480 - Progress: 20/25 files processed (80%)
+2025-07-24 00:51:47,210 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:51:47,210 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 23 indexed files
+2025-07-24 00:51:47,210 - __main__ - INFO - get_indexed_files:385 - Retrieved 23 indexed files
+2025-07-24 00:51:47,214 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\emailValidator.js
+2025-07-24 00:51:47,294 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\emailValidator.js with 1 chunks
+2025-07-24 00:51:47,297 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:51:47,298 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 24 indexed files
+2025-07-24 00:51:47,298 - __main__ - INFO - get_indexed_files:385 - Retrieved 24 indexed files
+2025-07-24 00:51:47,299 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\introMessageGenerator.js
+2025-07-24 00:51:49,949 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\introMessageGenerator.js with 8 chunks
+2025-07-24 00:51:49,949 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\linkedinExtractor.js
+2025-07-24 00:51:50,623 - services.indexer - INFO - _index_file:143 - Successfully indexed D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\linkedinExtractor.js with 3 chunks
+2025-07-24 00:51:50,623 - services.indexer - INFO - index_folder:73 - Processing file: D:\DESKTOP\SPK\linkedin-extension-generate-email\extension_v2\utils\pdf.min.js
+2025-07-24 00:53:54,916 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 00:53:55,025 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 00:53:55,025 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 00:53:55,025 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 00:53:55,025 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 00:53:55,025 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 00:53:55,025 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 00:53:55,033 - services.vector_store - INFO - _create_tables:148 - Database tables created successfully
+2025-07-24 00:53:55,033 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 2, 'files': 27, 'chunks': 357, 'file_types': {'.css': 2, '.html': 3, '.js': 13, '.json': 2, '.md': 1, '.pdf': 1, '.txt': 2, '.xml': 3}, 'recent_files': [{'name': 'pdf.min.js', 'path': 'D:\\DESKTOP\\SPK\\linkedin-extension-generate-email\\extension_v2\\utils\\pdf.min.js'}, {'name': 'linkedinExtractor.js', 'path': 'D:\\DESKTOP\\SPK\\linkedin-extension-generate-email\\extension_v2\\utils\\linkedinExtractor.js'}, {'name': 'introMessageGenerator.js', 'path': 'D:\\DESKTOP\\SPK\\linkedin-extension-generate-email\\extension_v2\\utils\\introMessageGenerator.js'}, {'name': 'emailValidator.js', 'path': 'D:\\DESKTOP\\SPK\\linkedin-extension-generate-email\\extension_v2\\utils\\emailValidator.js'}, {'name': 'emailPersonalizer.js', 'path': 'D:\\DESKTOP\\SPK\\linkedin-extension-generate-email\\extension_v2\\utils\\emailPersonalizer.js'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:53:55,033 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 00:53:55,033 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 00:53:55,033 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 00:54:08,148 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 00:54:08,148 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 00:54:13,829 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 00:54:13,829 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 00:54:13,829 - services.indexer - INFO - __init__:25 -  FileIndexer initialized with supported extensions: {'.txt', '.yaml', '.py', '.pdf', '.json', '.yml', '.doc', '.rtf', '.js', '.xml', '.html', '.c', '.odt', '.docx', '.md', '.css'}
+2025-07-24 00:54:13,829 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 00:54:13,829 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 00:54:13,831 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 00:54:13,831 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 00:54:13,831 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 00:54:13,831 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 00:54:13,831 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:13,832 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 27 indexed files
+2025-07-24 00:54:13,832 - __main__ - INFO - lifespan:81 - Database status: 2 folders, 27 files indexed
+2025-07-24 00:54:13,832 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 00:54:13,832 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 00:54:15,566 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,623 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:15,623 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,623 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,649 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:15,649 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,649 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,738 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:15,738 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:15,738 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:54:22,271 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:22,271 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 27 indexed files
+2025-07-24 00:54:22,271 - __main__ - INFO - get_indexed_files:385 - Retrieved 27 indexed files
+2025-07-24 00:54:22,273 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:22,282 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 27 indexed files
+2025-07-24 00:54:22,282 - __main__ - INFO - get_indexed_files:385 - Retrieved 27 indexed files
+2025-07-24 00:54:23,431 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:23,431 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:23,431 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:54:23,432 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:23,432 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 2 indexed folders
+2025-07-24 00:54:23,432 - __main__ - INFO - get_indexed_folders:398 - Retrieved 2 indexed folders
+2025-07-24 00:54:32,962 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 2
+2025-07-24 00:54:32,966 - services.vector_store - INFO - remove_folder:643 - Removing folder: D:\DESKTOP\SPK\linkedin-extension-generate-email
+2025-07-24 00:54:33,036 - services.vector_store - INFO - remove_folder:646 - Folder removed successfully
+2025-07-24 00:54:33,037 - __main__ - INFO - remove_folder:411 - Folder 2 removed successfully
+2025-07-24 00:54:34,523 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:34,523 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 3 indexed files
+2025-07-24 00:54:34,523 - __main__ - INFO - get_indexed_files:385 - Retrieved 3 indexed files
+2025-07-24 00:54:34,536 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:34,536 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 3 indexed files
+2025-07-24 00:54:34,536 - __main__ - INFO - get_indexed_files:385 - Retrieved 3 indexed files
+2025-07-24 00:54:38,453 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:38,453 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:54:38,453 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:54:38,455 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:38,455 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:54:38,455 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:54:40,618 - __main__ - INFO - remove_folder:409 - Removing folder with ID: 1
+2025-07-24 00:54:40,618 - services.vector_store - INFO - remove_folder:643 - Removing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:40,665 - services.vector_store - INFO - remove_folder:646 - Folder removed successfully
+2025-07-24 00:54:40,666 - __main__ - INFO - remove_folder:411 - Folder 1 removed successfully
+2025-07-24 00:54:48,807 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 00:54:48,809 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 00:54:48,809 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 00:54:48,809 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 00:54:48,810 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,810 - __main__ - INFO - run_indexing:452 - Starting indexing process...
+2025-07-24 00:54:48,810 - services.indexer - INFO - count_files:32 - Counting files in: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,814 - services.indexer - INFO - count_files:41 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,814 - __main__ - INFO - run_indexing:459 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,814 - __main__ - INFO - run_indexing:462 - Total files to process: 5
+2025-07-24 00:54:48,814 - __main__ - INFO - run_indexing:472 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,814 - services.indexer - INFO - index_folder:52 - Starting to index folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 00:54:48,861 - services.vector_store - INFO - add_folder:225 - Added folder to database: C:\Users\SSBSPK\Downloads\test (ID: 3, Level: 0)
+2025-07-24 00:54:48,861 - services.indexer - INFO - index_folder:60 - Added folder to database with ID: 3
+2025-07-24 00:54:48,861 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf
+2025-07-24 00:54:52,035 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf with 13 chunks
+2025-07-24 00:54:52,036 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t1.txt
+2025-07-24 00:54:52,094 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t1.txt with 1 chunks
+2025-07-24 00:54:52,113 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t2.txt
+2025-07-24 00:54:52,194 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t2.txt with 1 chunks
+2025-07-24 00:54:52,198 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t1.txt
+2025-07-24 00:54:52,462 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t1.txt with 1 chunks
+2025-07-24 00:54:52,462 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t2.txt
+2025-07-24 00:54:52,656 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t2.txt with 1 chunks
+2025-07-24 00:54:52,656 - services.indexer - INFO - index_folder:92 - Completed indexing folder C:\Users\SSBSPK\Downloads\test: 5 files processed
+2025-07-24 00:54:52,656 - __main__ - INFO - run_indexing:483 - Indexing completed successfully! Processed 5 files.
+2025-07-24 00:54:52,658 - __main__ - INFO - run_indexing:487 - Final database stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 00:54:53,153 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:54:53,153 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:54:53,153 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:54:54,685 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:54,686 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 00:54:54,686 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 00:54:54,691 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:54:54,691 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 00:54:54,691 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 00:55:06,581 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:55:06,581 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:55:06,581 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:55:06,581 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:55:18,833 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 00:55:18,833 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 00:55:23,835 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:55:23,835 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:55:23,836 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:55:23,840 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 00:55:23,840 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 00:55:23,840 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 00:55:24,455 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:55:24,455 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 00:55:24,455 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 00:55:24,465 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 00:55:24,465 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 00:55:24,465 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 20:17:00,001 - __main__ - INFO - main:542 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 20:17:00,480 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 20:17:00,480 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 20:17:00,480 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 20:17:00,480 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 20:17:00,480 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 20:17:00,501 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 20:17:00,509 - services.vector_store - INFO - _create_tables:148 - Database tables created successfully
+2025-07-24 20:17:00,509 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 20:17:00,509 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 20:17:00,509 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 20:17:00,509 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 20:18:43,461 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 20:18:43,461 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 20:18:51,160 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 20:18:51,160 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 20:18:51,170 - services.indexer - INFO - __init__:25 -  FileIndexer initialized with supported extensions: {'.rtf', '.py', '.pdf', '.xml', '.html', '.md', '.css', '.js', '.yaml', '.c', '.doc', '.odt', '.json', '.yml', '.docx', '.txt'}
+2025-07-24 20:18:51,170 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 20:18:51,170 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 20:18:51,170 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 20:18:51,170 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 20:18:51,170 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 20:18:51,170 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 20:18:51,172 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,172 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:18:51,172 - __main__ - INFO - lifespan:81 - Database status: 1 folders, 5 files indexed
+2025-07-24 20:18:51,172 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 20:18:51,172 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 20:18:51,313 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,384 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:18:51,385 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,385 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,395 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:18:51,399 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,399 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,509 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:18:51,510 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:18:51,510 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:20:36,931 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 20:20:36,932 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:20:36,932 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 20:20:37,017 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 20:20:37,017 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:20:37,019 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 20:20:38,040 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:20:38,040 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:20:38,040 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:20:38,044 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:20:38,045 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:20:38,045 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:20:38,063 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:20:38,065 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:20:38,065 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:21:34,241 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 20:21:34,241 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:21:34,241 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 20:21:34,248 - __main__ - INFO - get_indexed_files:383 - Getting indexed files list...
+2025-07-24 20:21:34,248 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:21:34,248 - __main__ - INFO - get_indexed_files:385 - Retrieved 5 indexed files
+2025-07-24 20:22:35,238 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:22:35,238 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:22:35,238 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:22:35,242 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:22:35,242 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:22:35,242 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:22:36,858 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:22:36,858 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:22:36,862 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:22:36,862 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:22:37,682 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:22:37,682 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:22:37,682 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:22:37,686 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:22:37,688 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:22:37,688 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:22:56,955 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:22:56,955 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:22:56,956 - __main__ - INFO - get_folder_hierarchy:313 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:22:56,956 - __main__ - INFO - get_folder_hierarchy:315 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:23:31,374 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:23:31,374 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:23:31,374 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:23:31,374 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:23:31,374 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:23:31,374 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:23:31,402 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:23:31,402 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:23:31,402 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,948 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:24:23,948 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,948 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,955 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:24:23,955 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,955 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,994 - __main__ - INFO - get_indexed_folders:396 - Getting indexed folders list...
+2025-07-24 20:24:23,995 - services.vector_store - INFO - get_indexed_folders:627 - Retrieved 1 indexed folders
+2025-07-24 20:24:23,995 - __main__ - INFO - get_indexed_folders:398 - Retrieved 1 indexed folders
+2025-07-24 20:40:21,687 - __main__ - INFO - main:545 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 20:40:21,828 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 20:40:21,828 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 20:40:21,828 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 20:40:21,828 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 20:40:21,828 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 20:40:21,828 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 20:40:21,831 - services.vector_store - INFO - _create_tables:148 - Database tables created successfully
+2025-07-24 20:40:21,831 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 20:40:21,832 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 20:40:21,832 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 20:40:21,832 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 20:40:39,031 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 20:40:39,031 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 20:40:46,422 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 20:40:46,435 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 20:40:46,435 - services.indexer - INFO - __init__:25 -  FileIndexer initialized with supported extensions: {'.css', '.yaml', '.txt', '.yml', '.doc', '.md', '.rtf', '.py', '.xml', '.odt', '.docx', '.json', '.pdf', '.c', '.js', '.html'}
+2025-07-24 20:40:46,435 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 20:40:46,435 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 20:40:46,435 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 20:40:46,435 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 20:40:46,435 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 20:40:46,435 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 20:40:46,490 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:46,490 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:40:46,494 - __main__ - INFO - lifespan:81 - Database status: 1 folders, 5 files indexed
+2025-07-24 20:40:46,494 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 20:40:46,494 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 20:40:46,599 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:46,725 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:46,729 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:46,729 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:46,789 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:46,789 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:46,789 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:46,862 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:46,862 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:46,862 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:50,411 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:50,411 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:50,411 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:50,416 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:50,416 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:50,416 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:51,922 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:40:51,922 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:40:51,927 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:40:51,927 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:40:53,291 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:53,291 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:53,291 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:53,294 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:40:53,294 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:40:53,294 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:40:56,389 - __main__ - INFO - remove_folder:412 - Removing folder with ID: 3
+2025-07-24 20:40:56,389 - services.vector_store - INFO - remove_folder:666 - Removing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:40:56,417 - services.vector_store - INFO - remove_folder:669 - Folder removed successfully
+2025-07-24 20:40:56,417 - __main__ - INFO - remove_folder:414 - Folder 3 removed successfully
+2025-07-24 20:41:03,018 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 20:41:03,018 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 20:41:03,018 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 20:41:03,018 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 20:41:03,018 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,018 - __main__ - INFO - run_indexing:455 - Starting indexing process...
+2025-07-24 20:41:03,018 - services.indexer - INFO - count_files:32 - Counting files in: C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,018 - services.indexer - INFO - count_files:41 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,018 - __main__ - INFO - run_indexing:462 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,018 - __main__ - INFO - run_indexing:465 - Total files to process: 5
+2025-07-24 20:41:03,018 - __main__ - INFO - run_indexing:475 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,018 - services.indexer - INFO - index_folder:52 - Starting to index folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 20:41:03,029 - services.vector_store - INFO - add_folder:225 - Added folder to database: C:\Users\SSBSPK\Downloads\test (ID: 4, Level: 0)
+2025-07-24 20:41:03,029 - services.indexer - INFO - index_folder:60 - Added folder to database with ID: 4
+2025-07-24 20:41:03,029 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf
+2025-07-24 20:41:06,391 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf with 13 chunks
+2025-07-24 20:41:06,391 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t1.txt
+2025-07-24 20:41:06,544 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t1.txt with 1 chunks
+2025-07-24 20:41:06,544 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t2.txt
+2025-07-24 20:41:06,701 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t2.txt with 1 chunks
+2025-07-24 20:41:06,702 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t1.txt
+2025-07-24 20:41:06,894 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t1.txt with 1 chunks
+2025-07-24 20:41:06,894 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t2.txt
+2025-07-24 20:41:07,106 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t2.txt with 1 chunks
+2025-07-24 20:41:07,106 - services.indexer - INFO - index_folder:92 - Completed indexing folder C:\Users\SSBSPK\Downloads\test: 5 files processed
+2025-07-24 20:41:07,106 - __main__ - INFO - run_indexing:486 - Indexing completed successfully! Processed 5 files.
+2025-07-24 20:41:07,106 - __main__ - INFO - run_indexing:490 - Final database stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 20:41:07,397 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:41:07,399 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:41:07,401 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:41:09,340 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 20:41:09,340 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:41:09,340 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 20:41:09,345 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 20:41:09,346 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:41:09,346 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 20:41:12,058 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:41:12,058 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:41:12,060 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:41:12,060 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:41:32,078 - __main__ - INFO - query_with_llm:230 - ==================================================
+2025-07-24 20:41:32,078 - __main__ - INFO - query_with_llm:231 - QUERY REQUEST RECEIVED
+2025-07-24 20:41:32,078 - __main__ - INFO - query_with_llm:232 - Question: 'what is inheritance?'
+2025-07-24 20:41:32,078 - __main__ - INFO - query_with_llm:233 - ==================================================
+2025-07-24 20:41:32,079 - __main__ - INFO - query_with_llm:240 - Database stats: 5 files, 17 chunks
+2025-07-24 20:41:32,079 - __main__ - INFO - query_with_llm:251 - Searching for relevant content...
+2025-07-24 20:41:32,079 - services.vector_store - INFO - search:467 - Starting search for: 'what is inheritance?' (threshold: 0.5, limit: 20)
+2025-07-24 20:41:32,079 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 20:41:32,080 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 20:41:32,080 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 20:41:35,390 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 20:41:35,390 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 20:41:35,450 - services.vector_store - INFO - search:493 - Searching through 17 document chunks
+2025-07-24 20:41:35,455 - services.vector_store - INFO - search:532 - Search completed: 17 similarities calculated, 0 results above threshold
+2025-07-24 20:41:35,455 - services.vector_store - WARNING - search:535 - No results found above threshold 0.5
+2025-07-24 20:41:35,456 - services.vector_store - INFO - search:549 - Sample similarities: []
+2025-07-24 20:41:35,456 - __main__ - INFO - query_with_llm:258 - Found 0 relevant documents
+2025-07-24 20:41:35,457 - __main__ - INFO - query_with_llm:262 - Trying broader search with lower threshold...
+2025-07-24 20:41:35,457 - services.vector_store - INFO - search:467 - Starting search for: 'what is inheritance?' (threshold: 0.05, limit: 10)
+2025-07-24 20:41:35,457 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 20:41:35,466 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 20:41:35,466 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 20:41:38,735 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 20:41:38,735 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 20:41:38,777 - services.vector_store - INFO - search:493 - Searching through 17 document chunks
+2025-07-24 20:41:38,785 - services.vector_store - INFO - search:532 - Search completed: 17 similarities calculated, 17 results above threshold
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:268 - Broader search found 10 documents
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 1: Inheritance-updated.pdf (score: 0.453)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 2: Inheritance-updated.pdf (score: 0.431)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 3: Inheritance-updated.pdf (score: 0.410)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 4: Inheritance-updated.pdf (score: 0.410)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 5: Inheritance-updated.pdf (score: 0.383)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 6: Inheritance-updated.pdf (score: 0.339)
+2025-07-24 20:41:38,785 - __main__ - INFO - query_with_llm:280 -   Result 7: Inheritance-updated.pdf (score: 0.323)
+2025-07-24 20:41:38,791 - __main__ - INFO - query_with_llm:280 -   Result 8: Inheritance-updated.pdf (score: 0.320)
+2025-07-24 20:41:38,791 - __main__ - INFO - query_with_llm:280 -   Result 9: Inheritance-updated.pdf (score: 0.315)
+2025-07-24 20:41:38,791 - __main__ - INFO - query_with_llm:280 -   Result 10: Inheritance-updated.pdf (score: 0.311)
+2025-07-24 20:41:38,791 - __main__ - INFO - query_with_llm:284 - Generating AI response...
+2025-07-24 20:41:41,432 - httpx - INFO - _send_single_request:1729 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCFJwznrdGEZyaQzVlTdkbH6I9yVznWPYM "HTTP/1.1 200 OK"
+2025-07-24 20:41:41,476 - __main__ - INFO - query_with_llm:288 - AI response generated successfully
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:230 - ==================================================
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:231 - QUERY REQUEST RECEIVED
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:232 - Question: 'provide an example of inheritance'
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:233 - ==================================================
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:240 - Database stats: 5 files, 17 chunks
+2025-07-24 20:42:19,165 - __main__ - INFO - query_with_llm:251 - Searching for relevant content...
+2025-07-24 20:42:19,181 - services.vector_store - INFO - search:467 - Starting search for: 'provide an example of inheritance' (threshold: 0.5, limit: 20)
+2025-07-24 20:42:19,181 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 20:42:19,181 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 20:42:19,181 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 20:42:22,685 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 20:42:22,685 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 20:42:22,764 - services.vector_store - INFO - search:493 - Searching through 17 document chunks
+2025-07-24 20:42:22,764 - services.vector_store - INFO - search:532 - Search completed: 17 similarities calculated, 1 results above threshold
+2025-07-24 20:42:22,764 - __main__ - INFO - query_with_llm:258 - Found 1 relevant documents
+2025-07-24 20:42:22,764 - __main__ - INFO - query_with_llm:280 -   Result 1: Inheritance-updated.pdf (score: 0.522)
+2025-07-24 20:42:22,764 - __main__ - INFO - query_with_llm:284 - Generating AI response...
+2025-07-24 20:42:24,987 - httpx - INFO - _send_single_request:1729 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCFJwznrdGEZyaQzVlTdkbH6I9yVznWPYM "HTTP/1.1 200 OK"
+2025-07-24 20:42:24,989 - __main__ - INFO - query_with_llm:288 - AI response generated successfully
+2025-07-24 20:48:06,305 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:48:06,305 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:48:06,313 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:48:06,313 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:48:10,836 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:48:10,836 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:48:10,837 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:48:10,842 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 20:48:10,842 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 20:48:10,842 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 20:48:15,031 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:48:15,032 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:48:15,035 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 20:48:15,035 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 20:58:42,101 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 20:58:42,101 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:58:42,101 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 20:58:42,101 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 20:58:42,101 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 20:58:42,101 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:27:29,535 - __main__ - INFO - main:545 - Starting SmartFile AI Backend on 127.0.0.1:8000
+2025-07-24 21:27:29,578 - __main__ - INFO - lifespan:56 - ==================================================
+2025-07-24 21:27:29,578 - __main__ - INFO - lifespan:57 - STARTING SMARTFILE AI BACKEND
+2025-07-24 21:27:29,578 - __main__ - INFO - lifespan:58 - ==================================================
+2025-07-24 21:27:29,578 - __main__ - INFO - lifespan:61 - Initializing vector store...
+2025-07-24 21:27:29,578 - services.vector_store - INFO - initialize:21 - Initializing database at: D:\DOWNLOADS\smartfile-ai\smartfile_ai.db
+2025-07-24 21:27:29,594 - services.vector_store - INFO - _create_tables:45 - Creating database tables...
+2025-07-24 21:27:29,594 - services.vector_store - INFO - _create_tables:148 - Database tables created successfully
+2025-07-24 21:27:29,594 - services.vector_store - INFO - initialize:33 - Database initialized with stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 21:27:29,594 - __main__ - INFO - lifespan:64 - Vector store initialized successfully
+2025-07-24 21:27:29,594 - __main__ - INFO - lifespan:66 - Initializing file indexer...
+2025-07-24 21:27:29,594 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 21:27:39,627 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 21:27:39,627 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 21:27:44,463 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 21:27:44,463 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 21:27:44,463 - services.indexer - INFO - __init__:25 -  FileIndexer initialized with supported extensions: {'.js', '.rtf', '.json', '.pdf', '.txt', '.doc', '.xml', '.py', '.yaml', '.odt', '.c', '.css', '.md', '.html', '.yml', '.docx'}
+2025-07-24 21:27:44,463 - __main__ - INFO - lifespan:68 - File indexer initialized successfully
+2025-07-24 21:27:44,463 - __main__ - INFO - lifespan:70 - Initializing LLM client...
+2025-07-24 21:27:44,463 - services.llm_client - INFO - __init__:32 - Gemini API key loaded successfully
+2025-07-24 21:27:44,463 - __main__ - INFO - lifespan:72 - LLM client initialized successfully
+2025-07-24 21:27:44,463 - __main__ - INFO - lifespan:74 - Initializing file organiser...
+2025-07-24 21:27:44,463 - __main__ - INFO - lifespan:76 - File organiser initialized successfully
+2025-07-24 21:27:44,464 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:44,464 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:27:44,464 - __main__ - INFO - lifespan:81 - Database status: 1 folders, 5 files indexed
+2025-07-24 21:27:44,464 - __main__ - INFO - lifespan:83 - SmartFile AI Backend started successfully!
+2025-07-24 21:27:44,464 - __main__ - INFO - lifespan:84 - ==================================================
+2025-07-24 21:27:44,738 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:44,756 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:44,756 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:44,756 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:27:44,765 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:44,765 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:44,765 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:27:44,801 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:44,801 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:44,802 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:27:46,947 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:27:46,948 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:27:46,948 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:27:46,949 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:27:46,949 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:27:46,949 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:27:47,763 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:47,763 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:47,764 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:27:47,764 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:47,764 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:47,764 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:27:51,059 - __main__ - INFO - remove_folder:412 - Removing folder with ID: 4
+2025-07-24 21:27:51,060 - services.vector_store - INFO - remove_folder:666 - Removing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:51,069 - services.vector_store - INFO - remove_folder:669 - Folder removed successfully
+2025-07-24 21:27:51,070 - __main__ - INFO - remove_folder:414 - Folder 4 removed successfully
+2025-07-24 21:27:55,861 - __main__ - INFO - index_folders:144 - ==================================================
+2025-07-24 21:27:55,861 - __main__ - INFO - index_folders:145 - INDEXING REQUEST RECEIVED
+2025-07-24 21:27:55,861 - __main__ - INFO - index_folders:146 - Folders to index: ['C:\\Users\\SSBSPK\\Downloads\\test']
+2025-07-24 21:27:55,861 - __main__ - INFO - index_folders:147 - ==================================================
+2025-07-24 21:27:55,861 - __main__ - INFO - index_folders:158 - Valid folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,861 - __main__ - INFO - run_indexing:455 - Starting indexing process...
+2025-07-24 21:27:55,861 - services.indexer - INFO - count_files:32 - Counting files in: C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,861 - services.indexer - INFO - count_files:41 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,861 - __main__ - INFO - run_indexing:462 - Found 5 supported files in C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,861 - __main__ - INFO - run_indexing:465 - Total files to process: 5
+2025-07-24 21:27:55,861 - __main__ - INFO - run_indexing:475 - Processing folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,861 - services.indexer - INFO - index_folder:52 - Starting to index folder: C:\Users\SSBSPK\Downloads\test
+2025-07-24 21:27:55,912 - services.vector_store - INFO - add_folder:225 - Added folder to database: C:\Users\SSBSPK\Downloads\test (ID: 5, Level: 0)
+2025-07-24 21:27:55,912 - services.indexer - INFO - index_folder:60 - Added folder to database with ID: 5
+2025-07-24 21:27:55,912 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf
+2025-07-24 21:27:58,243 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\Inheritance-updated.pdf with 13 chunks
+2025-07-24 21:27:58,259 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t1.txt
+2025-07-24 21:27:58,309 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t1.txt with 1 chunks
+2025-07-24 21:27:58,326 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\t2.txt
+2025-07-24 21:27:58,383 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\t2.txt with 1 chunks
+2025-07-24 21:27:58,383 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t1.txt
+2025-07-24 21:27:58,477 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t1.txt with 1 chunks
+2025-07-24 21:27:58,484 - services.indexer - INFO - index_folder:73 - Processing file: C:\Users\SSBSPK\Downloads\test\text\t2.txt
+2025-07-24 21:27:58,679 - services.indexer - INFO - _index_file:143 - Successfully indexed C:\Users\SSBSPK\Downloads\test\text\t2.txt with 1 chunks
+2025-07-24 21:27:58,679 - services.indexer - INFO - index_folder:92 - Completed indexing folder C:\Users\SSBSPK\Downloads\test: 5 files processed
+2025-07-24 21:27:58,679 - __main__ - INFO - run_indexing:486 - Indexing completed successfully! Processed 5 files.
+2025-07-24 21:27:58,679 - __main__ - INFO - run_indexing:490 - Final database stats: {'folders': 1, 'files': 5, 'chunks': 17, 'file_types': {'.pdf': 1, '.txt': 4}, 'recent_files': [{'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\text\\t1.txt'}, {'name': 't2.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t2.txt'}, {'name': 't1.txt', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\t1.txt'}, {'name': 'Inheritance-updated.pdf', 'path': 'C:\\Users\\SSBSPK\\Downloads\\test\\Inheritance-updated.pdf'}], 'database_path': 'D:\\DOWNLOADS\\smartfile-ai\\smartfile_ai.db'}
+2025-07-24 21:27:59,277 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:27:59,331 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:27:59,331 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:28:00,715 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:28:00,715 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:28:00,716 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:28:00,716 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:28:00,716 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:28:00,716 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:28:04,761 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:28:04,762 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:28:04,762 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:28:04,762 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:28:06,918 - __main__ - INFO - analyze_folder_for_organisation:328 - Analyzing folder 5 for organization
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:227 - ==================================================
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:228 - QUERY REQUEST RECEIVED
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:229 - Question: 'what is inheritance? explain with an example'
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:230 - ==================================================
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:237 - Database stats: 5 files, 17 chunks
+2025-07-24 21:28:39,718 - __main__ - INFO - query_with_llm:248 - Searching for relevant content...
+2025-07-24 21:28:39,733 - services.vector_store - INFO - search:467 - Starting search for: 'what is inheritance? explain with an example' (threshold: 0.1, limit: 10)
+2025-07-24 21:28:39,733 - services.embedding_service - INFO - _load_model:73 - Loading embedding model: all-MiniLM-L6-v2
+2025-07-24 21:28:39,733 - sentence_transformers.SentenceTransformer - INFO - __init__:219 - Use pytorch device_name: cpu
+2025-07-24 21:28:39,733 - sentence_transformers.SentenceTransformer - INFO - __init__:227 - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-24 21:28:42,700 - services.embedding_service - INFO - _load_model:87 - Embedding model loaded successfully
+2025-07-24 21:28:42,700 - services.embedding_service - INFO - _load_model:88 - Model info: all-MiniLM-L6-v2, embedding dimension: 384
+2025-07-24 21:28:42,746 - services.vector_store - INFO - search:493 - Searching through 17 document chunks
+2025-07-24 21:28:42,746 - services.vector_store - INFO - search:532 - Search completed: 17 similarities calculated, 13 results above threshold
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:255 - Found 10 relevant documents
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 1: Inheritance-updated.pdf (score: 0.531)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 2: Inheritance-updated.pdf (score: 0.468)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 3: Inheritance-updated.pdf (score: 0.455)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 4: Inheritance-updated.pdf (score: 0.435)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 5: Inheritance-updated.pdf (score: 0.424)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 6: Inheritance-updated.pdf (score: 0.404)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 7: Inheritance-updated.pdf (score: 0.361)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 8: Inheritance-updated.pdf (score: 0.357)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 9: Inheritance-updated.pdf (score: 0.357)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:277 -   Result 10: Inheritance-updated.pdf (score: 0.338)
+2025-07-24 21:28:42,746 - __main__ - INFO - query_with_llm:281 - Generating AI response...
+2025-07-24 21:28:46,460 - httpx - INFO - _send_single_request:1729 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCFJwznrdGEZyaQzVlTdkbH6I9yVznWPYM "HTTP/1.1 200 OK"
+2025-07-24 21:28:46,460 - __main__ - INFO - query_with_llm:285 - AI response generated successfully
+2025-07-24 21:29:08,009 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:08,009 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:08,011 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:08,011 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:09,940 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:09,941 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:09,941 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:09,942 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:09,942 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:09,942 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:10,790 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:10,790 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:10,793 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:10,793 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:13,732 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:13,733 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:13,733 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:13,733 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:14,770 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:14,771 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:14,771 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:14,771 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:14,771 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:14,771 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:16,369 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:29:16,369 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:29:16,369 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:29:16,369 - __main__ - INFO - get_indexed_files:386 - Getting indexed files list...
+2025-07-24 21:29:16,369 - services.vector_store - INFO - get_indexed_files:593 - Retrieved 5 indexed files
+2025-07-24 21:29:16,369 - __main__ - INFO - get_indexed_files:388 - Retrieved 5 indexed files
+2025-07-24 21:29:30,633 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:30,633 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:30,633 - __main__ - INFO - get_folder_hierarchy:316 - Getting folder hierarchy (root_id: None)
+2025-07-24 21:29:30,633 - __main__ - INFO - get_folder_hierarchy:318 - Retrieved hierarchy with 1 root folders
+2025-07-24 21:29:33,336 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:33,336 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:33,336 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:33,344 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:33,344 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:33,344 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders
+2025-07-24 21:29:33,353 - __main__ - INFO - get_indexed_folders:399 - Getting indexed folders list...
+2025-07-24 21:29:33,354 - services.vector_store - INFO - get_indexed_folders:649 - Retrieved and updated 1 root folders with recursive file counts.
+2025-07-24 21:29:33,354 - __main__ - INFO - get_indexed_folders:401 - Retrieved 1 indexed folders

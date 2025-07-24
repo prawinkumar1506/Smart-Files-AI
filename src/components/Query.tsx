@@ -1,170 +1,9 @@
-// "use client"
-//
-// import type React from "react"
-// import { useState } from "react"
-// import { MessageSquare, Send, FileText, ExternalLink, RefreshCw } from "lucide-react"
-// import { ApiService } from "../services/api"
-//
-// interface QuerySource {
-//   file_path: string
-//   content_preview: string
-//   similarity_score: number
-// }
-//
-// interface QueryResponse {
-//   success: boolean
-//   answer: string
-//   sources: QuerySource[]
-// }
-//
-// const Query: React.FC = () => {
-//   const [question, setQuestion] = useState("")
-//   const [response, setResponse] = useState<QueryResponse | null>(null)
-//   const [isQuerying, setIsQuerying] = useState(false)
-//   const [history, setHistory] = useState<Array<{ question: string; response: QueryResponse }>>([])
-//
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault()
-//
-//     if (!question.trim() || isQuerying) return
-//
-//     const currentQuestion = question.trim()
-//     setIsQuerying(true)
-//
-//     try {
-//       const result = await ApiService.queryWithLLM({
-//         question: currentQuestion,
-//       })
-//
-//       setResponse(result)
-//       setHistory((prev) => [...prev, { question: currentQuestion, response: result }])
-//       setQuestion("") // Clear the input after successful submission
-//     } catch (error) {
-//       console.error("Query error:", error)
-//       setResponse({
-//         success: false,
-//         answer:
-//             "Sorry, there was an error processing your question. Please check that your folders are indexed and try again.",
-//         sources: [],
-//       })
-//     } finally {
-//       setIsQuerying(false)
-//     }
-//   }
-//
-//   const handleNewQuery = () => {
-//     setResponse(null)
-//     setQuestion("")
-//   }
-//
-//   const openFile = (filePath: string) => {
-//     console.log("Opening file:", filePath)
-//   }
-//
-//   return (
-//       <div className="query-page">
-//         <div className="query-header">
-//           <h1>Ask Questions</h1>
-//           <p>Get AI-powered answers based on your indexed files</p>
-//           {response && (
-//               <button className="new-query-btn" onClick={handleNewQuery}>
-//                 <RefreshCw size={16} />
-//                 New Query
-//               </button>
-//           )}
-//         </div>
-//
-//         <form onSubmit={handleSubmit} className="query-form">
-//           <div className="query-input-container">
-//             <MessageSquare size={20} className="query-icon" />
-//             <textarea
-//                 value={question}
-//                 onChange={(e) => setQuestion(e.target.value)}
-//                 placeholder="Ask a question about your files... (e.g., 'What files are in the certificate folder?')"
-//                 className="query-input"
-//                 rows={3}
-//                 disabled={isQuerying}
-//             />
-//             <button type="submit" className="query-button" disabled={isQuerying || !question.trim()}>
-//               <Send size={16} />
-//               {isQuerying ? "Thinking..." : "Ask"}
-//             </button>
-//           </div>
-//         </form>
-//
-//         {isQuerying && (
-//             <div className="querying-status">
-//               <RefreshCw className="spinning" size={20} />
-//               <p>Searching through your files and generating an answer...</p>
-//             </div>
-//         )}
-//
-//         {response && (
-//             <div className="query-response">
-//               <div className="answer-section">
-//                 <h3>Answer</h3>
-//                 <div className="answer-content">
-//                   <p>{response.answer}</p>
-//                 </div>
-//               </div>
-//
-//               {response.sources && response.sources.length > 0 && (
-//                   <div className="sources-section">
-//                     <h3>Sources ({response.sources.length} files found)</h3>
-//                     <div className="sources-list">
-//                       {response.sources.map((source, index) => (
-//                           <div key={index} className="source-item">
-//                             <div className="source-header">
-//                               <FileText size={16} />
-//                               <span className="source-path">{source.file_path}</span>
-//                               <span className="source-score">{Math.round(source.similarity_score * 100)}% relevant</span>
-//                               <button className="open-source-btn" onClick={() => openFile(source.file_path)}>
-//                                 <ExternalLink size={14} />
-//                               </button>
-//                             </div>
-//                             <div className="source-preview">
-//                               <p>{source.content_preview}</p>
-//                             </div>
-//                           </div>
-//                       ))}
-//                     </div>
-//                   </div>
-//               )}
-//             </div>
-//         )}
-//
-//         {history.length > 0 && (
-//             <div className="query-history">
-//               <h3>Recent Questions</h3>
-//               <div className="history-list">
-//                 {history
-//                     .slice(-5)
-//                     .reverse()
-//                     .map((item, index) => (
-//                         <div key={index} className="history-item">
-//                           <div className="history-question">
-//                             <MessageSquare size={16} />
-//                             <span>{item.question}</span>
-//                           </div>
-//                           <div className="history-answer">
-//                             <p>{item.response.answer.substring(0, 150)}...</p>
-//                           </div>
-//                         </div>
-//                     ))}
-//               </div>
-//             </div>
-//         )}
-//       </div>
-//   )
-// }
-//
-// export default Query
-
 "use client"
 
-import type React from "react"
-import { useState } from "react"
-import { MessageSquare, Send, FileText, ExternalLink, RefreshCw, FolderOpen } from "lucide-react"
+import React, { useState, useEffect, useRef } from "react"
+import { MessageSquare, Send, FileText, RefreshCw, ThumbsUp, ThumbsDown, Bot, User, ExternalLink, FolderOpen } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { ApiService } from "../services/api"
 
 interface QuerySource {
@@ -173,50 +12,57 @@ interface QuerySource {
   similarity_score: number
 }
 
-interface QueryResponse {
-  success: boolean
-  answer: string
-  sources: QuerySource[]
+interface Message {
+  type: "user" | "ai"
+  text: string
+  sources?: QuerySource[]
 }
 
 const Query: React.FC = () => {
-  const [question, setQuestion] = useState("")
-  const [response, setResponse] = useState<QueryResponse | null>(null)
+  const [input, setInput] = useState("")
+  const [messages, setMessages] = useState<Message[]>([])
   const [isQuerying, setIsQuerying] = useState(false)
-  const [history, setHistory] = useState<Array<{ question: string; response: QueryResponse }>>([])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const storedMessages = localStorage.getItem("chatHistory")
+    if (storedMessages) {
+      setMessages(JSON.parse(storedMessages))
+    }
+  }, [])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    localStorage.setItem("chatHistory", JSON.stringify(messages))
+  }, [messages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!input.trim() || isQuerying) return
 
-    if (!question.trim() || isQuerying) return
-
-    const currentQuestion = question.trim()
+    const userMessage: Message = { type: "user", text: input.trim() }
+    setMessages((prev) => [...prev, userMessage])
+    setInput("")
     setIsQuerying(true)
 
     try {
-      const result = await ApiService.queryWithLLM({
-        question: currentQuestion,
-      })
-
-      setResponse(result)
-      setHistory((prev) => [...prev, { question: currentQuestion, response: result }])
-      setQuestion("") // Clear the input after successful submission
+      const result = await ApiService.queryWithLLM({ question: userMessage.text })
+      const aiMessage: Message = {
+        type: "ai",
+        text: result.answer,
+        sources: result.sources,
+      }
+      setMessages((prev) => [...prev, aiMessage])
     } catch (error) {
       console.error("Query error:", error)
-      setResponse({
-        success: false,
-        answer:
-            "Sorry, there was an error processing your question. Please check that your folders are indexed and try again.",
-        sources: [],
-      })
+      const errorMessage: Message = {
+        type: "ai",
+        text: "Sorry, there was an error processing your question. Please try again.",
+      }
+      setMessages((prev) => [...prev, errorMessage])
     } finally {
       setIsQuerying(false)
     }
-  }
-
-  const handleNewQuery = () => {
-    setResponse(null)
-    setQuestion("")
   }
 
   const openFile = async (filePath: string) => {
@@ -254,106 +100,83 @@ const Query: React.FC = () => {
   }
 
   return (
-      <div className="query-page">
-        <div className="query-header">
-          <div>
-            <h1>Ask Questions</h1>
-            <p>Get AI-powered answers based on your indexed files</p>
-          </div>
-          {response && (
-              <button className="new-query-btn" onClick={handleNewQuery}>
-                <RefreshCw size={16} />
-                New Query
-              </button>
-          )}
-        </div>
-
-        <form onSubmit={handleSubmit} className="query-form">
-          <div className="query-input-container">
-            <MessageSquare size={20} className="query-icon" />
-            <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask a question about your files... (e.g., 'What files are in the certificate folder?')"
-                className="query-input"
-                rows={3}
-                disabled={isQuerying}
-            />
-            <button type="submit" className="query-button" disabled={isQuerying || !question.trim()}>
-              <Send size={16} />
-              {isQuerying ? "Thinking..." : "Ask"}
-            </button>
-          </div>
-        </form>
-
-        {isQuerying && (
-            <div className="querying-status">
-              <RefreshCw className="spinning" size={20} />
-              <p>Searching through your files and generating an answer...</p>
+    <div className="chat-page">
+      <div className="chat-header">
+        <h1>Ask Questions</h1>
+        <p>Get AI-powered answers from your indexed files</p>
+      </div>
+      <div className="chat-messages">
+        {messages.map((msg, index) => (
+          <div key={index} className={`chat-message ${msg.type}`}>
+            <div className="message-avatar">
+              {msg.type === "user" ? <User size={24} /> : <Bot size={24} />}
             </div>
-        )}
-
-        {response && (
-            <div className="query-response">
-              <div className="answer-section">
-                <h3>Answer</h3>
-                <div className="answer-content">
-                  <p>{response.answer}</p>
+            <div className="message-content">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+              {msg.sources && msg.sources.length > 0 && (
+                <div className="message-sources">
+                  <h4>Sources:</h4>
+                  <ul>
+                    {msg.sources.map((source, i) => (
+                      <li key={i}>
+                        <FileText size={14} />
+                        <span>{source.file_path}</span>
+                        <span className="relevance">
+                          ({Math.round(source.similarity_score * 100)}% relevant)
+                        </span>
+                        <div className="source-actions">
+                          <button className="open-source-btn" onClick={() => openFile(source.file_path)}>
+                            <ExternalLink size={14} />
+                          </button>
+                          <button className="show-folder-btn" onClick={() => showInFolder(source.file_path)}>
+                            <FolderOpen size={14} />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-
-              {response.sources && response.sources.length > 0 && (
-                  <div className="sources-section">
-                    <h3>Sources ({response.sources.length} files found)</h3>
-                    <div className="sources-list">
-                      {response.sources.map((source, index) => (
-                          <div key={index} className="source-item">
-                            <div className="source-header">
-                              <FileText size={16} />
-                              <span className="source-path">{source.file_path}</span>
-                              <span className="source-score">{Math.round(source.similarity_score * 100)}% relevant</span>
-                              <div className="source-actions">
-                                <button className="open-source-btn" onClick={() => openFile(source.file_path)}>
-                                  <ExternalLink size={14} />
-                                </button>
-                                <button className="show-folder-btn" onClick={() => showInFolder(source.file_path)}>
-                                  <FolderOpen size={14} />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="source-preview">
-                              <p>{source.content_preview}</p>
-                            </div>
-                          </div>
-                      ))}
-                    </div>
-                  </div>
               )}
             </div>
-        )}
-
-        {history.length > 0 && (
-            <div className="query-history">
-              <h3>Recent Questions</h3>
-              <div className="history-list">
-                {history
-                    .slice(-5)
-                    .reverse()
-                    .map((item, index) => (
-                        <div key={index} className="history-item">
-                          <div className="history-question">
-                            <MessageSquare size={16} />
-                            <span>{item.question}</span>
-                          </div>
-                          <div className="history-answer">
-                            <p>{item.response.answer.substring(0, 150)}...</p>
-                          </div>
-                        </div>
-                    ))}
+          </div>
+        ))}
+        {isQuerying && (
+          <div className="chat-message ai">
+            <div className="message-avatar">
+              <Bot size={24} />
+            </div>
+            <div className="message-content">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
             </div>
+          </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
+      <div className="chat-input-area">
+        <form onSubmit={handleSubmit} className="chat-form">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask a question about your files..."
+            className="chat-input"
+            rows={1}
+            disabled={isQuerying}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                handleSubmit(e)
+              }
+            }}
+          />
+          <button type="submit" className="chat-send-btn" disabled={isQuerying || !input.trim()}>
+            <Send size={20} />
+          </button>
+        </form>
+      </div>
+    </div>
   )
 }
 
