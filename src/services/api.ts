@@ -1,0 +1,228 @@
+// import axios from "axios";
+//
+// // Default base URL (works for both SSR and browser)
+// let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+//
+// // Client-side only: Listen for port updates from Electron
+// if (typeof window !== 'undefined' && window.electronAPI) {
+//   window.electronAPI.onBackendPort((event, port) => {
+//     baseURL = `http://localhost:${port}`;
+//     console.log(`Updated backend URL: ${baseURL}`);
+//   });
+// }
+//
+// const api = axios.create({
+//   baseURL,
+//   timeout: 30000,
+// });
+//
+// // ... rest of ApiService class remains unchanged ...
+//
+// export interface IndexRequest {
+//   folder_paths: string[]
+// }
+//
+// export interface SearchRequest {
+//   query: string
+//   limit?: number
+//   threshold?: number
+// }
+//
+// export interface QueryRequest {
+//   question: string
+// }
+//
+// export class ApiService {
+//   static async healthCheck() {
+//     const response = await api.get("/health")
+//     return response.data
+//   }
+//
+//   static async indexFolders(request: IndexRequest) {
+//     const response = await api.post("/api/index", request)
+//     return response.data
+//   }
+//
+//   static async getIndexStatus() {
+//     const response = await api.get("/api/index/status")
+//     return response.data
+//   }
+//
+//   static async searchFiles(request: SearchRequest) {
+//     const response = await api.post("/api/search", request)
+//     return response.data
+//   }
+//
+//   static async queryWithLLM(request: QueryRequest) {
+//     const response = await api.post("/api/query", request)
+//     return response.data
+//   }
+//
+//   static async getFolders() {
+//     const response = await api.get("/api/folders")
+//     return response.data
+//   }
+//
+//   static async getIndexedFiles() {
+//     const response = await api.get("/api/files")
+//     return response.data
+//   }
+//
+//   static async removeFolder(folderId: number) {
+//     const response = await api.delete(`/api/folders/${folderId}`)
+//     return response.data
+//   }
+//
+//   static async clearIndex() {
+//     const response = await api.delete("/api/index/clear")
+//     return response.data
+//   }
+// }
+
+import axios from "axios";
+
+// Default base URL (works for both SSR and browser)
+let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+// Client-side only: Listen for port updates from Electron
+if (typeof window !== 'undefined' && window.electronAPI) {
+  window.electronAPI.onBackendPort((event, port) => {
+    baseURL = `http://localhost:${port}`;
+    console.log(`Updated backend URL: ${baseURL}`);
+  });
+}
+
+const api = axios.create({
+  baseURL,
+  timeout: 30000,
+});
+
+export interface IndexRequest {
+    folder_paths: string[]
+}
+
+export interface SearchRequest {
+    query: string
+    limit?: number
+    threshold?: number
+}
+
+export interface QueryRequest {
+    question: string;
+    session_id?: number;
+}
+
+export interface OrganiseRequest {
+  folder_id: number;
+  dry_run?: boolean;
+}
+
+export interface ExecuteOrganiseRequest {
+  folder_id: number;
+  actions: any[];
+  confirm?: boolean;
+}
+
+export interface CreateChatSessionRequest {
+  session_name: string;
+}
+
+export class ApiService {
+    static async healthCheck() {
+        const response = await api.get("/health")
+        return response.data
+    }
+
+    static async indexFolders(request: IndexRequest) {
+        const response = await api.post("/api/index", request)
+        return response.data
+    }
+
+    static async getIndexStatus() {
+        const response = await api.get("/api/index/status")
+        return response.data
+    }
+
+    static async searchFiles(request: SearchRequest) {
+        const response = await api.post("/api/search", request)
+        return response.data
+    }
+
+    static async queryWithLLM(request: QueryRequest) {
+        const response = await api.post("/api/query", request)
+        return response.data
+    }
+
+    static async getFolders() {
+        const response = await api.get("/api/folders")
+        return response.data
+    }
+
+    static async getIndexedFiles() {
+        const response = await api.get("/api/files")
+        return response.data
+    }
+
+    static async removeFolder(folderId: number) {
+        const response = await api.delete(`/api/folders/${folderId}`)
+        return response.data
+    }
+
+    static async clearIndex() {
+        const response = await api.delete("/api/index/clear")
+        return response.data
+    }
+
+    static async getFolderHierarchy(rootId?: number) {
+        const response = await api.get("/api/folders/hierarchy", {
+            params: rootId ? { root_id: rootId } : {},
+        });
+        return response.data;
+    }
+
+    static async analyzeFolderForOrganisation(request: OrganiseRequest) {
+        const response = await api.post("/api/organise/analyze", request);
+        return response.data;
+    }
+
+    static async executeOrganisation(request: ExecuteOrganiseRequest) {
+        const response = await api.post("/api/organise/execute", request);
+        return response.data;
+    }
+
+    // Chat History
+    static async createChatSession(request: CreateChatSessionRequest) {
+        const response = await api.post("/api/chat/sessions", request);
+        return response.data;
+    }
+
+    static async getChatSessions() {
+        const response = await api.get("/api/chat/sessions");
+        return response.data;
+    }
+
+    static async getChatMessages(sessionId: number) {
+        const response = await api.get(`/api/chat/sessions/${sessionId}/messages`);
+        return response.data;
+    }
+
+    static async deleteChatSession(sessionId: number) {
+        const response = await api.delete(`/api/chat/sessions/${sessionId}`);
+        return response.data;
+    }
+
+    static async generateChatName(message: string, sessionId: number) {
+        const response = await api.post("/api/chat/generate-name", { message, session_id: sessionId });
+        return response.data.session_name;
+    }
+
+    static async saveApiKey(key: string) {
+        const response = await api.post("/api/settings/api-key", { key });
+        return response.data;
+    }
+
+    static async getApiKey() {
+        const response = await api.get("/api/settings/api-key");
+        return response.data;
+    }
+}
