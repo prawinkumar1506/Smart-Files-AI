@@ -16,9 +16,15 @@ exec(`netstat -ano | findstr :${port}`, (err, stdout) => {
     }
 
     // Start backend after cleanup
-    exec(`uvicorn main:app --reload --port ${port}`, (err, stdout, stderr) => {
-        if (err) console.error(err);
-        process.stdout.write(stdout);
-        process.stderr.write(stderr);
+    const command = `python -m uvicorn main:app --reload --port ${port}`;
+    console.log(`Executing: ${command}`);
+    exec(command, (err, stdout, stderr) => {
+        if (err) {
+            console.error(`Error starting backend: ${err.message}`);
+            console.error(`Stderr: ${stderr}`);
+            return;
+        }
+        if (stdout) process.stdout.write(stdout);
+        if (stderr) process.stderr.write(stderr);
     });
 });

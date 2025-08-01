@@ -5,6 +5,9 @@ import logging
 import httpx
 import json
 from dotenv import load_dotenv
+import torch
+from llama_cpp import Llama
+
 load_dotenv(override=True)
 
 
@@ -156,10 +159,31 @@ Respond with ONLY the JSON object. For example:
                 )
             
             if response.status_code == 200:
-                rerank_data = json.loads(response.json()["candidates"][0]["content"]["parts"][0]["text"])
-                for i, result in enumerate(results):
-                    result['relevance_score'] = rerank_data.get(str(i), 0.0)
-                return sorted(results, key=lambda x: x['relevance_score'], reverse=True)
+                raw_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+                
+                # Helper to find and parse JSON from a string
+                def extract_json(text: str) -> Optional[dict]:
+                    start_index = text.find('{')
+                    end_index = text.rfind('}')
+                    if start_index != -1 and end_index != -1:
+                        json_str = text[start_index:end_index+1]
+                        try:
+                            return json.loads(json_str)
+                        except json.JSONDecodeError:
+                            return None
+                    return None
+
+                rerank_data = extract_json(raw_text)
+
+                if rerank_data:
+                    for i, result in enumerate(results):
+                        result['relevance_score'] = rerank_data.get(str(i), 0.0)
+                    return sorted(results, key=lambda x: x['relevance_score'], reverse=True)
+                else:
+                    logger.warning("Could not parse JSON from reranker, returning original order.")
+                    for result in results:
+                        result['relevance_score'] = result.get('similarity_score', 0.0)
+                    return results
             else:
                 logger.error(f"Reranking failed with status {response.status_code}: {response.text}")
                 # Fallback: use original similarity scores
@@ -201,28 +225,92 @@ Respond with ONLY the JSON object. For example:
             logger.error(f"Error generating session name: {e}")
             return "Chat"
 
-class LocalLLMClient:
-    """Client for local LLM (placeholder implementation)"""
+class PhiLLMClient:
+    """Client for local Phi LLM (GGUF)"""
 
     def __init__(self):
-        logger.info("Local LLM client initialized (placeholder)")
+        self.model_path = self._get_model_path()
+        self.model = None
+        try:
+            if self.model_path:
+                logger.info(f"Loading local GGUF model from: {self.model_path}")
+                
+                # Check for CUDA availability
+                use_gpu = torch.cuda.is_available()
+                n_gpu_layers = -1 if use_gpu else 0
+                
+                if use_gpu:
+                    logger.info("CUDA is available. Loading model with GPU acceleration.")
+                else:
+                    logger.warning("CUDA not available. Loading model on CPU. This may be slow.")
+
+                self.model = Llama(
+                    model_path=self.model_path,
+                    n_gpu_layers=n_gpu_layers,
+                    n_ctx=2048,
+                    verbose=False
+                )
+                logger.info("Phi GGUF client initialized successfully")
+            else:
+                raise FileNotFoundError("Phi GGUF model not found.")
+        except Exception as e:
+            logger.error(f"Failed to load local GGUF model: {e}", exc_info=True)
+            raise
+
+    def _get_model_path(self) -> Optional[str]:
+        """Get the path to the GGUF model file."""
+        model_filename = "phi-2.Q4_K_M.gguf"
+        # Look in a 'local_models' subdirectory of the backend
+        backend_dir = os.path.dirname(os.path.abspath(__file__))
+        local_models_dir = os.path.join(os.path.dirname(backend_dir), "local_models")
+        model_path = os.path.join(local_models_dir, model_filename)
+        
+        if os.path.exists(model_path):
+            return model_path
+        
+        logger.warning(f"Model not found at {model_path}")
+        return None
 
     async def generate_answer(self, question: str, context: str) -> str:
-        # This is a placeholder - in a real implementation, you would
-        # load a local model like Mistral or LLaMA using transformers or llama.cpp
-        return f"""Based on the provided context, I would answer your question: "{question}"
+        if not self.model:
+            return "Local LLM (Phi GGUF) is not available. Please check the logs for errors."
 
-However, this is a placeholder response as the local LLM is not yet implemented. 
-To use local LLM capabilities, you would need to:
+        # Truncate context to fit within the model's window
+        max_context_length = 1500  # Leave room for prompt and answer
+        if len(context) > max_context_length:
+            context = context[:max_context_length] + "..."
 
-1. Install transformers library
-2. Download a model like Mistral-7B
-3. Implement the inference logic
+        prompt = f"""Based on the following context from the user's files, please answer the question accurately and helpfully.
 
-For now, please configure the Gemini API key in settings to get AI-powered answers.
+Context from files:
+{context}
 
-Context found in your files:
-{context[:500]}{"..." if len(context) > 500 else ""}"""
+Question: {question}
+
+Answer:"""
+
+        try:
+            response = self.model(prompt, max_tokens=512, stop=["Question:", "\n"])
+            answer = response["choices"][0]["text"]
+            return answer.strip()
+        except Exception as e:
+            logger.error(f"Error generating answer with Phi GGUF: {str(e)}")
+            return f"Error generating answer with local LLM: {str(e)}"
+
+    async def rerank_results(self, query: str, results: list) -> list:
+        for result in results:
+            result['relevance_score'] = result.get('similarity_score', 0.5)
+        return sorted(results, key=lambda x: x['relevance_score'], reverse=True)
+
+    async def generate_session_name(self, message: str) -> str:
+        prompt = f'Generate a very short, snappy title (3-5 words) for a chat that starts with this message: "{message}". Just return the title, nothing else. Title:'
+        try:
+            response = self.model(prompt, max_tokens=20, stop=['\n'])
+            title = response["choices"][0]["text"]
+            return title.strip().strip('"')
+        except Exception as e:
+            logger.error(f"Error generating session name with Phi GGUF: {e}")
+            return "New Chat"
 
 
 class FallbackClient:
@@ -241,44 +329,58 @@ class FallbackClient:
             f"Context from your files:\n{context[:500]}{'...' if len(context) > 500 else ''}"
         )
 
+    async def rerank_results(self, query: str, results: list) -> list:
+        """
+        Fallback rerank just returns original results, as no AI is available.
+        """
+        for result in results:
+            result['relevance_score'] = result.get('similarity_score', 0.0)
+        return results
+
+    async def generate_session_name(self, message: str) -> str:
+        """
+        Fallback session name generator.
+        """
+        return "New Chat"
+
 class LLMClientFactory:
     """Factory for creating LLM clients"""
+    _clients = {}
 
     @staticmethod
     def create_client(client_type: str = "gemini") -> LLMClient:
         """Create an LLM client of the specified type with fallback support"""
-        client_type = client_type.lower()
+        client_type = client_type.lower() if client_type else "gemini"
 
-        # Handle Gemini client creation with proper error checking
+        if client_type in LLMClientFactory._clients:
+            return LLMClientFactory._clients[client_type]
+
+        logger.info(f"Creating LLM client of type: {client_type}")
+
         if client_type == "gemini":
             try:
                 client = GeminiClient()
                 if not client.api_key:
-                    raise ValueError("Gemini API key not found in settings or environment variables.")
-                
-                # Basic validation on the loaded key
-                if len(client.api_key) < 30 or not client.api_key.startswith("AI"):
-                    raise ValueError("Invalid Gemini API key format detected.")
-
+                    raise ValueError("Gemini API key not found.")
+                LLMClientFactory._clients[client_type] = client
                 return client
             except Exception as e:
-                logger.error(f"Gemini client initialization failed: {str(e)}")
-                logger.warning("Falling back to default client")
-                return FallbackClient()  # Ensure this is implemented
+                logger.error(f"Failed to create Gemini client: {e}")
+                return FallbackClient()
 
-        # Handle local client option
-        elif client_type == "local":
+        elif client_type == "phi":
             try:
-                return LocalLLMClient()  # Ensure this class exists
+                client = PhiLLMClient()
+                LLMClientFactory._clients[client_type] = client
+                return client
             except Exception as e:
-                logger.error(f"Local client initialization failed: {str(e)}")
+                logger.error(f"Failed to create Phi LLM client: {e}")
                 return FallbackClient()
+        
+        elif client_type == "local":
+            logger.warning("Client type 'local' is ambiguous, defaulting to 'phi'.")
+            return LLMClientFactory.create_client("phi")
 
-        # Handle unknown client types
         else:
-            logger.warning(f"Unknown client type: '{client_type}'. Defaulting to Gemini.")
-            try:
-                # Attempt to create Gemini as fallback
-                return LLMClientFactory.create_client("gemini")
-            except Exception:
-                return FallbackClient()
+            logger.error(f"Unknown LLM client type: {client_type}")
+            return FallbackClient()

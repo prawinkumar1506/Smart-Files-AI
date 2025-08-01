@@ -13,6 +13,7 @@ class SearchRequest(BaseModel):
 class QueryRequest(BaseModel):
     question: str
     session_id: Optional[int] = None
+    llm_provider: Optional[str] = "gemini"
 
 class IndexResponse(BaseModel):
     success: bool
@@ -124,6 +125,7 @@ class CreateChatSessionRequest(BaseModel):
 class GenerateChatNameRequest(BaseModel):
     message: str
     session_id: int
+    llm_provider: Optional[str] = "gemini"
 
 class ApiKey(BaseModel):
     key: str

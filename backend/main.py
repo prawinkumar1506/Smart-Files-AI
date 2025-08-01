@@ -229,9 +229,11 @@ async def query_with_llm(request: QueryRequest):
     logger.info("=" * 50)
     logger.info(f"QUERY REQUEST RECEIVED (Session ID: {request.session_id})")
     logger.info(f"Question: '{request.question}'")
+    logger.info(f"LLM Provider: {request.llm_provider}")
     logger.info("=" * 50)
 
     try:
+        llm_client = LLMClientFactory.create_client(request.llm_provider)
         # Store user message
         if request.session_id:
             await vector_store.add_chat_message(
@@ -248,41 +250,61 @@ async def query_with_llm(request: QueryRequest):
             return QueryResponse(success=True, answer=answer, sources=[])
 
         # Enhanced search logic
+        logger.info("Performing vector search...")
         search_results = await vector_store.search(query=request.question, limit=15, threshold=0.2)
         if not search_results:
+            logger.info("No results from initial search, trying with lower threshold...")
             search_results = await vector_store.search(query=request.question, limit=15, threshold=0.1)
+        
+        logger.info(f"Found {len(search_results)} results from vector search.")
 
         if not search_results:
+            logger.info("No search results found, generating a general response.")
             # If no results, try a general LLM response without sources
             answer = await llm_client.generate_answer(request.question, "")
+            logger.info(f"Generated general answer: {answer[:100]}...")
             if request.session_id:
                 await vector_store.add_chat_message(request.session_id, "assistant", answer, sources=[])
             return QueryResponse(success=True, answer=answer, sources=[])
 
         # Rerank search results for relevance
+        logger.info("Reranking search results...")
         reranked_results = await llm_client.rerank_results(request.question, search_results)
+        logger.info(f"Reranking complete. Got {len(reranked_results)} results.")
         
         # Filter out irrelevant results based on reranking
         relevant_results = [result for result in reranked_results if result.get('relevance_score', 0) > 0.5]
+        logger.info(f"Found {len(relevant_results)} relevant results after filtering.")
 
-        if not relevant_results:
+        # Limit context to top 5 results to avoid exceeding context window
+        top_results = relevant_results[:5]
+        logger.info(f"Using top {len(top_results)} results for context.")
+
+        if not top_results:
+            logger.info("No relevant results after reranking, generating a general response.")
             answer = await llm_client.generate_answer(request.question, "")
+            logger.info(f"Generated general answer: {answer[:100]}...")
             if request.session_id:
                 await vector_store.add_chat_message(request.session_id, "assistant", answer, sources=[])
             return QueryResponse(success=True, answer=answer, sources=[])
 
-        context = "\n\n".join([f"From {result['file_name']}:\n{result['content']}" for result in relevant_results])
+        context = "\n\n".join([f"From {result['file_name']}:\n{result['content']}" for result in top_results])
+        logger.info(f"Constructed context for LLM: {context[:500]}...")
         
         # Include chat history for context
         history_context = ""
         if request.session_id:
+            logger.info(f"Fetching chat history for session {request.session_id}...")
             messages = await vector_store.get_chat_messages(request.session_id, limit=10)
             history = [f"{msg['role']}: {msg['content']}" for msg in reversed(messages)]
             history_context = "\n".join(history)
+            logger.info("Chat history fetched.")
         
         full_context = f"Previous conversation:\n{history_context}\n\nFile context:\n{context}"
+        logger.info("Generating final answer with LLM...")
 
         answer = await llm_client.generate_answer(request.question, full_context)
+        logger.info(f"LLM generated answer: {answer[:100]}...")
 
         sources = list({
             result["file_path"]: {
@@ -292,16 +314,20 @@ async def query_with_llm(request: QueryRequest):
             }
             for result in search_results
         }.values())
+        logger.info(f"Constructed {len(sources)} sources for response.")
 
         # Store assistant message
         if request.session_id:
+            logger.info("Storing assistant message in chat history...")
             await vector_store.add_chat_message(
                 session_id=request.session_id,
                 role="assistant",
                 content=answer,
                 sources=sources
             )
+            logger.info("Assistant message stored.")
 
+        logger.info("Query processed successfully.")
         return QueryResponse(success=True, answer=answer, sources=sources)
 
     except Exception as e:
@@ -424,7 +450,8 @@ async def delete_chat_session(session_id: int):
 async def generate_chat_name(request: GenerateChatNameRequest):
     """Generate a name for a chat session"""
     try:
-        session_name = await llm_client.generate_session_name(request.message)
+        llm_client_instance = LLMClientFactory.create_client(request.llm_provider)
+        session_name = await llm_client_instance.generate_session_name(request.message)
         await vector_store.update_chat_session_name(request.session_id, session_name)
         return {"success": True, "session_name": session_name}
     except Exception as e:

@@ -110,6 +110,7 @@ export interface SearchRequest {
 export interface QueryRequest {
     question: string;
     session_id?: number;
+    llm_provider?: string;
 }
 
 export interface OrganiseRequest {
@@ -149,7 +150,8 @@ export class ApiService {
     }
 
     static async queryWithLLM(request: QueryRequest) {
-        const response = await api.post("/api/query", request)
+        const llm_provider = localStorage.getItem("llm_provider") || "gemini";
+        const response = await api.post("/api/query", {...request, llm_provider})
         return response.data
     }
 
@@ -212,7 +214,8 @@ export class ApiService {
     }
 
     static async generateChatName(message: string, sessionId: number) {
-        const response = await api.post("/api/chat/generate-name", { message, session_id: sessionId });
+        const llm_provider = localStorage.getItem("llm_provider") || "gemini";
+        const response = await api.post("/api/chat/generate-name", { message, session_id: sessionId, llm_provider });
         return response.data.session_name;
     }
 

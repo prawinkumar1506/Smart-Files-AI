@@ -83,7 +83,8 @@ const Settings: React.FC = () => {
             <label htmlFor="llm-provider">LLM Provider</label>
             <select id="llm-provider" value={llmProvider} onChange={(e) => setLlmProvider(e.target.value)}>
               <option value="gemini">Google Gemini (Cloud)</option>
-              <option value="local">Local LLM (Offline)</option>
+              <option value="phi">Microsoft Phi (Local)</option>
+              <option value="local">Other Local LLM (Offline)</option>
             </select>
             <p className="setting-description">Choose between cloud-based Gemini API or local LLM for privacy</p>
           </div>
