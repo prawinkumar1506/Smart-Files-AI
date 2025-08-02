@@ -103,8 +103,15 @@ const Folders: React.FC = () => {
   return (
     <div className="folders-page">
       <div className="folders-header">
-        <h1>Manage Folders</h1>
-        <p>Add or remove folders from your search index</p>
+        <div className="folders-header-content">
+<div className="folders-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          </div>
+          <div className="folders-header-text">
+            <h1>Manage Folders</h1>
+            <p>Add or remove folders from your search index</p>
+          </div>
+        </div>
       </div>
 
       <div className="folders-actions">
@@ -143,7 +150,7 @@ const Folders: React.FC = () => {
           {folders.map((folder) => (
             <div key={folder.id} className="folder-item">
               <div className="folder-icon">
-                <Folder size={24} />
+                <Folder size={28} />
               </div>
               <div className="folder-info">
                 <h3>{folder.name}</h3>
@@ -161,7 +168,7 @@ const Folders: React.FC = () => {
                 disabled={isIndexing}
                 title="Remove folder"
               >
-                <Trash2 size={16} />
+                <Trash2 size={18} />
               </button>
             </div>
           ))}

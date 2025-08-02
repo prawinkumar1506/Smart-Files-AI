@@ -13,8 +13,23 @@ import { ApiService } from "./services/api"
 import "./App.css"
 
 function App() {
-  const [isBackendReady, setIsBackendReady] = useState(false)
+const [isBackendReady, setIsBackendReady] = useState(false)
   const [currentView, setCurrentView] = useState("dashboard")
+  const [currentTip, setCurrentTip] = useState(0)
+
+  const tips = [
+    "Tip: Add folders to start searching through your files",
+    "AI-powered file organization and search",
+    "Ask questions about your documents",
+  ]
+
+  useEffect(() => {
+    const tipInterval = setInterval(() => {
+      setCurrentTip((prevTip) => (prevTip + 1) % tips.length)
+    }, 3000) // Change tip every 3 seconds
+
+    return () => clearInterval(tipInterval)
+  }, [])
 
   useEffect(() => {
     checkBackendHealth()
@@ -47,8 +62,23 @@ function App() {
   if (!isBackendReady) {
     return (
       <div className="app-loading">
-        <div className="loading-spinner"></div>
-        <p>Starting Smart Files AI...</p>
+        <div className="loading-logo">
+          <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+        </div>
+        <div className="loading-content">
+          <h1>Smart Files AI</h1>
+          <p>Your intelligent file assistant</p>
+          <div className="loading-bar-container">
+            <div className="loading-bar">
+              <div className="loading-bar-fill"></div>
+            </div>
+          </div>
+<div className="loading-tips">
+            <p key={currentTip} className="tip-item">
+              {tips[currentTip]}
+            </p>
+          </div>
+        </div>
       </div>
     )
   }

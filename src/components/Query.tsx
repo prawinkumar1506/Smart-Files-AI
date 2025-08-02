@@ -1,9 +1,11 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { MessageSquare, Send, FileText, RefreshCw, ThumbsUp, ThumbsDown, Bot, User, ExternalLink, FolderOpen, PlusCircle, Trash2 } from "lucide-react"
+import { MessageSquare, Send, FileText, RefreshCw, ThumbsUp, ThumbsDown, Bot, User, ExternalLink, FolderOpen, PlusCircle, Trash2, Copy } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { ApiService } from "../services/api"
 
 interface QuerySource {
@@ -27,6 +29,7 @@ interface ChatSession {
 const Query: React.FC = () => {
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
+  const [copied, setCopied] = useState(false)
   const [isQuerying, setIsQuerying] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
@@ -184,6 +187,9 @@ const Query: React.FC = () => {
     <div className="chat-page-container">
       <div className="chat-sidebar">
         <div className="sidebar-header">
+          <div className="sidebar-logo">
+<img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          </div>
           <h2>Chat History</h2>
           <button onClick={createNewSession} className="new-chat-btn">
             <PlusCircle size={20} />
@@ -206,8 +212,15 @@ const Query: React.FC = () => {
       </div>
       <div className="chat-page">
         <div className="chat-header">
-          <h1>Ask Questions</h1>
-          <p>Get AI-powered answers from your indexed files</p>
+          <div className="chat-header-content">
+            <div className="chat-header-logo">
+<img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+            </div>
+            <div className="chat-header-text">
+              <h1>Ask Questions</h1>
+              <p>Get AI-powered answers from your indexed files</p>
+            </div>
+          </div>
         </div>
         <div className="chat-messages">
           {messages.map((msg, index) => (
@@ -216,7 +229,47 @@ const Query: React.FC = () => {
                 {msg.type === "user" ? <User size={24} /> : <Bot size={24} />}
               </div>
               <div className="message-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                <div className="message-header">
+                  {msg.type === 'ai' && (
+                    <button className="copy-response-btn" onClick={() => {
+                      navigator.clipboard.writeText(msg.text)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }}>
+                      {copied ? "Copied!" : <Copy size={16} />}
+                    </button>
+                  )}
+                </div>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+code({ node, className, children, ...props }: any) {
+                      const match = /language-(\w+)/.exec(className || "")
+                      const codeText = String(children).replace(/\n$/, "")
+                      return match ? (
+                        <div className="code-block">
+                          <SyntaxHighlighter
+                            style={coldarkDark}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                          >
+                            {codeText}
+                          </SyntaxHighlighter>
+                          <button className="copy-btn" onClick={() => navigator.clipboard.writeText(codeText)}>
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      )
+                    },
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
                 {msg.sources && msg.sources.length > 0 && (
                   <div className="message-sources">
                     <h4>Sources:</h4>

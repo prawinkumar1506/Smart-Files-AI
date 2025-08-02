@@ -1,0 +1,34 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Folder Icon with Network Diagram -->
+  <g transform="translate(10, 10)">
+    <!-- Folder outline -->
+    <path d="M0 5 L8 5 L12 0 L25 0 L25 35 L0 35 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+    <!-- Folder fold -->
+    <path d="M8 5 L12 0 L12 5 Z" fill="#1e3a8a"/>
+    
+    <!-- Network diagram inside folder -->
+    <g transform="translate(12, 8)">
+      <!-- Central stem -->
+      <line x1="1" y1="0" x2="1" y2="19" stroke="#3b82f6" stroke-width="1.5"/>
+      
+      <!-- Top node -->
+      <circle cx="1" cy="0" r="1.5" fill="#3b82f6"/>
+      
+      <!-- Middle node with branches -->
+      <circle cx="1" cy="9" r="1.5" fill="#3b82f6"/>
+      <line x1="1" y1="9" x2="-3" y2="13" stroke="#3b82f6" stroke-width="1.5"/>
+      <line x1="1" y1="9" x2="5" y2="13" stroke="#3b82f6" stroke-width="1.5"/>
+      
+      <!-- Bottom nodes -->
+      <circle cx="-3" cy="13" r="1.5" fill="#3b82f6"/>
+      <circle cx="5" cy="13" r="1.5" fill="#3b82f6"/>
+      <circle cx="1" cy="19" r="1.5" fill="#3b82f6"/>
+    </g>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(45, 15)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e3a8a">SMART FILES</text>
+    <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">AI</text>
+  </g>
+</svg> 

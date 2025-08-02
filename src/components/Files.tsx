@@ -509,8 +509,15 @@ const Files: React.FC = () => {
     return (
         <div className="files-page">
             <div className="files-header">
-                <h1>Indexed Files</h1>
-                <p>Browse and manage all your indexed files</p>
+                <div className="files-header-content">
+                    <div className="files-header-logo">
+<img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+                    </div>
+                    <div className="files-header-text">
+                        <h1>Indexed Files</h1>
+                        <p>Browse and manage all your indexed files</p>
+                    </div>
+                </div>
             </div>
 
             <div className="files-stats">

@@ -227,8 +227,15 @@ const Search: React.FC = () => {
   return (
       <div className="search-page">
         <div className="search-header">
-          <h1>Search Files</h1>
-          <p>Find content across all your indexed files using semantic search</p>
+          <div className="search-header-content">
+            <div className="search-header-logo">
+              <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+            </div>
+            <div className="search-header-text">
+              <h1>Search Files</h1>
+              <p>Find content across all your indexed files using semantic search</p>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSearch} className="search-form">

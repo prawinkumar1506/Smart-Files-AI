@@ -80,8 +80,15 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Overview of your indexed files and system status</p>
+        <div className="dashboard-header-content">
+          <div className="dashboard-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          </div>
+          <div className="dashboard-header-text">
+            <h1>Dashboard</h1>
+            <p>Overview of your indexed files and system status</p>
+          </div>
+        </div>
       </div>
 
       {indexStatus?.is_indexing && (

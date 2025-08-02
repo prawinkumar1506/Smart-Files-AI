@@ -22,8 +22,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h1>Smart Files AI</h1>
-        <p>Your intelligent file assistant</p>
+<div className="sidebar-logo">
+          <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+        </div>
+        <div className="sidebar-title">
+          <h1>Smart Files AI</h1>
+          <p>Your intelligent file assistant</p>
+        </div>
       </div>
 
       <nav className="sidebar-nav">

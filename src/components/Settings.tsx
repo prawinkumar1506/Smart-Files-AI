@@ -68,8 +68,15 @@ const Settings: React.FC = () => {
   return (
     <div className="settings-page">
       <div className="settings-header">
-        <h1>Settings</h1>
-        <p>Configure Smart Files AI to your preferences</p>
+        <div className="settings-header-content">
+          <div className="settings-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          </div>
+          <div className="settings-header-text">
+            <h1>Settings</h1>
+            <p>Configure Smart Files AI to your preferences</p>
+          </div>
+        </div>
       </div>
 
       <div className="settings-sections">

@@ -155,7 +155,7 @@ const FileOrganiser: React.FC = () => {
           style={{ paddingLeft: `${level * 20 + 10}px` }}
           onClick={() => selectFolder(folder.id)}
         >
-          <div className="folder-content">
+<div className="folder-content">
             <button
               className="expand-button"
               onClick={(e) => {
@@ -175,7 +175,7 @@ const FileOrganiser: React.FC = () => {
               )}
             </button>
 
-            <div className="folder-icon">{isExpanded ? <FolderOpen size={20} /> : <Folder size={20} />}</div>
+            <div className="folder-icon">{isExpanded ? <FolderOpen size={24} /> : <Folder size={24} />}</div>
 
             <div className="folder-info">
               <span className="folder-name">{folder.name}</span>
@@ -225,8 +225,15 @@ const FileOrganiser: React.FC = () => {
   return (
     <div className="file-organiser-page">
       <div className="organiser-header">
-        <h1>File Organiser</h1>
-        <p>Intelligently organize your files using AI-powered classification</p>
+        <div className="organiser-header-content">
+<div className="organiser-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          </div>
+          <div className="organiser-header-text">
+            <h1>File Organiser</h1>
+            <p>Intelligently organize your files using AI-powered classification</p>
+          </div>
+        </div>
       </div>
 
       <div className="organiser-content">
