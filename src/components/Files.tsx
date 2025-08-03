@@ -371,7 +371,7 @@ const Files: React.FC = () => {
                     case "text":
                         return [".txt", ".md", ".rtf"].includes(ext)
                     case "code":
-                        return [".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml"].includes(ext)
+                        return [".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml", ".c", ".ts", ".tsx", ".db"].includes(ext)
                     case "document":
                         return [".pdf", ".doc", ".docx", ".odt"].includes(ext)
                     case "image":
@@ -421,7 +421,7 @@ const Files: React.FC = () => {
         if ([".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg"].includes(ext)) {
             return <ImageIcon size={20} />
         }
-        if ([".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml"].includes(ext)) {
+        if ([".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml", ".c", ".ts", ".tsx", ".db"].includes(ext)) {
             return <Code size={20} />
         }
         if ([".zip", ".rar", ".7z", ".tar", ".gz"].includes(ext)) {
@@ -480,7 +480,7 @@ const Files: React.FC = () => {
                 let category = "other"
 
                 if ([".txt", ".md", ".rtf"].includes(ext)) category = "text"
-                else if ([".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml"].includes(ext)) category = "code"
+                else if ([".py", ".js", ".html", ".css", ".json", ".xml", ".yaml", ".yml", ".c", ".ts", ".tsx", ".db"].includes(ext)) category = "code"
                 else if ([".pdf", ".doc", ".docx", ".odt"].includes(ext)) category = "document"
                 else if ([".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg"].includes(ext)) category = "image"
 

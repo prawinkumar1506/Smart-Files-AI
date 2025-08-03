@@ -45,8 +45,7 @@ const Settings: React.FC = () => {
       localStorage.setItem("encryption_enabled", isEncryptionEnabled.toString())
 
       toast({
-        title: "Settings Saved",
-        description: "Your settings have been saved successfully.",
+        description: "settings saved successfully!",
       })
     } catch (error) {
       console.error("Error saving settings:", error)
