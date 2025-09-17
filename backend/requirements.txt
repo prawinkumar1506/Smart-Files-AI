@@ -6,6 +6,7 @@ numpy
 httpx==0.25.2
 PyPDF2==3.0.1
 python-docx==1.1.0
+python-pptx==0.6.23
 python-multipart==0.0.6
 transformers
 torch

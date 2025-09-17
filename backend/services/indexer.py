@@ -20,7 +20,7 @@ class FileIndexer:
         self.embedding_service = embedding_service
         self.supported_extensions = {
             '.txt', '.md', '.py', '.js', '.html', '.css', '.json',
-            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml','.c'
+            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml','.c', '.pptx'
         }
         logger.info(f" FileIndexer initialized with supported extensions: {self.supported_extensions}")
 

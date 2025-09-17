@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
         </div>
         <div className="sidebar-title">
           <h1>Smart Files AI</h1>
-          <p>Your intelligent file assistant</p>
+          <p>Your Files. Your AI. Your Privacy.</p>
         </div>
       </div>
 

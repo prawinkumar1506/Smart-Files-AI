@@ -156,6 +156,7 @@ const Search: React.FC = () => {
   const [results, setResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [limit, setLimit] = useState(10)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -168,7 +169,7 @@ const Search: React.FC = () => {
     try {
       const response = await ApiService.searchFiles({
         query: query.trim(),
-        limit: 20,
+        limit: limit,
         threshold: 0.3,
       })
 
@@ -254,6 +255,20 @@ const Search: React.FC = () => {
             </button>
           </div>
         </form>
+
+        <div className="search-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', margin: '1rem 0' }}>
+          <label htmlFor="max-results">Max Results: {limit}</label>
+          <input
+            type="range"
+            id="max-results"
+            value={limit}
+            onChange={(e) => setLimit(Number.parseInt(e.target.value))}
+            min="5"
+            max="50"
+            step="1"
+            style={{ width: '200px' }}
+          />
+        </div>
 
         {hasSearched && (
             <div className="search-results">

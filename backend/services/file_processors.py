@@ -60,6 +60,26 @@ class DocxProcessor:
             logger.error(f"Error reading DOCX file {file_path}: {str(e)}")
             return ""
 
+class PPTXProcessor:
+    """Processor for PPTX files"""
+    
+    async def extract_text(self, file_path: Path) -> str:
+        try:
+            import pptx
+            prs = pptx.Presentation(file_path)
+            text = ""
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text"):
+                        text += shape.text + "\n"
+            return text
+        except ImportError:
+            logger.warning("python-pptx not installed, skipping PPTX processing")
+            return ""
+        except Exception as e:
+            logger.error(f"Error reading PPTX file {file_path}: {str(e)}")
+            return ""
+
 class FileProcessorFactory:
     """Factory for creating file processors"""
     
@@ -74,6 +94,7 @@ class FileProcessorFactory:
         '.pdf': PDFProcessor(),
         '.docx': DocxProcessor(),
         '.doc': DocxProcessor(),
+        '.pptx': PPTXProcessor(),
     }
     
     @classmethod

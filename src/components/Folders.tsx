@@ -153,14 +153,10 @@ const Folders: React.FC = () => {
                 <Folder size={28} />
               </div>
               <div className="folder-info">
-                <h3>{folder.name}</h3>
-                <p className="folder-path" title={folder.path}>
-                  {folder.path}
+                <h4>{folder.path}</h4>
+                <p>
+                  {folder.file_count} files • Last indexed {new Date(folder.last_indexed).toLocaleDateString()}
                 </p>
-                <div className="folder-stats">
-                  <span>{folder.file_count} files</span>
-                  <span>Last indexed: {new Date(folder.last_indexed).toLocaleDateString()}</span>
-                </div>
               </div>
               <button
                 className="remove-folder-btn"

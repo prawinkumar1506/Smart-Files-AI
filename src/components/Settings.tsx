@@ -161,6 +161,7 @@ const Settings: React.FC = () => {
             <span>{settings.similarityThreshold}</span>
             <p className="setting-description">Minimum similarity score for search results (0.1-1.0)</p>
           </div>
+
         </div>
 
         <div className="settings-section">

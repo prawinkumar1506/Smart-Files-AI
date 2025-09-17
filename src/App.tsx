@@ -67,7 +67,7 @@ const [isBackendReady, setIsBackendReady] = useState(false)
         </div>
         <div className="loading-content">
           <h1>Smart Files AI</h1>
-          <p>Your intelligent file assistant</p>
+          <p>Your Files. Your AI. Your Privacy.</p>
           <div className="loading-bar-container">
             <div className="loading-bar">
               <div className="loading-bar-fill"></div>

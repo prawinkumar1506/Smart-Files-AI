@@ -94,7 +94,7 @@ if (typeof window !== 'undefined' && window.electronAPI) {
 
 const api = axios.create({
   baseURL,
-  timeout: 30000,
+  timeout: 45000,
 });
 
 export interface IndexRequest {
