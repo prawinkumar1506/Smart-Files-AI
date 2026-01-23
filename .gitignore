@@ -69,3 +69,7 @@ Thumbs.db
 # ===========================================
 
 .ipynb_checkpoints/
+
+backend/embedding_model/*
+backend/local_models/*
+backend/model_cache/*
