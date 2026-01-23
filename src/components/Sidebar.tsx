@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Search, MessageSquare, Folder, Settings, Home, File, Sparkles } from "lucide-react"
+import { Search, MessageSquare, Folder, Settings, Home, File, Sparkles, Image } from "lucide-react"
 
 interface SidebarProps {
   currentView: string
@@ -14,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
     { id: "search", label: "Search Files", icon: Search },
     { id: "query", label: "Ask Question", icon: MessageSquare },
     { id: "organiser", label: "File Organiser", icon: Sparkles },
+    { id: "images", label: "Smart Images", icon: Image },
     { id: "folders", label: "Manage Folders", icon: Folder },
     { id: "files", label: "Browse Files", icon: File },
     { id: "settings", label: "Settings", icon: Settings },

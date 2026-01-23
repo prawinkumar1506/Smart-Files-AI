@@ -9,6 +9,7 @@ import Folders from "./components/Folders"
 import Files from "./components/Files"
 import FileOrganiser from "./components/FileOrganiser"
 import Settings from "./components/Settings"
+import SmartImages from "./components/SmartImages"
 import { ApiService } from "./services/api"
 import "./App.css"
 
@@ -93,9 +94,11 @@ const [isBackendReady, setIsBackendReady] = useState(false)
         return <FileOrganiser />
       case "folders":
         return <Folders />
-      case "files":
+    case "files":
         return <Files />
-      case "settings":
+    case "images":
+        return <SmartImages />
+    case "settings":
         return <Settings />
       default:
         return <Dashboard />

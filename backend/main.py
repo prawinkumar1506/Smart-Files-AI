@@ -32,13 +32,14 @@ from services.indexer import FileIndexer
 from services.vector_store import VectorStore
 from services.llm_client import LLMClientFactory
 from services.file_organiser import FileOrganiser
+from services.smart_images_service import SmartImagesService
 from models.schemas import (
     IndexRequest, SearchRequest, QueryRequest,
     IndexResponse, SearchResponse, QueryResponse,
     FolderInfo, IndexStatus, FolderHierarchy,
     OrganiseRequest, OrganiseResponse, ExecuteOrganiseRequest,
     ChatSession, ChatMessage, CreateChatSessionRequest,
-    GenerateChatNameRequest, ApiKey,
+    GenerateChatNameRequest, ApiKey
 )
 
 # Global services
@@ -46,45 +47,52 @@ vector_store = None
 file_indexer = None
 llm_client = None
 file_organiser = None
+smart_images_service = None
 indexing_status = {"is_indexing": False, "progress": 0, "current_file": "", "total_files": 0, "processed_files": 0}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager for startup and shutdown"""
-    global vector_store, file_indexer, llm_client, file_organiser
-    
+    global vector_store, file_indexer, llm_client, file_organiser, smart_images_service
+
     # Startup
     try:
         logger.info("=" * 50)
         logger.info("STARTING SMARTFILE AI BACKEND")
         logger.info("=" * 50)
-        
+
         # Initialize services
         logger.info("Initializing vector store...")
         vector_store = VectorStore()
         await vector_store.initialize()
         logger.info("Vector store initialized successfully")
-        
+
         logger.info("Initializing file indexer...")
-        file_indexer = FileIndexer(vector_store, vector_store.embedding_service)
+        file_indexer = FileIndexer(vector_store, vector_store.embedding_service, llm_client)
         logger.info("File indexer initialized successfully")
-        
+
         logger.info("Initializing LLM client...")
         llm_client = LLMClientFactory.create_client()
         logger.info("LLM client initialized successfully")
-        
+
         logger.info("Initializing file organiser...")
         file_organiser = FileOrganiser(vector_store, llm_client)
         logger.info("File organiser initialized successfully")
-        
+
+        logger.info("Initializing smart images service...")
+        smart_images_service = SmartImagesService(vector_store=vector_store, embedding_service=vector_store.embedding_service)
+        # Update the service to use the LLM client
+        smart_images_service.llm_client = llm_client
+        logger.info("Smart images service initialized successfully")
+
         # Check database status
         folders = await vector_store.get_indexed_folders()
         files = await vector_store.get_indexed_files()
         logger.info(f"Database status: {len(folders)} folders, {len(files)} files indexed")
-        
+
         logger.info("SmartFile AI Backend started successfully!")
         logger.info("=" * 50)
-        
+
         yield
     except Exception as e:
         logger.error(f"Failed to initialize backend: {str(e)}")
@@ -131,7 +139,7 @@ async def health_check():
         # Check database connection
         folders = await vector_store.get_indexed_folders()
         return {
-            "status": "healthy", 
+            "status": "healthy",
             "version": "1.0.0",
             "database": "connected",
             "indexed_folders": len(folders)
@@ -147,11 +155,11 @@ async def index_folders(request: IndexRequest, background_tasks: BackgroundTasks
     logger.info("INDEXING REQUEST RECEIVED")
     logger.info(f"Folders to index: {request.folder_paths}")
     logger.info("=" * 50)
-    
+
     if indexing_status["is_indexing"]:
         logger.warning("Indexing already in progress, rejecting new request")
         raise HTTPException(status_code=409, detail="Indexing already in progress")
-    
+
     # Validate folder paths
     valid_folders = []
     for folder_path in request.folder_paths:
@@ -160,12 +168,12 @@ async def index_folders(request: IndexRequest, background_tasks: BackgroundTasks
             logger.info(f"Valid folder: {folder_path}")
         else:
             logger.error(f"Invalid folder path: {folder_path}")
-    
+
     if not valid_folders:
         raise HTTPException(status_code=400, detail="No valid folder paths provided")
-    
+
     background_tasks.add_task(run_indexing, valid_folders)
-    
+
     return IndexResponse(
         success=True,
         message=f"Started indexing {len(valid_folders)} folders",
@@ -177,6 +185,32 @@ async def get_index_status():
     """Get current indexing status"""
     return IndexStatus(**indexing_status)
 
+@app.get("/api/files")
+async def get_indexed_files():
+    """Get list of all indexed files"""
+    try:
+        logger.info("Getting indexed files list...")
+        files = await vector_store.get_indexed_files()
+        logger.info(f"Retrieved {len(files)} indexed files")
+        return {"success": True, "files": files}
+    except Exception as e:
+        logger.error(f"Error getting files: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/images")
+async def get_indexed_images():
+    """Get list of all indexed images"""
+    try:
+        logger.info("Getting indexed images list...")
+        images = await smart_images_service.get_indexed_images()
+        logger.info(f"Retrieved {len(images)} indexed images")
+        return {"success": True, "images": images}
+    except Exception as e:
+        logger.error(f"Error getting images: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/search", response_model=SearchResponse)
 async def search_files(request: SearchRequest):
     """Search for files using semantic similarity"""
@@ -185,14 +219,14 @@ async def search_files(request: SearchRequest):
     logger.info(f"Query: '{request.query}'")
     logger.info(f"Limit: {request.limit}, Threshold: {request.threshold}")
     logger.info("=" * 50)
-    
+
     try:
         # Check if we have any indexed content
         total_files = await vector_store.get_total_indexed_files()
         total_chunks = await vector_store.get_total_chunks()
-        
+
         logger.info(f"Database stats: {total_files} files, {total_chunks} chunks")
-        
+
         if total_chunks == 0:
             logger.warning("No indexed content found in database")
             return SearchResponse(
@@ -201,27 +235,37 @@ async def search_files(request: SearchRequest):
                 total_results=0,
                 message="No indexed content found. Please add and index some folders first."
             )
-        
+
         results = await vector_store.search(
             query=request.query,
             limit=request.limit or 10,
             threshold=request.threshold or 0.3
         )
-        
+
         logger.info(f"Search completed: {len(results)} results found")
         for i, result in enumerate(results[:3]):
             logger.info(f"  Result {i+1}: {result['file_name']} (score: {result['similarity_score']:.3f})")
-        
+
         return SearchResponse(
             success=True,
             results=results,
             total_results=len(results)
         )
-        
+
     except Exception as e:
         logger.error(f"Search error: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@app.post("/api/images/search")
+async def search_images(request: Dict):
+    """Search images by text query using CLIP embeddings."""
+    try:
+        search_query = request.get("query", "")
+        images = await smart_images_service.search_images(search_query)
+        return {"images": images}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/query", response_model=QueryResponse)
 async def query_with_llm(request: QueryRequest):
@@ -255,7 +299,7 @@ async def query_with_llm(request: QueryRequest):
         if not search_results:
             logger.info("No results from initial search, trying with lower threshold...")
             search_results = await vector_store.search(query=request.question, limit=15, threshold=0.1)
-        
+
         logger.info(f"Found {len(search_results)} results from vector search.")
 
         if not search_results:
@@ -271,7 +315,7 @@ async def query_with_llm(request: QueryRequest):
         logger.info("Reranking search results...")
         reranked_results = await llm_client.rerank_results(request.question, search_results)
         logger.info(f"Reranking complete. Got {len(reranked_results)} results.")
-        
+
         # Filter out irrelevant results based on reranking
         relevant_results = [result for result in reranked_results if result.get('relevance_score', 0) > 0.5]
         logger.info(f"Found {len(relevant_results)} relevant results after filtering.")
@@ -290,7 +334,7 @@ async def query_with_llm(request: QueryRequest):
 
         context = "\n\n".join([f"From {result['file_name']}:\n{result['content']}" for result in top_results])
         logger.info(f"Constructed context for LLM: {context[:500]}...")
-        
+
         # Include chat history for context
         history_context = ""
         if request.session_id:
@@ -299,7 +343,7 @@ async def query_with_llm(request: QueryRequest):
             history = [f"{msg['role']}: {msg['content']}" for msg in reversed(messages)]
             history_context = "\n".join(history)
             logger.info("Chat history fetched.")
-        
+
         full_context = f"Previous conversation:\n{history_context}\n\nFile context:\n{context}"
         logger.info("Generating final answer with LLM...")
 
@@ -334,6 +378,17 @@ async def query_with_llm(request: QueryRequest):
         logger.error(f"Query error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Query failed: {str(e)}")
 
+@app.post("/api/images/rename")
+async def rename_image(request: Dict):
+    """Rename an image with a new semantic name."""
+    try:
+        image_id = request.get("image_id")
+        new_name = request.get("new_name")
+        result = await smart_images_service.rename_image(image_id, new_name)
+        return {"success": True, "message": "Image renamed successfully", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # New File Organiser Endpoints
 
 @app.get("/api/folders/hierarchy")
@@ -353,14 +408,14 @@ async def analyze_folder_for_organisation(request: OrganiseRequest):
     """Analyze a folder for organization opportunities"""
     try:
         logger.info(f"Analyzing folder {request.folder_id} for organization")
-        
+
         result = await file_organiser.analyze_folder_for_organisation(
-            request.folder_id, 
+            request.folder_id,
             request.dry_run
         )
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Error analyzing folder for organization: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
@@ -371,15 +426,15 @@ async def execute_organisation(request: ExecuteOrganiseRequest):
     """Execute file organization based on analysis"""
     try:
         logger.info(f"Executing organization for folder {request.folder_id}")
-        
+
         result = await file_organiser.execute_organisation(
             request.folder_id,
             request.actions,
             request.confirm
         )
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Error executing organization: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
@@ -390,16 +445,16 @@ async def get_folder_files(folder_id: int, recursive: bool = False):
     """Get files in a specific folder"""
     try:
         logger.info(f"Getting files for folder {folder_id} (recursive: {recursive})")
-        
+
         if recursive:
             files = await vector_store.get_files_in_folder_recursive(folder_id)
         else:
             # Get files only in this folder (not implemented yet, using recursive for now)
             files = await vector_store.get_files_in_folder_recursive(folder_id)
-        
+
         logger.info(f"Retrieved {len(files)} files")
         return {"success": True, "files": files}
-        
+
     except Exception as e:
         logger.error(f"Error getting folder files: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -460,19 +515,6 @@ async def generate_chat_name(request: GenerateChatNameRequest):
 
 # Existing endpoints continue...
 
-@app.get("/api/files")
-async def get_indexed_files():
-    """Get list of all indexed files"""
-    try:
-        logger.info("Getting indexed files list...")
-        files = await vector_store.get_indexed_files()
-        logger.info(f"Retrieved {len(files)} indexed files")
-        return {"success": True, "files": files}
-    except Exception as e:
-        logger.error(f"Error getting files: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/folders", response_model=List[FolderInfo])
 async def get_indexed_folders():
     """Get list of currently indexed folders"""
@@ -526,31 +568,31 @@ async def get_debug_stats():
 async def run_indexing(folder_paths: List[str]):
     """Background task to run file indexing"""
     global indexing_status
-    
+
     indexing_status["is_indexing"] = True
     indexing_status["progress"] = 0
     indexing_status["processed_files"] = 0
     indexing_status["total_files"] = 0
-    
+
     try:
         logger.info("Starting indexing process...")
-        
+
         # Count total files first
         total_files = 0
         for folder_path in folder_paths:
             count = await file_indexer.count_files(folder_path)
             total_files += count
             logger.info(f"Found {count} supported files in {folder_path}")
-        
+
         indexing_status["total_files"] = total_files
         logger.info(f"Total files to process: {total_files}")
-        
+
         if total_files == 0:
             logger.warning("No supported files found in any folder")
             return
-        
+
         processed_files = 0
-        
+
         # Index each folder
         for folder_path in folder_paths:
             logger.info(f"Processing folder: {folder_path}")
@@ -559,17 +601,17 @@ async def run_indexing(folder_paths: List[str]):
                 indexing_status["current_file"] = str(file_path)
                 indexing_status["processed_files"] = processed_files
                 indexing_status["progress"] = int((processed_files / total_files) * 100) if total_files > 0 else 100
-                
+
                 if processed_files % 10 == 0:
                     logger.info(f"Progress: {processed_files}/{total_files} files processed ({indexing_status['progress']}%)")
-        
+
         indexing_status["progress"] = 100
         logger.info(f"Indexing completed successfully! Processed {processed_files} files.")
-        
+
         # Log final stats
         final_stats = await vector_store.get_debug_stats()
         logger.info(f"Final database stats: {final_stats}")
-        
+
     except Exception as e:
         logger.error(f"Indexing error: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
@@ -608,16 +650,16 @@ async def save_api_key(api_key: ApiKey):
                     config = json.load(f)
                 except json.JSONDecodeError:
                     config = {}  # File is empty or corrupt, start fresh
-        
+
         config['gemini_api_key'] = api_key.key
-        
+
         with open(config_file, 'w') as f:
             json.dump(config, f)
-            
+
         # Re-initialize the LLM client to use the new key
         global llm_client
         llm_client = LLMClientFactory.create_client()
-        
+
         return {"success": True, "message": "API key saved successfully"}
     except Exception as e:
         logger.error(f"Error saving API key: {str(e)}")

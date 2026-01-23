@@ -5,8 +5,6 @@ import logging
 import httpx
 import json
 from dotenv import load_dotenv
-import torch
-from llama_cpp import Llama
 
 load_dotenv(override=True)
 
@@ -36,7 +34,7 @@ class GeminiClient:
                 os.getenv('GEMINI_API_KEY') or
                 os.getenv('GOOGLE_API_KEY')
         )
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta"
+        self.base_url = "https://generativelanguage.googleapis.com/v1"
 
         if self.api_key:
             logger.info("Gemini API key loaded successfully")
@@ -77,7 +75,7 @@ Please provide a clear, helpful answer based on the information in the context. 
 
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
-                    f"{self.base_url}/models/gemini-1.5-flash:generateContent",
+                    f"{self.base_url}/models/gemini-2.5-flash:generateContent",
                     params={"key": self.api_key},
                     json={
                         "contents": [{
@@ -225,57 +223,26 @@ Respond with ONLY the JSON object. For example:
             logger.error(f"Error generating session name: {e}")
             return "Chat"
 
-class PhiLLMClient:
-    """Client for local Phi LLM (GGUF)"""
+class OllamaClient:
+    """Client for Ollama local LLM"""
 
     def __init__(self):
-        self.model_path = self._get_model_path()
-        self.model = None
+        self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.model = "tinyllama:latest"
+        self.initialized = False
+        
         try:
-            if self.model_path:
-                logger.info(f"Loading local GGUF model from: {self.model_path}")
-                
-                # Check for CUDA availability
-                use_gpu = torch.cuda.is_available()
-                n_gpu_layers = -1 if use_gpu else 0
-                
-                if use_gpu:
-                    logger.info("CUDA is available. Loading model with GPU acceleration.")
-                else:
-                    logger.warning("CUDA not available. Loading model on CPU. This may be slow.")
-
-                self.model = Llama(
-                    model_path=self.model_path,
-                    n_gpu_layers=n_gpu_layers,
-                    n_ctx=2048,
-                    verbose=False
-                )
-                logger.info("Phi GGUF client initialized successfully")
-            else:
-                raise FileNotFoundError("Phi GGUF model not found.")
+            logger.info(f"Initializing Ollama client with model: {self.model}")
+            self.initialized = True
+            logger.info("Ollama client initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to load local GGUF model: {e}", exc_info=True)
-            raise
-
-    def _get_model_path(self) -> Optional[str]:
-        """Get the path to the GGUF model file."""
-        model_filename = "phi-2.Q4_K_M.gguf"
-        # Look in a 'local_models' subdirectory of the backend
-        backend_dir = os.path.dirname(os.path.abspath(__file__))
-        local_models_dir = os.path.join(os.path.dirname(backend_dir), "local_models")
-        model_path = os.path.join(local_models_dir, model_filename)
-        
-        if os.path.exists(model_path):
-            return model_path
-        
-        logger.warning(f"Model not found at {model_path}")
-        return None
+            logger.error(f"Failed to initialize Ollama client: {e}", exc_info=True)
 
     async def generate_answer(self, question: str, context: str) -> str:
-        if not self.model:
-            return "Local LLM (Phi GGUF) is not available. Please check the logs for errors."
+        if not self.initialized:
+            return "Ollama service is not available. Please ensure Ollama is running."
 
-        # Truncate context to fit within the model's window
+        # Truncate context to fit within reasonable limits
         max_context_length = 1500  # Leave room for prompt and answer
         if len(context) > max_context_length:
             context = context[:max_context_length] + "..."
@@ -290,27 +257,129 @@ Question: {question}
 Answer:"""
 
         try:
-            response = self.model(prompt, max_tokens=512, stop=["Question:", "\n"])
-            answer = response["choices"][0]["text"]
-            return answer.strip()
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                    }
+                )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result.get("response", "").strip()
+            else:
+                logger.error(f"Ollama API error: {response.status_code} - {response.text}")
+                return f"Error calling Ollama API: {response.status_code}"
+
+        except httpx.TimeoutException:
+            logger.error("Ollama API request timed out")
+            return "The local LLM service request timed out. Please try again."
         except Exception as e:
-            logger.error(f"Error generating answer with Phi GGUF: {str(e)}")
-            return f"Error generating answer with local LLM: {str(e)}"
+            logger.error(f"Error generating answer with Ollama: {str(e)}")
+            return f"Error generating answer: {str(e)}"
 
     async def rerank_results(self, query: str, results: list) -> list:
-        for result in results:
-            result['relevance_score'] = result.get('similarity_score', 0.5)
-        return sorted(results, key=lambda x: x['relevance_score'], reverse=True)
+        """Rerank search results using Ollama."""
+        try:
+            # Prepare documents for reranking
+            documents = [
+                {
+                    "id": str(i),
+                    "content": f"File: {res['file_name']}\nContent: {res['content'][:200]}"
+                } for i, res in enumerate(results)
+            ]
+            
+            prompt = f"""Given the user's query and the following documents, please evaluate the relevance of each document to the query. Return a JSON object with document IDs as keys and their relevance scores (0.0 to 1.0) as values.
+
+Query: "{query}"
+
+Documents:
+{json.dumps(documents, indent=2)}
+
+Respond with ONLY the JSON object. For example:
+{{
+  "0": 0.9,
+  "1": 0.2,
+  "2": 0.7
+}}"""
+
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                    }
+                )
+            
+            if response.status_code == 200:
+                raw_text = response.json().get("response", "")
+                
+                # Helper to find and parse JSON from a string
+                def extract_json(text: str) -> Optional[dict]:
+                    start_index = text.find('{')
+                    end_index = text.rfind('}')
+                    if start_index != -1 and end_index != -1:
+                        json_str = text[start_index:end_index+1]
+                        try:
+                            return json.loads(json_str)
+                        except json.JSONDecodeError:
+                            return None
+                    return None
+
+                rerank_data = extract_json(raw_text)
+
+                if rerank_data:
+                    for i, result in enumerate(results):
+                        result['relevance_score'] = rerank_data.get(str(i), 0.0)
+                    return sorted(results, key=lambda x: x['relevance_score'], reverse=True)
+                else:
+                    logger.warning("Could not parse JSON from reranker, returning original order.")
+                    for result in results:
+                        result['relevance_score'] = result.get('similarity_score', 0.0)
+                    return results
+            else:
+                logger.error(f"Reranking failed with status {response.status_code}: {response.text}")
+                # Fallback: use original similarity scores
+                for result in results:
+                    result['relevance_score'] = result.get('similarity_score', 0.0)
+                return results
+
+        except Exception as e:
+            logger.error(f"Error during reranking: {e}", exc_info=True)
+            # Fallback: use original similarity scores
+            for result in results:
+                result['relevance_score'] = result.get('similarity_score', 0.0)
+            return results
 
     async def generate_session_name(self, message: str) -> str:
+        """Generate a concise, relevant name for a chat session."""
         prompt = f'Generate a very short, snappy title (3-5 words) for a chat that starts with this message: "{message}". Just return the title, nothing else. Title:'
+        
         try:
-            response = self.model(prompt, max_tokens=20, stop=['\n'])
-            title = response["choices"][0]["text"]
-            return title.strip().strip('"')
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                    }
+                )
+            
+            if response.status_code == 200:
+                title = response.json().get("response", "New Chat").strip().strip('"')
+                return title if title else "New Chat"
+            else:
+                return "Chat"
+
         except Exception as e:
-            logger.error(f"Error generating session name with Phi GGUF: {e}")
-            return "New Chat"
+            logger.error(f"Error generating session name with Ollama: {e}")
+            return "Chat"
 
 
 class FallbackClient:
@@ -348,9 +417,9 @@ class LLMClientFactory:
     _clients = {}
 
     @staticmethod
-    def create_client(client_type: str = "gemini") -> LLMClient:
+    def create_client(client_type: str = "ollama") -> LLMClient:
         """Create an LLM client of the specified type with fallback support"""
-        client_type = client_type.lower() if client_type else "gemini"
+        client_type = client_type.lower() if client_type else "ollama"
 
         if client_type in LLMClientFactory._clients:
             return LLMClientFactory._clients[client_type]
@@ -368,18 +437,24 @@ class LLMClientFactory:
                 logger.error(f"Failed to create Gemini client: {e}")
                 return FallbackClient()
 
-        elif client_type == "phi":
+        elif client_type == "ollama":
             try:
-                client = PhiLLMClient()
+                client = OllamaClient()
+                if not client.initialized:
+                    raise ValueError("Ollama service not initialized.")
                 LLMClientFactory._clients[client_type] = client
                 return client
             except Exception as e:
-                logger.error(f"Failed to create Phi LLM client: {e}")
+                logger.error(f"Failed to create Ollama client: {e}")
                 return FallbackClient()
         
         elif client_type == "local":
-            logger.warning("Client type 'local' is ambiguous, defaulting to 'phi'.")
-            return LLMClientFactory.create_client("phi")
+            logger.warning("Client type 'local' is ambiguous, defaulting to 'ollama'.")
+            return LLMClientFactory.create_client("ollama")
+        
+        elif client_type == "phi":
+            logger.warning("Client type 'phi' is deprecated, using 'ollama' instead.")
+            return LLMClientFactory.create_client("ollama")
 
         else:
             logger.error(f"Unknown LLM client type: {client_type}")

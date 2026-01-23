@@ -8,6 +8,13 @@ from pathlib import Path
 import traceback
 import os
 
+# Custom JSON encoder to handle datetime objects
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
 logger = logging.getLogger(__name__)
 
 from .embedding_service import EmbeddingService
@@ -17,47 +24,47 @@ class VectorStore:
         self.db_path = db_path
         self.connection = None
         self.embedding_service = EmbeddingService()
-    
+
     async def initialize(self):
         """Initialize the SQLite database with vector support"""
         try:
             logger.info(f"Initializing database at: {os.path.abspath(self.db_path)}")
             self.connection = sqlite3.connect(self.db_path, check_same_thread=False)
             self.connection.row_factory = sqlite3.Row
-            
+
             # Enable foreign keys
             self.connection.execute("PRAGMA foreign_keys = ON")
-            
+
             # Create tables
             await self._create_tables()
             await self._check_model_consistency()
-            
+
             # Log initial stats
             stats = await self.get_debug_stats()
             logger.info(f"Database initialized with stats: {stats}")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize vector store: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
-    
+
     async def _create_tables(self):
         """Create necessary database tables"""
         cursor = self.connection.cursor()
-        
+
         try:
             logger.info("Creating database tables...")
-            
+
             # Migration logic for the folders table
             try:
                 cursor.execute("PRAGMA table_info(folders)")
                 columns = [column['name'] for column in cursor.fetchall()]
-                
+
                 if 'parent_id' not in columns:
                     logger.info("Migrating folders table: adding parent_id and level columns")
                     cursor.execute("ALTER TABLE folders ADD COLUMN parent_id INTEGER REFERENCES folders(id) ON DELETE CASCADE")
                     cursor.execute("ALTER TABLE folders ADD COLUMN level INTEGER DEFAULT 0")
-                
+
                 if 'name' not in columns:
                     logger.info("Migrating folders table: adding name column")
                     cursor.execute("ALTER TABLE folders ADD COLUMN name TEXT NOT NULL DEFAULT ''")
@@ -81,7 +88,7 @@ class VectorStore:
                     FOREIGN KEY (parent_id) REFERENCES folders (id) ON DELETE CASCADE
                 )
             """)
-            
+
             # Files table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS files (
@@ -96,7 +103,7 @@ class VectorStore:
                     FOREIGN KEY (folder_id) REFERENCES folders (id) ON DELETE CASCADE
                 )
             """)
-            
+
             # Document chunks table (stores text chunks and their embeddings)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS document_chunks (
@@ -109,7 +116,7 @@ class VectorStore:
                     FOREIGN KEY (file_id) REFERENCES files (id) ON DELETE CASCADE
                 )
             """)
-            
+
             # New table for file classifications
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS file_classifications (
@@ -122,7 +129,7 @@ class VectorStore:
                     FOREIGN KEY (file_id) REFERENCES files (id) ON DELETE CASCADE
                 )
             """)
-            
+
             # New table for organization actions (for rollback capability)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS organisation_actions (
@@ -139,7 +146,7 @@ class VectorStore:
                     FOREIGN KEY (folder_id) REFERENCES folders (id) ON DELETE CASCADE
                 )
             """)
-            
+
             # Create indexes for better performance
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_files_path ON files(file_path)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_chunks_file ON document_chunks(file_id)")
@@ -155,7 +162,7 @@ class VectorStore:
                     value TEXT NOT NULL
                 )
             """)
-            
+
             # New tables for chat history
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS chat_sessions (
@@ -179,9 +186,23 @@ class VectorStore:
 
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id)")
 
+            # Create image_embeddings table if it doesn't exist
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS image_embeddings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    file_id INTEGER UNIQUE,
+                    image_embedding BLOB,
+                    text_embedding BLOB NOT NULL,
+                    caption TEXT,
+                    metadata TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
+                )
+            """)
+
             self.connection.commit()
             logger.info("Database tables created successfully")
-            
+
         except Exception as e:
             logger.error(f"Error creating tables: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
@@ -208,32 +229,32 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Error checking model consistency: {str(e)}")
             raise
-    
+
     async def get_debug_stats(self) -> Dict[str, Any]:
         """Get detailed debug statistics"""
         cursor = self.connection.cursor()
-        
+
         try:
             # Count folders
             cursor.execute("SELECT COUNT(*) as count FROM folders")
             folder_count = cursor.fetchone()['count']
-            
+
             # Count files
             cursor.execute("SELECT COUNT(*) as count FROM files")
             file_count = cursor.fetchone()['count']
-            
+
             # Count chunks
             cursor.execute("SELECT COUNT(*) as count FROM document_chunks")
             chunk_count = cursor.fetchone()['count']
-            
+
             # Get file types
             cursor.execute("SELECT file_type, COUNT(*) as count FROM files GROUP BY file_type")
             file_types = {row['file_type']: row['count'] for row in cursor.fetchall()}
-            
+
             # Get recent files
             cursor.execute("SELECT file_name, file_path FROM files ORDER BY id DESC LIMIT 5")
             recent_files = [{'name': row['file_name'], 'path': row['file_path']} for row in cursor.fetchall()]
-            
+
             return {
                 'folders': folder_count,
                 'files': file_count,
@@ -242,37 +263,37 @@ class VectorStore:
                 'recent_files': recent_files,
                 'database_path': os.path.abspath(self.db_path)
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting debug stats: {str(e)}")
             return {'error': str(e)}
-    
+
     async def get_total_indexed_files(self) -> int:
         """Get total number of indexed files"""
         cursor = self.connection.cursor()
         cursor.execute("SELECT COUNT(*) as count FROM files")
         return cursor.fetchone()['count']
-    
+
     async def get_total_chunks(self) -> int:
         """Get total number of document chunks"""
         cursor = self.connection.cursor()
         cursor.execute("SELECT COUNT(*) as count FROM document_chunks")
         return cursor.fetchone()['count']
-    
+
     async def add_folder(self, folder_path: str, parent_id: Optional[int] = None) -> int:
         """Add a folder to the database with hierarchy support"""
         cursor = self.connection.cursor()
         try:
             folder_name = Path(folder_path).name
             level = 0
-            
+
             if parent_id:
                 # Get parent level
                 cursor.execute("SELECT level FROM folders WHERE id = ?", (parent_id,))
                 parent = cursor.fetchone()
                 if parent:
                     level = parent['level'] + 1
-            
+
             cursor.execute(
                 "INSERT OR REPLACE INTO folders (path, name, parent_id, level, last_indexed) VALUES (?, ?, ?, ?, ?)",
                 (folder_path, folder_name, parent_id, level, datetime.now())
@@ -284,15 +305,15 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Error adding folder {folder_path}: {str(e)}")
             raise
-    
+
     async def add_subfolder(self, parent_id: int, folder_path: str, folder_name: str) -> int:
         """Add a subfolder under a parent folder"""
         return await self.add_folder(folder_path, parent_id)
-    
+
     async def get_folder_hierarchy(self, root_folder_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """Get folder hierarchy starting from root or specific folder"""
         cursor = self.connection.cursor()
-        
+
         try:
             # Use a single query and build the hierarchy in Python
             cursor.execute("""
@@ -301,12 +322,12 @@ class VectorStore:
                 FROM folders f
                 ORDER BY level, name
             """)
-            
+
             rows = cursor.fetchall()
-            
+
             folders = {row['id']: dict(row, children=[]) for row in rows}
             root_folders = []
-            
+
             for folder_id, folder in folders.items():
                 if folder['parent_id'] is None:
                     root_folders.append(folder)
@@ -323,7 +344,7 @@ class VectorStore:
             logger.error(f"Error getting folder hierarchy: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
-    
+
     async def get_folder_by_id(self, folder_id: int) -> Optional[Dict[str, Any]]:
         """Get folder information by ID"""
         cursor = self.connection.cursor()
@@ -332,7 +353,7 @@ class VectorStore:
                 SELECT id, path, name, parent_id, level, file_count, last_indexed
                 FROM folders WHERE id = ?
             """, (folder_id,))
-            
+
             row = cursor.fetchone()
             if row:
                 return {
@@ -345,15 +366,15 @@ class VectorStore:
                     'last_indexed': row['last_indexed']
                 }
             return None
-            
+
         except Exception as e:
             logger.error(f"Error getting folder {folder_id}: {str(e)}")
             raise
-    
+
     async def get_files_in_folder_recursive(self, folder_id: int) -> List[Dict[str, Any]]:
         """Get all files in a folder and its subfolders recursively"""
         cursor = self.connection.cursor()
-        
+
         try:
             cursor.execute("""
                 WITH RECURSIVE folder_tree AS (
@@ -362,13 +383,13 @@ class VectorStore:
                     SELECT f.id FROM folders f
                     INNER JOIN folder_tree ft ON f.parent_id = ft.id
                 )
-                SELECT f.id, f.file_path, f.file_name, f.file_type, f.file_size, 
+                SELECT f.id, f.file_path, f.file_name, f.file_type, f.file_size,
                        f.last_modified, f.folder_id
                 FROM files f
                 INNER JOIN folder_tree ft ON f.folder_id = ft.id
                 ORDER BY f.file_name
             """, (folder_id,))
-            
+
             return [
                 {
                     'id': row['id'],
@@ -381,78 +402,78 @@ class VectorStore:
                 }
                 for row in cursor.fetchall()
             ]
-            
+
         except Exception as e:
             logger.error(f"Error getting files in folder {folder_id}: {str(e)}")
             raise
-    
+
     async def get_file_content(self, file_id: int) -> Optional[str]:
         """Get file content from document chunks"""
         cursor = self.connection.cursor()
-        
+
         try:
             cursor.execute("""
-                SELECT content FROM document_chunks 
-                WHERE file_id = ? 
+                SELECT content FROM document_chunks
+                WHERE file_id = ?
                 ORDER BY chunk_index
             """, (file_id,))
-            
+
             chunks = cursor.fetchall()
             if chunks:
                 return '\n'.join([chunk['content'] for chunk in chunks])
             return None
-            
+
         except Exception as e:
             logger.error(f"Error getting file content for {file_id}: {str(e)}")
             return None
-    
+
     async def update_file_location(self, file_id: int, new_path: str) -> None:
         """Update file location after organization"""
         cursor = self.connection.cursor()
-        
+
         try:
             new_name = Path(new_path).name
             cursor.execute("""
-                UPDATE files 
+                UPDATE files
                 SET file_path = ?, file_name = ?
                 WHERE id = ?
             """, (new_path, new_name, file_id))
-            
+
             self.connection.commit()
             logger.debug(f"Updated file location: {file_id} -> {new_path}")
-            
+
         except Exception as e:
             logger.error(f"Error updating file location: {str(e)}")
             raise
-    
+
     async def update_file_location_by_path(self, old_path: str, new_path: str) -> None:
         """Update file location by path"""
         cursor = self.connection.cursor()
-        
+
         try:
             new_name = Path(new_path).name
             cursor.execute("""
-                UPDATE files 
+                UPDATE files
                 SET file_path = ?, file_name = ?
                 WHERE file_path = ?
             """, (new_path, new_name, old_path))
-            
+
             self.connection.commit()
             logger.debug(f"Updated file location: {old_path} -> {new_path}")
-            
+
         except Exception as e:
             logger.error(f"Error updating file location by path: {str(e)}")
             raise
-    
+
     async def save_organisation_actions(self, folder_id: int, actions: List[Dict]) -> None:
         """Save organization actions for rollback capability"""
         cursor = self.connection.cursor()
-        
+
         try:
             for action in actions:
                 cursor.execute("""
-                    INSERT INTO organisation_actions 
-                    (folder_id, action_type, source_path, target_path, classification, 
+                    INSERT INTO organisation_actions
+                    (folder_id, action_type, source_path, target_path, classification,
                      confidence, status, error_message)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
@@ -465,20 +486,20 @@ class VectorStore:
                     action['status'],
                     action.get('error')
                 ))
-            
+
             self.connection.commit()
             logger.info(f"Saved {len(actions)} organization actions")
-            
+
         except Exception as e:
             logger.error(f"Error saving organization actions: {str(e)}")
             raise
-    
+
     async def add_file(self, folder_id: int, file_path: str, file_info: Dict[str, Any]) -> int:
         """Add a file to the database"""
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-                INSERT OR REPLACE INTO files 
+                INSERT OR REPLACE INTO files
                 (folder_id, file_path, file_name, file_type, file_size, last_modified, content_hash)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
@@ -497,27 +518,64 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Error adding file {file_path}: {str(e)}")
             raise
-    
+
     async def add_document_chunk(self, file_id: int, chunk_index: int, content: str, embedding: np.ndarray):
         """Add a document chunk with its embedding"""
         cursor = self.connection.cursor()
-        
+
         try:
             # Convert numpy array to bytes for storage
             embedding_bytes = embedding.astype(np.float32).tobytes()
-            
+
             cursor.execute("""
                 INSERT INTO document_chunks (file_id, chunk_index, content, embedding)
                 VALUES (?, ?, ?, ?)
             """, (file_id, chunk_index, content, embedding_bytes))
-            
+
             self.connection.commit()
             logger.debug(f"Added chunk {chunk_index} for file {file_id} (content length: {len(content)})")
-            
+
         except Exception as e:
             logger.error(f"Error adding document chunk: {str(e)}")
             raise
-    
+
+    async def add_image_embedding(self, file_id: int, image_embedding: np.ndarray,
+                                 text_embedding: np.ndarray, metadata: Dict) -> None:
+        """
+        Add image embeddings and metadata to the database.
+        """
+        cursor = self.connection.cursor()
+
+        try:
+            # Convert numpy arrays to bytes for storage if they exist
+            image_embedding_bytes = None
+            if image_embedding is not None:
+                image_embedding_bytes = image_embedding.astype(np.float32).tobytes()
+
+            text_embedding_bytes = text_embedding.astype(np.float32).tobytes()
+            metadata_json = json.dumps(metadata, cls=DateTimeEncoder)
+
+            # Insert or replace the image embedding
+            cursor.execute("""
+                INSERT OR REPLACE INTO image_embeddings
+                (file_id, image_embedding, text_embedding, caption, metadata)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                file_id,
+                image_embedding_bytes,
+                text_embedding_bytes,
+                metadata.get("caption", ""),
+                metadata_json
+            ))
+
+            self.connection.commit()
+            logger.debug(f"Added image embeddings for file {file_id}")
+
+        except Exception as e:
+            logger.error(f"Error adding image embedding: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise
+
     async def search(self, query: str, limit: int = 10, threshold: float = 0.3, batch_size: int = 1000) -> List[Dict[str, Any]]:
         """
         Search for similar document chunks using cosine similarity, processing in batches.
@@ -526,7 +584,7 @@ class VectorStore:
             logger.info(f"Starting search for: '{query}' (threshold: {threshold}, limit: {limit}, batch_size: {batch_size})")
 
             query_embedding = await self.embedding_service.generate_embedding(f"query: {query}")
-            
+
             if query_embedding is None:
                 logger.error("Failed to generate query embedding.")
                 return []
@@ -541,11 +599,11 @@ class VectorStore:
 
             offset = 0
             total_chunks_processed = 0
-            
+
             while True:
                 cursor = self.connection.cursor()
                 cursor.execute(f"""
-                    SELECT 
+                    SELECT
                         dc.content,
                         dc.embedding,
                         f.file_path,
@@ -556,7 +614,7 @@ class VectorStore:
                     JOIN files f ON dc.file_id = f.id
                     LIMIT {batch_size} OFFSET {offset}
                 """)
-                
+
                 rows = cursor.fetchall()
                 if not rows:
                     logger.info("No more chunks to process.")
@@ -587,12 +645,12 @@ class VectorStore:
                     except Exception as e:
                         logger.error(f"Error processing a search result row: {e}")
                         continue
-                
+
                 offset += batch_size
 
             # Sort all collected results by similarity score
             all_results.sort(key=lambda x: x['similarity_score'], reverse=True)
-            
+
             logger.info(f"Search completed: {total_chunks_processed} chunks processed, {len(all_results)} results found above threshold.")
 
             if not all_results:
@@ -604,13 +662,13 @@ class VectorStore:
             logger.error(f"Search error: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
-    
+
     async def get_indexed_files(self) -> List[Dict[str, Any]]:
         """Get list of all indexed files"""
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-                SELECT 
+                SELECT
                     f.id,
                     f.file_path,
                     f.file_name,
@@ -625,7 +683,7 @@ class VectorStore:
                 GROUP BY f.id, f.file_path, f.file_name, f.file_type, f.file_size, f.last_modified, fo.path
                 ORDER BY f.file_name
             """)
-            
+
             files = [
                 {
                     'id': row['id'],
@@ -639,14 +697,162 @@ class VectorStore:
                 }
                 for row in cursor.fetchall()
             ]
-            
+
             logger.info(f"Retrieved {len(files)} indexed files")
             return files
-            
+
         except Exception as e:
             logger.error(f"Error getting indexed files: {str(e)}")
             raise
-    
+
+    async def get_all_images(self) -> List[Dict[str, Any]]:
+        """Get all indexed images with their metadata"""
+        cursor = self.connection.cursor()
+        try:
+            # Get all image files (based on common image extensions)
+            cursor.execute("""
+                SELECT
+                    f.id,
+                    f.file_path,
+                    f.file_name,
+                    f.file_type,
+                    f.file_size,
+                    f.last_modified,
+                    fo.path as folder_path,
+                    ie.caption,
+                    ie.metadata
+                FROM files f
+                JOIN folders fo ON f.folder_id = fo.id
+                LEFT JOIN image_embeddings ie ON f.id = ie.file_id
+                WHERE f.file_type IN ('.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.gif', '.svg')
+                ORDER BY f.file_name
+            """)
+
+            images = []
+            for row in cursor.fetchall():
+                image_data = {
+                    'id': row['id'],
+                    'file_path': row['file_path'],
+                    'file_name': row['file_name'],
+                    'file_type': row['file_type'],
+                    'file_size': row['file_size'],
+                    'last_modified': row['last_modified'],
+                    'folder_path': row['folder_path'],
+                    'caption': row['caption'] or '',  # Default empty caption if null
+                    'tags': [],     # Default empty tags
+                    'resolution': 'unknown'  # Default resolution
+                }
+
+                # Parse metadata if available
+                if row['metadata']:
+                    try:
+                        metadata = json.loads(row['metadata'])
+                        if 'metadata' in metadata and isinstance(metadata['metadata'], dict):
+                            image_data['resolution'] = f"{metadata['metadata'].get('size', ['unknown', 'unknown'])[0]}x{metadata['metadata'].get('size', ['unknown', 'unknown'])[1]}" if 'size' in metadata['metadata'] else 'unknown'
+                    except (json.JSONDecodeError, KeyError):
+                        pass
+
+                images.append(image_data)
+
+            logger.info(f"Retrieved {len(images)} indexed images")
+            return images
+
+        except Exception as e:
+            logger.error(f"Error getting indexed images: {str(e)}")
+            raise
+
+    async def search_images(self, query_embedding: np.ndarray, limit: int = 10, threshold: float = 0.3) -> List[Dict[str, Any]]:
+        """
+        Search for similar images using cosine similarity.
+        Can search using either text embedding or image embedding.
+        """
+        try:
+            logger.info(f"Starting image search (threshold: {threshold}, limit: {limit})")
+
+            if query_embedding is None:
+                logger.error("Failed to generate query embedding.")
+                return []
+
+            logger.debug(f"Generated query embedding with shape: {query_embedding.shape}")
+
+            query_embedding_norm = np.linalg.norm(query_embedding)
+            if query_embedding_norm == 0:
+                logger.warning("Query embedding norm is zero, cannot compute similarity.")
+                return []
+
+            cursor = self.connection.cursor()
+
+            # Get all image embeddings
+            cursor.execute("""
+                SELECT
+                    ie.file_id,
+                    ie.image_embedding,
+                    ie.text_embedding,
+                    ie.caption,
+                    ie.metadata,
+                    f.file_path,
+                    f.file_name,
+                    f.file_type,
+                    f.file_size,
+                    f.last_modified,
+                    fo.path as folder_path
+                FROM image_embeddings ie
+                JOIN files f ON ie.file_id = f.id
+                JOIN folders fo ON f.folder_id = fo.id
+            """)
+
+            all_results = []
+            for row in cursor.fetchall():
+                try:
+                    # Try text embedding first
+                    if row['text_embedding']:
+                        stored_embedding = np.frombuffer(row['text_embedding'], dtype=np.float32)
+                        stored_embedding_norm = np.linalg.norm(stored_embedding)
+
+                        if stored_embedding_norm > 0:
+                            similarity = np.dot(query_embedding, stored_embedding) / (query_embedding_norm * stored_embedding_norm)
+
+                            if similarity >= threshold:
+                                # Parse metadata
+                                metadata = {}
+                                if row['metadata']:
+                                    try:
+                                        metadata = json.loads(row['metadata'])
+                                    except json.JSONDecodeError:
+                                        pass
+
+                                all_results.append({
+                                    'file_id': row['file_id'],
+                                    'file_path': row['file_path'],
+                                    'file_name': row['file_name'],
+                                    'file_type': row['file_type'],
+                                    'file_size': row['file_size'],
+                                    'last_modified': row['last_modified'],
+                                    'folder_path': row['folder_path'],
+                                    'caption': row['caption'] or '',
+                                    'similarity_score': float(similarity),
+                                    'metadata': metadata.get('metadata', {})
+                                })
+
+                except Exception as e:
+                    logger.error(f"Error processing an image embedding: {e}")
+                    continue
+
+            # Sort all collected results by similarity score
+            all_results.sort(key=lambda x: x['similarity_score'], reverse=True)
+
+            logger.info(f"Image search completed: {len(all_results)} results found above threshold.")
+
+            if not all_results:
+                logger.warning(f"No image results found above threshold {threshold}.")
+
+            return all_results[:limit]
+
+        except Exception as e:
+            logger.error(f"Image search error: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise
+
     async def get_indexed_folders(self) -> List[Dict[str, Any]]:
         """Get list of indexed folders with accurate, recursive file counts."""
         cursor = self.connection.cursor()
@@ -659,7 +865,7 @@ class VectorStore:
                 return []
 
             folder_map = {f['id']: dict(f, children=[]) for f in all_folders}
-            
+
             # Build the hierarchy
             for folder_id, folder_data in folder_map.items():
                 parent_id = folder_data['parent_id']
@@ -683,7 +889,7 @@ class VectorStore:
                 if folder['parent_id'] is None:
                     folder_id = folder['id']
                     total_files = get_recursive_file_count(folder_id)
-                    
+
                     # Update the database for consistency
                     cursor.execute("UPDATE folders SET file_count = ? WHERE id = ?", (total_files, folder_id))
 
@@ -694,7 +900,7 @@ class VectorStore:
                         'file_count': total_files,
                         'last_indexed': folder['last_indexed']
                     })
-            
+
             self.connection.commit()
             logger.info(f"Retrieved and updated {len(root_folders)} root folders with recursive file counts.")
             return root_folders
@@ -703,7 +909,7 @@ class VectorStore:
             logger.error(f"Error getting indexed folders: {str(e)}")
             logger.error(traceback.format_exc())
             raise
-    
+
     async def remove_folder(self, folder_id: int):
         """Remove a folder and all its subfolders and associated data recursively."""
         cursor = self.connection.cursor()
@@ -726,15 +932,15 @@ class VectorStore:
                 )
                 SELECT id FROM folder_to_delete;
             """, (folder_id,))
-            
+
             folder_ids_to_delete = [row[0] for row in cursor.fetchall()]
-            
+
             if not folder_ids_to_delete:
                 logger.warning(f"No folders found for deletion for ID {folder_id}")
                 return
 
             logger.info(f"Identified {len(folder_ids_to_delete)} folders for deletion (including subfolders).")
-            
+
             # The ON DELETE CASCADE for foreign keys will handle the deletion of:
             # - Files in the deleted folders
             # - Document chunks for those files
@@ -745,7 +951,7 @@ class VectorStore:
             # We can delete all folders in one go
             placeholders = ','.join('?' for _ in folder_ids_to_delete)
             cursor.execute(f"DELETE FROM folders WHERE id IN ({placeholders})", folder_ids_to_delete)
-            
+
             self.connection.commit()
             logger.info(f"Successfully removed folder {folder_id} and its {len(folder_ids_to_delete) - 1} subfolders.")
 
@@ -754,7 +960,7 @@ class VectorStore:
             logger.error(traceback.format_exc())
             self.connection.rollback()  # Rollback on error
             raise
-    
+
     async def clear_all(self):
         """Clear all data from the database"""
         cursor = self.connection.cursor()
@@ -770,7 +976,7 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Error clearing database: {str(e)}")
             raise
-    
+
     async def create_chat_session(self, session_name: str) -> Dict[str, Any]:
         """Create a new chat session"""
         cursor = self.connection.cursor()

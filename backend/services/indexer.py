@@ -1,6 +1,7 @@
 #
 import os
 import hashlib
+import json
 from pathlib import Path
 from typing import AsyncGenerator, Tuple, Dict, Any
 import logging
@@ -15,12 +16,16 @@ from .file_processors import FileProcessorFactory
 logger = logging.getLogger(__name__)
 
 class FileIndexer:
-    def __init__(self, vector_store: VectorStore, embedding_service: EmbeddingService):
+    def __init__(self, vector_store: VectorStore, embedding_service: EmbeddingService, llm_client=None):
         self.vector_store = vector_store
         self.embedding_service = embedding_service
+        self.llm_client = llm_client
+        # Initialize the file processor factory with the LLM client
+        FileProcessorFactory.initialize(llm_client)
         self.supported_extensions = {
             '.txt', '.md', '.py', '.js', '.html', '.css', '.json',
-            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml','.c', '.pptx'
+            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml','.c', '.pptx',
+            '.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.gif', '.svg'
         }
         logger.info(f" FileIndexer initialized with supported extensions: {self.supported_extensions}")
 
@@ -112,35 +117,118 @@ class FileIndexer:
             file_id = await self.vector_store.add_file(folder_id, str(file_path), file_info)
             logger.debug(f"Added file to database with ID: {file_id}")
 
-            # Extract text content
+            # Get the processor for this file type
             processor = FileProcessorFactory.get_processor(file_path.suffix.lower())
             logger.debug(f"Using processor: {type(processor).__name__}")
 
-            content = await processor.extract_text(file_path)
+            # Check if this is an image file
+            is_image_file = file_path.suffix.lower() in {
+                '.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.gif'
+            }
 
-            if not content or not content.strip():
-                logger.warning(f"No content extracted from {file_path}")
-                return
+            if is_image_file and hasattr(processor, 'get_image_embedding'):
+                # Special handling for image files using Gemini LLM
+                logger.info(f"Processing image file with Gemini LLM: {file_path}")
 
-            logger.debug(f"Extracted content length: {len(content)} characters")
+                # Get the caption from the image processor
+                content = await processor.extract_text(file_path)
+                try:
+                    content_data = json.loads(content)
+                    caption = content_data.get("caption", "")
+                    metadata = content_data.get("metadata", {})
 
-            # Split content into chunks
-            chunks = self._split_text(content)
-            logger.debug(f"Split content into {len(chunks)} chunks")
+                    # If caption is empty or default, generate a better one
+                    if not caption or caption.startswith("A detailed description") or caption.startswith("Error"):
+                        logger.info(f"No valid caption found for {file_path}, generating a new one")
+                        if self.llm_client:
+                            try:
+                                # Generate a more detailed caption using the LLM client
+                                prompt = f"""
+                                Provide a detailed 4-5 sentence description of an image with filename: {file_path.name}.
+                                Include all important visual elements, describe the context and purpose of the image.
+                                Be clear, accurate, and professional.
+                                """
+                                caption = await self.llm_client.generate_answer(
+                                    question=f"Describe this image: {file_path.name}",
+                                    context=f"Filename: {file_path.name}, Metadata: {json.dumps(metadata)}"
+                                )
+                                logger.info(f"Generated new caption for {file_path.name}: {caption[:100]}...")
+                            except Exception as e:
+                                logger.error(f"Error generating caption with LLM: {str(e)}")
+                                caption = f"Error generating caption: {str(e)}"
+                except json.JSONDecodeError:
+                    caption = ""
+                    metadata = {}
 
-            # Generate embeddings and store chunks
-            for i, chunk in enumerate(chunks):
-                if chunk.strip():  # Only process non-empty chunks
-                    try:
-                        logger.debug(f"Generating embedding for chunk {i+1}/{len(chunks)}")
-                        embedding = await self.embedding_service.generate_embedding(f"passage: {chunk}")
-                        await self.vector_store.add_document_chunk(file_id, i, chunk, embedding)
-                        logger.debug(f"Stored chunk {i+1} with embedding")
-                    except Exception as e:
-                        logger.error(f"Error processing chunk {i} of {file_path}: {str(e)}")
-                        continue
+                # Store the image metadata and caption
+                image_metadata = {
+                    "caption": caption,
+                    "metadata": metadata,
+                    "file_info": file_info
+                }
 
-            logger.info(f"Successfully indexed {file_path} with {len(chunks)} chunks")
+                # Get image embeddings
+                embedding_result = await processor.get_image_embedding(file_path)
+
+                # Store the image embeddings
+                if embedding_result["text_embedding"] is not None:
+                    # Make sure we have a valid caption
+                    if not image_metadata["caption"] or image_metadata["caption"].startswith("A detailed description"):
+                        # Generate a better caption if needed
+                        if self.llm_client:
+                            try:
+                                prompt = f"""
+                                Provide a detailed 4-5 sentence description of an image with filename: {file_path.name}.
+                                Include all important visual elements, describe the context and purpose of the image.
+                                Be clear, accurate, and professional.
+                                """
+                                image_metadata["caption"] = await self.llm_client.generate_answer(
+                                    question=f"Describe this image: {file_path.name}",
+                                    context=f"Filename: {file_path.name}"
+                                )
+                                logger.info(f"Generated new caption for {file_path.name}: {image_metadata['caption'][:100]}...")
+                            except Exception as e:
+                                logger.error(f"Error generating caption with LLM: {str(e)}")
+                                image_metadata["caption"] = f"Error generating caption: {str(e)}"
+
+                    await self.vector_store.add_image_embedding(
+                        file_id,
+                        None,  # No image embedding
+                        embedding_result["text_embedding"],
+                        image_metadata
+                    )
+                    logger.info(f"Successfully indexed image {file_path} with caption: {image_metadata['caption'][:100] if image_metadata['caption'] else 'No caption'}")
+                else:
+                    logger.error(f"Failed to generate text embedding for image {file_path}")
+
+                logger.info(f"Successfully indexed image {file_path} with caption: {caption[:100] if caption else 'No caption'}")
+            else:
+                # Regular text processing for non-image files
+                content = await processor.extract_text(file_path)
+
+                if not content or not content.strip():
+                    logger.warning(f"No content extracted from {file_path}")
+                    return
+
+                logger.debug(f"Extracted content length: {len(content)} characters")
+
+                # Split content into chunks
+                chunks = self._split_text(content)
+                logger.debug(f"Split content into {len(chunks)} chunks")
+
+                # Generate embeddings and store chunks
+                for i, chunk in enumerate(chunks):
+                    if chunk.strip():  # Only process non-empty chunks
+                        try:
+                            logger.debug(f"Generating embedding for chunk {i+1}/{len(chunks)}")
+                            embedding = await self.embedding_service.generate_embedding(f"passage: {chunk}")
+                            await self.vector_store.add_document_chunk(file_id, i, chunk, embedding)
+                            logger.debug(f"Stored chunk {i+1} with embedding")
+                        except Exception as e:
+                            logger.error(f"Error processing chunk {i} of {file_path}: {str(e)}")
+                            continue
+
+                logger.info(f"Successfully indexed {file_path} with {len(chunks)} chunks")
 
         except Exception as e:
             logger.error(f"Error indexing file {file_path}: {str(e)}")

@@ -75,3 +75,6 @@ Thumbs.db
 # ===========================================
 backend/local_models/
 backend/embedding_model/intfloat_e5-small-v2/model.safetensors
+backend/model_cache
+smartfile_ai.db
+*.db

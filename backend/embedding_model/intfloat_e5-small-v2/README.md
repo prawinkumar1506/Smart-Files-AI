@@ -2615,6 +2615,9 @@ This model has 12 layers and the embedding size is 384.
 
 Below is an example to encode queries and passages from the MS-MARCO passage ranking dataset.
 
+
+setx TF_ENABLE_ONEDNN_OPTS 0
+
 ```python
 import torch.nn.functional as F
 

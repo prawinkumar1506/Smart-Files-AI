@@ -204,9 +204,11 @@ function startBackend() {
 
   if (isDev) {
     const pythonExecutable = path.join(__dirname, "../backend/venv/Scripts/python.exe");
-    backendProcess = spawn(pythonExecutable, [backendPath]);
+    backendProcess = spawn("python", [backendPath]);
+
   } else {
-    backendProcess = spawn(backendPath)
+    backendProcess = spawn("python", [backendPath]);
+
   }
 
   backendProcess.stdout.on("data", (data) => {
