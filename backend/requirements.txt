@@ -4,11 +4,10 @@ pydantic
 numpy
 torch
 torchvision
-tensorflow==2.16.1
-tf-keras==2.16.0
-transformers
+transformers==4.39.3
 accelerate
-sentence-transformers
+sentence-transformers==2.6.1
+huggingface_hub==0.23.0
 Pillow
 httpx==0.25.2
 PyPDF2==3.0.1
