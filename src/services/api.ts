@@ -3,18 +3,19 @@ import axios from "axios";
 // Default base URL (works for both SSR and browser)
 let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
-// Client-side only: Listen for port updates from Electron
-if (typeof window !== 'undefined' && window.electronAPI) {
-  window.electronAPI.onBackendPort((event, port) => {
-    baseURL = `http://localhost:${port}`;
-    console.log(`Updated backend URL: ${baseURL}`);
-  });
-}
-
 const api = axios.create({
   baseURL,
   timeout: 45000,
 });
+
+// Client-side only: Listen for port updates from Electron
+if (typeof window !== 'undefined' && window.electronAPI) {
+  window.electronAPI.onBackendPort((event, port) => {
+    baseURL = `http://localhost:${port}`;
+    api.defaults.baseURL = baseURL;
+    console.log(`Updated backend URL: ${baseURL}`);
+  });
+}
 
 export interface IndexRequest {
   folder_paths: string[]
