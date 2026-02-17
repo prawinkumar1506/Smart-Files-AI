@@ -14,6 +14,9 @@ import {
   XCircle,
   Eye,
   Play,
+  TrendingUp,
+  BarChart3,
+  Zap,
 } from "lucide-react"
 import { ApiService } from "../services/api"
 
@@ -57,10 +60,22 @@ const FileOrganiser: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false)
   const [analysis, setAnalysis] = useState<OrganiseAnalysis | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1) // 1: Select, 2: Analyze, 3: Review
 
   useEffect(() => {
     loadFolderHierarchy()
   }, [])
+
+  useEffect(() => {
+    // Update step based on state
+    if (!selectedFolder) {
+      setCurrentStep(1)
+    } else if (selectedFolder && !analysis) {
+      setCurrentStep(2)
+    } else if (analysis) {
+      setCurrentStep(3)
+    }
+  }, [selectedFolder, analysis])
 
   const loadFolderHierarchy = async () => {
     try {
@@ -113,6 +128,12 @@ const FileOrganiser: React.FC = () => {
     } finally {
       setIsAnalyzing(false)
     }
+  }
+
+  const calculateAverageConfidence = () => {
+    if (!analysis || analysis.classifications.length === 0) return 0
+    const sum = analysis.classifications.reduce((acc, c) => acc + c.confidence, 0)
+    return Math.round((sum / analysis.classifications.length) * 100)
   }
 
   const executeOrganisation = async () => {
@@ -226,31 +247,66 @@ const FileOrganiser: React.FC = () => {
     <div className="file-organiser-page">
       <div className="organiser-header">
         <div className="organiser-header-content">
-<div className="organiser-header-logo">
-            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+          <div className="organiser-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image logo-glow" />
           </div>
           <div className="organiser-header-text">
-            <h1>File Organiser</h1>
-            <p>Intelligently organize your files using AI-powered classification</p>
+            <h1 className="gradient-text">AI File Organiser</h1>
+            <p className="subtitle-text">Intelligently organize your files with AI-powered classification</p>
           </div>
         </div>
       </div>
 
-      <div className="organiser-content">
-        <div className="folder-tree-panel">
+      {/* 3-Step Workflow Indicator */}
+      <div className="workflow-steps">
+        <div className={`workflow-step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`}>
+          <div className="step-circle">
+            {currentStep > 1 ? <CheckCircle size={20} /> : '1'}
+          </div>
+          <div className="step-label">
+            <h4>Select Folder</h4>
+            <p>Choose folder to organize</p>
+          </div>
+        </div>
+        
+        <div className="step-connector"></div>
+        
+        <div className={`workflow-step ${currentStep >= 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}`}>
+          <div className="step-circle">
+            {currentStep > 2 ? <CheckCircle size={20} /> : '2'}
+          </div>
+          <div className="step-label">
+            <h4>Analyze Files</h4>
+            <p>AI categorizes your files</p>
+          </div>
+        </div>
+        
+        <div className="step-connector"></div>
+        
+        <div className={`workflow-step ${currentStep >= 3 ? 'active' : ''}`}>
+          <div className="step-circle">3</div>
+          <div className="step-label">
+            <h4>Review & Execute</h4>
+            <p>Confirm and apply changes</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="organiser-content-modern">
+        {/* Left Panel: Folder Tree */}
+        <div className="folder-tree-panel-modern glassmorphic">
           <div className="panel-header">
             <h3>Folder Structure</h3>
-            <button className="refresh-btn" onClick={loadFolderHierarchy}>
+            <button className="refresh-btn-modern" onClick={loadFolderHierarchy}>
               <RefreshCw size={16} />
             </button>
           </div>
 
           <div className="folder-tree">
             {hierarchy.length === 0 ? (
-              <div className="empty-state">
-                <Folder size={48} />
-                <p>No folders indexed yet</p>
-                <p>Add some folders to get started</p>
+              <div className="empty-state-small">
+                <Folder size={32} />
+                <p>No folders indexed</p>
               </div>
             ) : (
               hierarchy.map((folder) => renderFolder(folder))
@@ -258,105 +314,148 @@ const FileOrganiser: React.FC = () => {
           </div>
         </div>
 
-        <div className="analysis-panel">
+        {/* Right Panel: AI Analysis */}
+        <div className="analysis-panel-modern">
           {!selectedFolder ? (
-            <div className="no-selection">
-              <Sparkles size={48} />
-              <h3>Select a Folder to Organize</h3>
-              <p>Choose a folder from the tree to analyze and organize its files</p>
-            </div>
-          ) : (
-            <div className="folder-analysis">
-              <div className="selected-folder-info">
-                <h3>Selected Folder</h3>
-                <div className="folder-details">
-                  <Folder size={20} />
-                  <div>
-                    <div className="folder-name">{selectedFolderInfo?.name}</div>
-                    <div className="folder-path">{selectedFolderInfo?.path}</div>
-                    <div className="folder-stats">
-                      {selectedFolderInfo?.file_count} files, {selectedFolderInfo?.subfolder_count} subfolders
-                    </div>
-                  </div>
+            <div className="no-selection-modern glassmorphic">
+              <div className="illustration-circle pulse">
+                <Sparkles size={48} />
+              </div>
+              <h3>Select a Folder to Begin</h3>
+              <p>Choose a folder from the tree to start AI-powered organization</p>
+              <div className="feature-highlights">
+                <div className="feature-item">
+                  <Zap size={16} />
+                  <span>AI Classification</span>
+                </div>
+                <div className="feature-item">
+                  <BarChart3 size={16} />
+                  <span>Smart Categorization</span>
+                </div>
+                <div className="feature-item">
+                  <TrendingUp size={16} />
+                  <span>Confidence Scoring</span>
                 </div>
               </div>
-
-              <div className="analysis-actions">
-                <button className="analyze-btn" onClick={analyzeFolder} disabled={isAnalyzing}>
-                  <Sparkles size={16} />
-                  {isAnalyzing ? "Analyzing..." : "Analyze for Organization"}
+            </div>
+          ) : (
+            <div className="folder-analysis-modern">
+              {/* Selected Folder Info */}
+              <div className="selected-folder-card glassmorphic">
+                <div className="card-header-modern">
+                  <h3>Selected Folder</h3>
+                  {selectedFolderInfo && (
+                    <span className="file-badge">{selectedFolderInfo.file_count} files</span>
+                  )}
+                </div>
+                <div className="folder-details-modern">
+                  <div className="folder-icon-large gradient-bg-blue">
+                    <Folder size={32} />
+                  </div>
+                  <div className="folder-text">
+                    <div className="folder-name-large">{selectedFolderInfo?.name}</div>
+                    <div className="folder-path-small">{selectedFolderInfo?.path}</div>
+                  </div>
+                </div>
+                <button 
+                  className="analyze-btn-modern gradient-bg-purple" 
+                  onClick={analyzeFolder} 
+                  disabled={isAnalyzing}
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <RefreshCw size={16} className="spinning" />
+                      AI Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      Start AI Analysis
+                    </>
+                  )}
                 </button>
               </div>
 
+              {/* AI Analysis Results */}
               {analysis && (
-                <div className="analysis-results">
-                  <div className="results-header">
-                    <h4>Analysis Results</h4>
-                    <div className="results-summary">
-                      {analysis.total_files} files analyzed, {Object.keys(analysis.suggested_structure).length}{" "}
-                      categories suggested
+                <>
+                  {/* Confidence Score Card */}
+                  <div className="confidence-card glassmorphic">
+                    <div className="confidence-header">
+                      <h4>AI Confidence Score</h4>
+                      <div className={`confidence-badge ${calculateAverageConfidence() > 80 ? 'high' : calculateAverageConfidence() > 60 ? 'medium' : 'low'}`}>
+                        {calculateAverageConfidence() > 80 ? 'High' : calculateAverageConfidence() > 60 ? 'Medium' : 'Low'} Confidence
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="suggested-structure">
-                    <h5>Suggested Organization</h5>
-                    {Object.entries(analysis.suggested_structure).map(([folderName, files]) => (
-                      <div key={folderName} className="category-group">
-                        <div className="category-header">
-                          <Folder size={16} />
-                          <span className="category-name">{folderName}</span>
-                          <span className="file-count">({files.length} files)</span>
+                    <div className="confidence-visual">
+                      <div className="confidence-circle">
+                        <svg viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="45" className="confidence-bg" />
+                          <circle 
+                            cx="50" 
+                            cy="50" 
+                            r="45" 
+                            className="confidence-progress"
+                            style={{ 
+                              strokeDasharray: `${calculateAverageConfidence() * 2.83} 283`,
+                              stroke: calculateAverageConfidence() > 80 ? '#10b981' : calculateAverageConfidence() > 60 ? '#f59e0b' : '#ef4444'
+                            }}
+                          />
+                        </svg>
+                        <div className="confidence-percentage">{calculateAverageConfidence()}%</div>
+                      </div>
+                      <div className="confidence-stats">
+                        <div className="stat-item">
+                          <span className="stat-label">Total Files</span>
+                          <span className="stat-value">{analysis.total_files}</span>
                         </div>
-                        <div className="category-files">
-                          {files.slice(0, 5).map((fileName) => (
-                            <div key={fileName} className="file-item">
-                              <File size={14} />
-                              <span>{fileName}</span>
-                            </div>
-                          ))}
-                          {files.length > 5 && <div className="more-files">+{files.length - 5} more files</div>}
+                        <div className="stat-item">
+                          <span className="stat-label">Categories</span>
+                          <span className="stat-value">{Object.keys(analysis.suggested_structure).length}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="classification-details">
-                    <h5>Classification Details</h5>
-                    <div className="classifications-list">
-                      {analysis.classifications.slice(0, 10).map((classification) => (
-                        <div key={classification.file_id} className="classification-item">
-                          <div className="file-info">
-                            <File size={14} />
-                            <span className="file-name">{classification.file_name}</span>
-                          </div>
-                          <div className="classification-info">
-                            <span className="category">{classification.classification}</span>
-                            <span className="confidence">
-                              {Math.round(classification.confidence * 100)}% confidence
-                            </span>
-                          </div>
-                          <div className="reasoning">{classification.reasoning}</div>
-                        </div>
-                      ))}
-                      {analysis.classifications.length > 10 && (
-                        <div className="more-classifications">
-                          +{analysis.classifications.length - 10} more classifications
-                        </div>
-                      )}
                     </div>
                   </div>
 
-                  <div className="execution-actions">
-                    <button className="preview-btn" onClick={() => setShowConfirmDialog(true)}>
-                      <Eye size={16} />
+                  {/* AI Suggested Structure */}
+                  <div className="structure-card glassmorphic">
+                    <div className="card-header-modern">
+                      <h4>AI Suggested Structure</h4>
+                      <span className="info-badge">
+                        {Object.keys(analysis.suggested_structure).length} categories
+                      </span>
+                    </div>
+                    <div className="category-tree">
+                      {Object.entries(analysis.suggested_structure).map(([folderName, files]) => (
+                        <div key={folderName} className="category-item-modern">
+                          <div className="category-header-modern">
+                            <FolderOpen size={18} className="category-icon" />
+                            <span className="category-name">{folderName}</span>
+                            <span className="category-count">{files.length} files</span>
+                          </div>
+                          <div className="category-progress-bar">
+                            <div 
+                              className="category-progress-fill"
+                              style={{ width: `${(files.length / analysis.total_files) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="action-buttons-modern">
+                    <button className="preview-btn-modern" onClick={() => setShowConfirmDialog(true)}>
+                      <Eye size={18} />
                       Preview Changes
                     </button>
-                    <button className="execute-btn" onClick={() => setShowConfirmDialog(true)}>
-                      <Play size={16} />
+                    <button className="execute-btn-modern gradient-bg-green" onClick={() => setShowConfirmDialog(true)}>
+                      <Play size={18} />
                       Execute Organization
                     </button>
                   </div>
-                </div>
+                </>
               )}
             </div>
           )}

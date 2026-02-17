@@ -12,6 +12,7 @@ import Settings from "./components/Settings"
 import SmartImages from "./components/SmartImages"
 import { ApiService } from "./services/api"
 import "./App.css"
+import "./ModernEnhancements.css"
 
 function App() {
 const [isBackendReady, setIsBackendReady] = useState(false)
@@ -62,20 +63,46 @@ const [isBackendReady, setIsBackendReady] = useState(false)
 
   if (!isBackendReady) {
     return (
-      <div className="app-loading">
-        <div className="loading-logo">
-          <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+      <div className="app-loading-modern">
+        <div className="animated-background">
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
         </div>
-        <div className="loading-content">
-          <h1>Smart Files AI</h1>
-          <p>Your Files. Your AI. Your Privacy.</p>
-          <div className="loading-bar-container">
-            <div className="loading-bar">
-              <div className="loading-bar-fill"></div>
+        
+        <div className="loading-content-modern">
+          <div className="loading-logo-modern">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image logo-pulse" />
+            <div className="logo-glow-ring"></div>
+          </div>
+          
+          <h1 className="loading-title gradient-text-loading">Smart Files AI</h1>
+          <p className="loading-subtitle">Your Files. Your AI. Your Privacy.</p>
+          
+          <div className="loading-progress-modern">
+            <div className="progress-track">
+              <div className="progress-bar-animated"></div>
+              <div className="progress-shimmer"></div>
             </div>
           </div>
-<div className="loading-tips">
-            <p key={currentTip} className="tip-item">
+          
+          <div className="loading-steps">
+            <div className="loading-step active">
+              <div className="step-dot"></div>
+              <span>Initializing AI Engine...</span>
+            </div>
+            <div className="loading-step">
+              <div className="step-dot"></div>
+              <span>Loading Embeddings...</span>
+            </div>
+            <div className="loading-step">
+              <div className="step-dot"></div>
+              <span>Connecting to Database...</span>
+            </div>
+          </div>
+          
+          <div className="loading-tips-modern">
+            <p key={currentTip} className="tip-item-animated">
               {tips[currentTip]}
             </p>
           </div>
