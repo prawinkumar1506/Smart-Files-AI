@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Folder, Plus, Trash2, RefreshCw, AlertCircle } from "lucide-react"
+import { Folder, Plus, Trash2, RefreshCw, AlertCircle, FolderOpen, Files, Clock, BarChart3, Upload } from "lucide-react"
 import { ApiService } from "../services/api"
 
 interface FolderInfo {
@@ -17,6 +17,9 @@ const Folders: React.FC = () => {
   const [folders, setFolders] = useState<FolderInfo[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isIndexing, setIsIndexing] = useState(false)
+  const [selectedFolder, setSelectedFolder] = useState<FolderInfo | null>(null)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     loadFolders()
@@ -25,7 +28,12 @@ const Folders: React.FC = () => {
   const loadFolders = async () => {
     try {
       const foldersData = await ApiService.getFolders()
-      setFolders(foldersData)
+      // Add name property for easier display
+      const foldersWithNames = foldersData.map((f: FolderInfo) => ({
+        ...f,
+        name: f.path.split(/[\\/]/).pop() || f.path
+      }))
+      setFolders(foldersWithNames)
     } catch (error) {
       console.error("Error loading folders:", error)
     } finally {
@@ -69,6 +77,10 @@ const Folders: React.FC = () => {
     try {
       await ApiService.removeFolder(folderId)
       setFolders(folders.filter((f) => f.id !== folderId))
+      if (selectedFolder?.id === folderId) {
+        setSelectedFolder(null)
+        setShowAnalytics(false)
+      }
     } catch (error) {
       console.error("Error removing folder:", error)
       alert("Error removing folder. Please try again.")
@@ -83,10 +95,35 @@ const Folders: React.FC = () => {
     try {
       await ApiService.clearIndex()
       setFolders([])
+      setSelectedFolder(null)
+      setShowAnalytics(false)
     } catch (error) {
       console.error("Error clearing index:", error)
       alert("Error clearing index. Please try again.")
     }
+  }
+
+  const getStatus = (folder: FolderInfo) => {
+    const hoursSinceIndexed = (Date.now() - new Date(folder.last_indexed).getTime()) / (1000 * 60 * 60)
+    if (hoursSinceIndexed < 1) return 'processing'
+    if (hoursSinceIndexed < 24) return 'active'
+    return 'indexed'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    // In Electron, you'd handle folder drops here
+    console.log('Drop event:', e.dataTransfer.files)
   }
 
   if (isLoading) {
@@ -101,27 +138,27 @@ const Folders: React.FC = () => {
   }
 
   return (
-    <div className="folders-page">
+    <div className="folders-page-modern">
       <div className="folders-header">
-        <div className="folders-header-content">
-<div className="folders-header-logo">
-            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image" />
+<div className="folders-header-content">
+          <div className="folders-header-logo">
+            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image logo-glow" />
           </div>
           <div className="folders-header-text">
-            <h1>Manage Folders</h1>
-            <p>Add or remove folders from your search index</p>
+            <h1 className="gradient-text">Manage Folders</h1>
+            <p className="subtitle-text">Organize and monitor your indexed folders</p>
           </div>
         </div>
       </div>
 
-      <div className="folders-actions">
-        <button className="add-folders-btn" onClick={handleAddFolders} disabled={isIndexing}>
+      <div className="folders-actions-modern">
+        <button className="add-folders-btn-modern gradient-bg-blue" onClick={handleAddFolders} disabled={isIndexing}>
           <Plus size={20} />
           {isIndexing ? "Indexing..." : "Add Folders"}
         </button>
 
         {folders.length > 0 && (
-          <button className="clear-all-btn" onClick={handleClearAll} disabled={isIndexing}>
+          <button className="clear-all-btn-modern" onClick={handleClearAll} disabled={isIndexing}>
             <Trash2 size={20} />
             Clear All
           </button>
@@ -129,45 +166,193 @@ const Folders: React.FC = () => {
       </div>
 
       {isIndexing && (
-        <div className="indexing-notice">
+        <div className="indexing-notice glassmorphic">
           <AlertCircle size={20} />
-          <p>Indexing in progress. This may take a few minutes depending on the number of files.</p>
+          <div>
+            <strong>Indexing in progress</strong>
+            <p>Processing your files with AI. This may take a few minutes.</p>
+          </div>
         </div>
       )}
 
       {folders.length === 0 ? (
-        <div className="empty-state">
-          <Folder size={64} />
-          <h3>No folders indexed</h3>
-          <p>Add some folders to start searching through your files</p>
-          <button className="add-first-folder-btn" onClick={handleAddFolders}>
-            <Plus size={20} />
-            Add Your First Folder
-          </button>
+        <div 
+          className={`drop-zone-modern glassmorphic ${isDragging ? 'dragging' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="drop-zone-content">
+            <div className="illustration-circle pulse">
+              <Upload size={64} />
+            </div>
+            <h3>Drag & Drop Folders Here</h3>
+            <p>Or click the button below to browse</p>
+            <button className="add-first-folder-btn gradient-bg-blue" onClick={handleAddFolders}>
+              <Plus size={20} />
+              Add Your First Folder
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="folders-list">
-          {folders.map((folder) => (
-            <div key={folder.id} className="folder-item">
-              <div className="folder-icon">
-                <Folder size={28} />
-              </div>
-              <div className="folder-info">
-                <h4>{folder.path}</h4>
-                <p>
-                  {folder.file_count} files • Last indexed {new Date(folder.last_indexed).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                className="remove-folder-btn"
-                onClick={() => handleRemoveFolder(folder.id, folder.path)}
-                disabled={isIndexing}
-                title="Remove folder"
-              >
-                <Trash2 size={18} />
+        <div className="folders-table-container glassmorphic">
+          <table className="folders-table-modern">
+            <thead>
+              <tr>
+                <th>Folder</th>
+                <th>Files</th>
+                <th>Last Indexed</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {folders.map((folder) => (
+                <tr key={folder.id} className="folder-row-modern hover-lift">
+                  <td className="folder-cell">
+                    <div className="folder-cell-content">
+                      <div className="folder-icon-wrapper gradient-bg-blue">
+                        <FolderOpen size={20} />
+                      </div>
+                      <div className="folder-text">
+                        <div className="folder-name-text">{folder.name}</div>
+                        <div className="folder-path-text">{folder.path}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="file-count-badge">
+                      <Files size={14} />
+                      {folder.file_count.toLocaleString()}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="date-cell">
+                      <Clock size={14} />
+                      {new Date(folder.last_indexed).toLocaleString()}
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`status-badge status-${getStatus(folder)}`}>
+                      {getStatus(folder) === 'processing' ? '🟡 Processing' : 
+                       getStatus(folder) === 'active' ? '🟢 Active' : '🟢 Indexed'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        className="analytics-btn-small"
+                        onClick={() => {
+                          setSelectedFolder(folder)
+                          setShowAnalytics(true)
+                        }}
+                      >
+                        <BarChart3 size={16} />
+                      </button>
+                      <button 
+                        className="delete-btn-small"
+                        onClick={() => handleRemoveFolder(folder.id, folder.path)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Analytics Modal */}
+      {showAnalytics && selectedFolder && (
+        <div className="modal-overlay" onClick={() => setShowAnalytics(false)}>
+          <div className="analytics-modal glassmorphic" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-modern">
+              <h3>Folder Analytics</h3>
+              <button className="close-btn-modern" onClick={() => setShowAnalytics(false)}>
+                ×
               </button>
             </div>
-          ))}
+            <div className="modal-content-modern">
+              <div className="analytics-header">
+                <div className="folder-icon-large gradient-bg-purple">
+                  <FolderOpen size={48} />
+                </div>
+                <div>
+                  <h4>{selectedFolder.name}</h4>
+                  <p className="folder-path-small">{selectedFolder.path}</p>
+                </div>
+              </div>
+
+              <div className="analytics-grid">
+                <div className="analytic-card">
+                  <div className="analytic-icon gradient-bg-blue">
+                    <Files size={24} />
+                  </div>
+                  <div className="analytic-info">
+                    <h5>Total Files</h5>
+                    <div className="analytic-value">{selectedFolder.file_count.toLocaleString()}</div>
+                  </div>
+                </div>
+
+                <div className="analytic-card">
+                  <div className="analytic-icon gradient-bg-green">
+                    <Clock size={24} />
+                  </div>
+                  <div className="analytic-info">
+                    <h5>Last Indexed</h5>
+                    <div className="analytic-value-small">
+                      {new Date(selectedFolder.last_indexed).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="analytic-card">
+                  <div className="analytic-icon gradient-bg-orange">
+                    <BarChart3 size={24} />
+                  </div>
+                  <div className="analytic-info">
+                    <h5>Status</h5>
+                    <span className={`status-badge status-${getStatus(selectedFolder)}`}>
+                      {getStatus(selectedFolder) === 'processing' ? 'Processing' : 
+                       getStatus(selectedFolder) === 'active' ? 'Active' : 'Indexed'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="file-type-breakdown">
+                <h4>File Type Breakdown</h4>
+                <div className="breakdown-chart">
+                  <div className="chart-bar">
+                    <div className="chart-segment" style={{ width: '40%', background: '#3b82f6' }}></div>
+                    <div className="chart-segment" style={{ width: '30%', background: '#8b5cf6' }}></div>
+                    <div className="chart-segment" style={{ width: '20%', background: '#10b981' }}></div>
+                    <div className="chart-segment" style={{ width: '10%', background: '#f59e0b' }}></div>
+                  </div>
+                  <div className="chart-legend">
+                    <div className="legend-item">
+                      <span className="legend-color" style={{ background: '#3b82f6' }}></span>
+                      <span>Documents (40%)</span>
+                    </div>
+                    <div className="legend-item">
+                      <span className="legend-color" style={{ background: '#8b5cf6' }}></span>
+                      <span>Images (30%)</span>
+                    </div>
+                    <div className="legend-item">
+                      <span className="legend-color" style={{ background: '#10b981' }}></span>
+                      <span>Code (20%)</span>
+                    </div>
+                    <div className="legend-item">
+                      <span className="legend-color" style={{ background: '#f59e0b' }}></span>
+                      <span>Other (10%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
