@@ -233,12 +233,19 @@ function startBackend() {
   })
 }
 
-// IPC handlers
+// IPC handlers  
 ipcMain.handle("select-folders", async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ["openDirectory", "multiSelections"],
-    title: "Select folders to index",
+    properties: ["openFile", "multiSelections"],
+    title: "Select files (folder will be indexed)",
   })
+  
+  // Extract unique parent directories from selected files
+  if (result.filePaths && result.filePaths.length > 0) {
+    const path = require("path")
+    const uniqueFolders = [...new Set(result.filePaths.map(filePath => path.dirname(filePath)))]
+    return uniqueFolders
+  }
 
   return result.filePaths
 })

@@ -128,7 +128,7 @@ const [isBackendReady, setIsBackendReady] = useState(false)
     case "settings":
         return <Settings />
       default:
-        return <Dashboard />
+        return <Dashboard onViewChange={setCurrentView} />
     }
   }
 

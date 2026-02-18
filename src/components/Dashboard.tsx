@@ -25,7 +25,11 @@ interface ActivityItem {
   timestamp: Date
 }
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onViewChange?: (view: string) => void
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onViewChange }) => {
   const [indexStatus, setIndexStatus] = useState<IndexStatus | null>(null)
   const [folders, setFolders] = useState<FolderInfo[]>([])
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
@@ -255,7 +259,7 @@ const Dashboard: React.FC = () => {
               </div>
             </button>
 
-            <button className="action-card hover-lift gradient-bg-green" onClick={() => {}}>
+            <button className="action-card hover-lift gradient-bg-green" onClick={() => onViewChange?.("organiser")}>
               <div className="action-icon">
                 <Sparkles size={24} />
               </div>
@@ -265,7 +269,7 @@ const Dashboard: React.FC = () => {
               </div>
             </button>
 
-            <button className="action-card hover-lift gradient-bg-orange">
+            <button className="action-card hover-lift gradient-bg-orange" onClick={() => onViewChange?.("search")}>
               <div className="action-icon">
                 <Zap size={24} />
               </div>
