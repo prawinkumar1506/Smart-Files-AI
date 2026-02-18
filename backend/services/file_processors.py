@@ -60,6 +60,91 @@ class DocxProcessor:
             logger.error(f"Error reading DOCX file {file_path}: {str(e)}")
             return ""
 
+class CSVProcessor:
+    """Processor for CSV/TSV files"""
+
+    async def extract_text(self, file_path: Path) -> str:
+        try:
+            import csv
+            with open(file_path, 'r', encoding='utf-8', errors='ignore', newline='') as f:
+                sample = f.read(2048)
+                f.seek(0)
+                try:
+                    dialect = csv.Sniffer().sniff(sample)
+                except Exception:
+                    dialect = csv.excel
+                reader = csv.reader(f, dialect)
+                rows = []
+                for row in reader:
+                    row_text = "\t".join(cell.strip() for cell in row).strip()
+                    if row_text:
+                        rows.append(row_text)
+                return "\n".join(rows)
+        except Exception as e:
+            logger.error(f"Error reading CSV/TSV file {file_path}: {str(e)}")
+            return ""
+
+class XLSXProcessor:
+    """Processor for XLSX files"""
+
+    async def extract_text(self, file_path: Path) -> str:
+        try:
+            import openpyxl
+            workbook = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
+            text_parts = []
+            for sheet in workbook.worksheets:
+                text_parts.append(f"Sheet: {sheet.title}")
+                for row in sheet.iter_rows(values_only=True):
+                    row_values = ["" if cell is None else str(cell) for cell in row]
+                    row_text = "\t".join(row_values).strip()
+                    if row_text:
+                        text_parts.append(row_text)
+            return "\n".join(text_parts)
+        except ImportError:
+            logger.warning("openpyxl not installed, skipping XLSX processing")
+            return ""
+        except Exception as e:
+            logger.error(f"Error reading XLSX file {file_path}: {str(e)}")
+            return ""
+
+class RTFProcessor:
+    """Processor for RTF files"""
+
+    async def extract_text(self, file_path: Path) -> str:
+        try:
+            from striprtf.striprtf import rtf_to_text
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                return rtf_to_text(f.read())
+        except ImportError:
+            logger.warning("striprtf not installed, skipping RTF processing")
+            return ""
+        except Exception as e:
+            logger.error(f"Error reading RTF file {file_path}: {str(e)}")
+            return ""
+
+class ODTProcessor:
+    """Processor for ODT files"""
+
+    async def extract_text(self, file_path: Path) -> str:
+        try:
+            from odf import text as odf_text
+            from odf import teletype
+            from odf.opendocument import load
+            doc = load(str(file_path))
+            paragraphs = doc.getElementsByType(odf_text.P)
+            text_parts = []
+            for paragraph in paragraphs:
+                paragraph_text = teletype.extractText(paragraph).strip()
+                if paragraph_text:
+                    text_parts.append(paragraph_text)
+            return "\n".join(text_parts)
+        except ImportError:
+            logger.warning("odfpy not installed, skipping ODT processing")
+            return ""
+        except Exception as e:
+            logger.error(f"Error reading ODT file {file_path}: {str(e)}")
+            return ""
+
 class PPTXProcessor:
     """Processor for PPTX files"""
 
@@ -67,17 +152,89 @@ class PPTXProcessor:
         try:
             import pptx
             prs = pptx.Presentation(file_path)
-            text = ""
+            text_parts = []
             for slide in prs.slides:
+                # Slide shapes text
                 for shape in slide.shapes:
-                    if hasattr(shape, "text"):
-                        text += shape.text + "\n"
-            return text
+                    self._extract_shape_text(shape, text_parts)
+
+                # Speaker notes
+                try:
+                    notes_slide = slide.notes_slide
+                    if notes_slide and notes_slide.notes_text_frame:
+                        notes_text = notes_slide.notes_text_frame.text
+                        if notes_text:
+                            text_parts.append(notes_text)
+                except Exception:
+                    pass
+
+            if text_parts:
+                return "\n".join(text_parts)
+
+            # Fallback: extract text directly from PPTX XML
+            xml_text = self._extract_text_from_pptx_xml(file_path)
+            return xml_text
         except ImportError:
             logger.warning("python-pptx not installed, skipping PPTX processing")
             return ""
         except Exception as e:
             logger.error(f"Error reading PPTX file {file_path}: {str(e)}")
+            return ""
+
+    def _extract_shape_text(self, shape, text_parts):
+        """Recursively extract text from shapes, including grouped shapes and tables."""
+        try:
+            # Grouped shapes
+            if hasattr(shape, "shapes"):
+                for sub_shape in shape.shapes:
+                    self._extract_shape_text(sub_shape, text_parts)
+
+            # Text frames
+            if hasattr(shape, "has_text_frame") and shape.has_text_frame:
+                text = shape.text_frame.text
+                if text:
+                    text_parts.append(text)
+                else:
+                    for paragraph in shape.text_frame.paragraphs:
+                        paragraph_text = "".join(run.text for run in paragraph.runs).strip()
+                        if paragraph_text:
+                            text_parts.append(paragraph_text)
+
+            # Tables
+            if hasattr(shape, "has_table") and shape.has_table:
+                for row in shape.table.rows:
+                    for cell in row.cells:
+                        if cell.text:
+                            text_parts.append(cell.text)
+        except Exception:
+            return
+
+    def _extract_text_from_pptx_xml(self, file_path: Path) -> str:
+        """Extract text runs from PPTX XML as a fallback."""
+        try:
+            import zipfile
+            import xml.etree.ElementTree as ET
+
+            text_parts = []
+            with zipfile.ZipFile(file_path, "r") as zf:
+                slide_files = [name for name in zf.namelist() if name.startswith("ppt/slides/slide") and name.endswith(".xml")]
+                notes_files = [name for name in zf.namelist() if name.startswith("ppt/notesSlides/notesSlide") and name.endswith(".xml")]
+
+                for name in slide_files + notes_files:
+                    try:
+                        xml_data = zf.read(name)
+                        root = ET.fromstring(xml_data)
+                        for node in root.iter():
+                            if node.tag.endswith("}t") and node.text:
+                                text = node.text.strip()
+                                if text:
+                                    text_parts.append(text)
+                    except Exception:
+                        continue
+
+            return "\n".join(text_parts)
+        except Exception as e:
+            logger.error(f"Error extracting PPTX XML text {file_path}: {str(e)}")
             return ""
 
 class ImageProcessor:
@@ -230,9 +387,17 @@ class FileProcessorFactory:
         '.html': TextFileProcessor(),
         '.css': TextFileProcessor(),
         '.json': TextFileProcessor(),
+        '.xml': TextFileProcessor(),
+        '.yml': TextFileProcessor(),
+        '.yaml': TextFileProcessor(),
         '.pdf': PDFProcessor(),
         '.docx': DocxProcessor(),
         '.doc': DocxProcessor(),
+        '.csv': CSVProcessor(),
+        '.tsv': CSVProcessor(),
+        '.xlsx': XLSXProcessor(),
+        '.rtf': RTFProcessor(),
+        '.odt': ODTProcessor(),
         '.pptx': PPTXProcessor(),
     }
 

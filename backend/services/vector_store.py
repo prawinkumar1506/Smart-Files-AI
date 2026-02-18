@@ -680,6 +680,7 @@ class VectorStore:
                 FROM files f
                 JOIN folders fo ON f.folder_id = fo.id
                 LEFT JOIN document_chunks dc ON f.id = dc.file_id
+                WHERE f.file_name NOT LIKE '~$%'
                 GROUP BY f.id, f.file_path, f.file_name, f.file_type, f.file_size, f.last_modified, fo.path
                 ORDER BY f.file_name
             """)

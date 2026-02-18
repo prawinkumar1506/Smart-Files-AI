@@ -24,7 +24,8 @@ class FileIndexer:
         FileProcessorFactory.initialize(llm_client)
         self.supported_extensions = {
             '.txt', '.md', '.py', '.js', '.html', '.css', '.json',
-            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml','.c', '.pptx',
+            '.pdf', '.docx', '.doc', '.rtf', '.odt', '.xml', '.yaml', '.yml', '.c', '.pptx',
+            '.csv', '.tsv', '.xlsx',
             '.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.gif', '.svg'
         }
         logger.info(f" FileIndexer initialized with supported extensions: {self.supported_extensions}")
@@ -72,6 +73,11 @@ class FileIndexer:
 
                 for file_name in files:
                     file_path = Path(root) / file_name
+
+                    # Skip Office temporary/lock files (e.g., ~$*.docx/pptx/xlsx)
+                    if file_name.startswith("~$"):
+                        logger.debug(f"Skipping Office temp file: {file_path}")
+                        continue
 
                     if file_path.suffix.lower() in self.supported_extensions:
                         try:

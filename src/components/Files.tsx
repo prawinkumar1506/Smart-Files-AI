@@ -138,9 +138,26 @@ const Files: React.FC = () => {
         return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
     }
 
-    const openFile = (filePath: string) => {
-        console.log("Opening file:", filePath)
-        // In a real Electron app, you would use shell.openPath
+    const openFile = async (filePath: string) => {
+        if (window.electronAPI?.openFile) {
+            const result = await window.electronAPI.openFile(filePath)
+            if (!result?.success) {
+                console.error("Failed to open file:", result?.error)
+            }
+            return
+        }
+        console.warn("openFile is only available in the desktop app")
+    }
+
+    const showInFolder = async (filePath: string) => {
+        if (window.electronAPI?.showFileInFolder) {
+            const result = await window.electronAPI.showFileInFolder(filePath)
+            if (!result?.success) {
+                console.error("Failed to show file in folder:", result?.error)
+            }
+            return
+        }
+        console.warn("showInFolder is only available in the desktop app")
     }
 
     const getFileTypeStats = () => {
