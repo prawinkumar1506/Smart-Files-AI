@@ -14,6 +14,13 @@ interface FolderInfo {
   last_indexed: string
 }
 
+interface FileTypeBreakdown {
+  documents: number
+  code: number
+  images: number
+  other: number
+}
+
 const Folders: React.FC = () => {
   const [folders, setFolders] = useState<FolderInfo[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -22,9 +29,14 @@ const Folders: React.FC = () => {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showFolderPicker, setShowFolderPicker] = useState(false)
+  const [fileTypeBreakdown, setFileTypeBreakdown] = useState<FileTypeBreakdown>({ documents: 0, code: 0, images: 0, other: 0 })
 
   useEffect(() => {
     loadFolders()
+    const interval = setInterval(() => {
+      loadFolders()
+    }, 3000)
+    return () => clearInterval(interval)
   }, [])
 
   const loadFolders = async () => {
@@ -63,11 +75,17 @@ const Folders: React.FC = () => {
           folder_paths: selectedPaths,
         })
 
-        // Refresh the folders list
-        setTimeout(() => {
-          loadFolders()
-          setIsIndexing(false)
-        }, 1000)
+        // Poll for indexing completion
+        const pollIndexStatus = async () => {
+          const status = await ApiService.getIndexStatus()
+          if (!status.is_indexing) {
+            loadFolders()
+            setIsIndexing(false)
+          } else {
+            setTimeout(pollIndexStatus, 1000)
+          }
+        }
+        pollIndexStatus()
       } catch (error) {
         console.error("Error indexing folders:", error)
         setIsIndexing(false)
@@ -114,10 +132,41 @@ const Folders: React.FC = () => {
   }
 
   const getStatus = (folder: FolderInfo) => {
-    const hoursSinceIndexed = (Date.now() - new Date(folder.last_indexed).getTime()) / (1000 * 60 * 60)
-    if (hoursSinceIndexed < 1) return 'processing'
-    if (hoursSinceIndexed < 24) return 'active'
     return 'indexed'
+  }
+
+  const loadFileTypeBreakdown = async (folder: FolderInfo) => {
+    try {
+      const response = await ApiService.getIndexedFiles()
+      const files = Array.isArray(response) ? response : response.files || []
+      const folderFiles = files.filter((f: any) => f.folder_path === folder.path)
+      
+      const breakdown = {
+        documents: 0,
+        code: 0,
+        images: 0,
+        other: 0
+      }
+
+      folderFiles.forEach((file: any) => {
+        const ext = file.file_type?.toLowerCase() || ''
+        if (['.pdf', '.doc', '.docx', '.odt', '.rtf', '.pptx'].includes(ext)) {
+          breakdown.documents++
+        } else if (['.py', '.js', '.html', '.css', '.json', '.xml', '.yaml', '.yml', '.c'].includes(ext)) {
+          breakdown.code++
+        } else if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg'].includes(ext)) {
+          breakdown.images++
+        } else {
+          breakdown.other++
+        }
+      })
+
+      setFileTypeBreakdown(breakdown)
+    } catch (error) {
+      console.error("Error loading file type breakdown:", error)
+      // Set default breakdown on error
+      setFileTypeBreakdown({ documents: 0, code: 0, images: 0, other: 0 })
+    }
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -255,6 +304,7 @@ const Folders: React.FC = () => {
                         onClick={() => {
                           setSelectedFolder(folder)
                           setShowAnalytics(true)
+                          loadFileTypeBreakdown(folder)
                         }}
                       >
                         <BarChart3 size={16} />
@@ -336,28 +386,27 @@ const Folders: React.FC = () => {
                 <h4>File Type Breakdown</h4>
                 <div className="breakdown-chart">
                   <div className="chart-bar">
-                    <div className="chart-segment" style={{ width: '40%', background: '#3b82f6' }}></div>
-                    <div className="chart-segment" style={{ width: '30%', background: '#8b5cf6' }}></div>
-                    <div className="chart-segment" style={{ width: '20%', background: '#10b981' }}></div>
-                    <div className="chart-segment" style={{ width: '10%', background: '#f59e0b' }}></div>
+                    {(() => {
+                      const total = fileTypeBreakdown.documents + fileTypeBreakdown.code + fileTypeBreakdown.images + fileTypeBreakdown.other
+                      const docPercent = total > 0 ? (fileTypeBreakdown.documents / total) * 100 : 0
+                      const codePercent = total > 0 ? (fileTypeBreakdown.code / total) * 100 : 0
+                      const imgPercent = total > 0 ? (fileTypeBreakdown.images / total) * 100 : 0
+                      const otherPercent = total > 0 ? (fileTypeBreakdown.other / total) * 100 : 0
+                      return (
+                        <>
+                          {docPercent > 0 && <div className="chart-segment" style={{ width: `${docPercent}%`, background: '#3b82f6' }}></div>}
+                          {codePercent > 0 && <div className="chart-segment" style={{ width: `${codePercent}%`, background: '#8b5cf6' }}></div>}
+                          {imgPercent > 0 && <div className="chart-segment" style={{ width: `${imgPercent}%`, background: '#10b981' }}></div>}
+                          {otherPercent > 0 && <div className="chart-segment" style={{ width: `${otherPercent}%`, background: '#f59e0b' }}></div>}
+                        </>
+                      )
+                    })()}
                   </div>
                   <div className="chart-legend">
-                    <div className="legend-item">
-                      <span className="legend-color" style={{ background: '#3b82f6' }}></span>
-                      <span>Documents (40%)</span>
-                    </div>
-                    <div className="legend-item">
-                      <span className="legend-color" style={{ background: '#8b5cf6' }}></span>
-                      <span>Images (30%)</span>
-                    </div>
-                    <div className="legend-item">
-                      <span className="legend-color" style={{ background: '#10b981' }}></span>
-                      <span>Code (20%)</span>
-                    </div>
-                    <div className="legend-item">
-                      <span className="legend-color" style={{ background: '#f59e0b' }}></span>
-                      <span>Other (10%)</span>
-                    </div>
+                    {fileTypeBreakdown.documents > 0 && <div className="legend-item"><span className="legend-color" style={{ background: '#3b82f6' }}></span><span>Documents ({fileTypeBreakdown.documents})</span></div>}
+                    {fileTypeBreakdown.code > 0 && <div className="legend-item"><span className="legend-color" style={{ background: '#8b5cf6' }}></span><span>Code ({fileTypeBreakdown.code})</span></div>}
+                    {fileTypeBreakdown.images > 0 && <div className="legend-item"><span className="legend-color" style={{ background: '#10b981' }}></span><span>Images ({fileTypeBreakdown.images})</span></div>}
+                    {fileTypeBreakdown.other > 0 && <div className="legend-item"><span className="legend-color" style={{ background: '#f59e0b' }}></span><span>Other ({fileTypeBreakdown.other})</span></div>}
                   </div>
                 </div>
               </div>
