@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { 
   File, Search, RefreshCw, FileText, ImageIcon, Code, Archive, 
   Grid, List, X, Filter, Calendar, HardDrive, Eye, Sparkles,
-  TrendingUp, AlertCircle, Download
+    TrendingUp, AlertCircle, Download, ExternalLink, FolderOpen
 } from "lucide-react"
 import { ApiService } from "../services/api"
 
