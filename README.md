@@ -1,33 +1,146 @@
-# SmartFile AI
+# 🚀 Smart Files AI
 
-A privacy-first desktop application that semantically indexes and queries your local files entirely offline.
+**Privacy-First Adaptive Multimodal Desktop Intelligence System**
 
----
+Smart Files AI is a privacy-first, cross-platform desktop application that transforms your local file system into an intelligent, AI-powered knowledge base using Retrieval-Augmented Generation (RAG).
 
-## Features
-
-- **Semantic Search:** Find content across all your files using natural language queries
-- **AI-Powered Q&A:** Ask questions about your documents and get intelligent answers
-- **Privacy-First:** All processing happens locally on your device
-- **Cross-Platform:** Works on Windows, macOS, and Linux
-- **Multiple File Types:** Supports PDF, DOCX, TXT, Markdown, and more
-- **Offline Operation:** No internet required for indexing and searching
-- **Flexible LLM Support:** Use Gemini API or local models
+Unlike traditional AI assistants, Smart Files AI runs locally by default, supports user-selected LLMs and Vision-Language Models (VLMs), and provides optional cloud integration — ensuring complete flexibility and control.
 
 ---
 
-## Tech Stack
+# ✨ Key Features
 
-- **Backend:** Python with FastAPI
-- **Frontend:** React with TypeScript
-- **Desktop:** Electron
-- **Vector Storage:** SQLite with vector extensions
-- **Embeddings:** Sentence Transformers (all-MiniLM-L6-v2)
-- **LLM:** Google Gemini API (with local model support)
+## 🧠 Adaptive AI Engine
+
+* Automatically detects system RAM & GPU
+* Suggests optimal local model tier
+* Runs on low-end laptops to high-performance GPUs
+
+## 🔎 Privacy-First RAG System
+
+* 100% local document indexing
+* Semantic search using embeddings
+* Context-grounded AI responses
+* No mandatory cloud dependency
+
+## 🖼 Smart Image Indexing (Multimodal)
+
+* Vision-Language Model support
+* Automatic caption + metadata generation
+* Semantic image search
+  *Example: "blue shirt photo around September"*
+
+## 🔓 BYOM (Bring Your Own Model)
+
+* Supports custom GGUF models
+* Plug-and-play via Ollama
+* Compatible with local vision + text models
+
+## ☁ Optional Cloud AI (Hybrid Mode)
+
+* OpenRouter integration
+* Gemini / Grok support
+* Switch between:
+
+  * Strict Local Mode
+  * Hybrid Mode
+  * Cloud-Enhanced Mode
 
 ---
 
-## Installation & Setup
+# 🏗 Architecture Overview
+
+```
+Local Files
+   ↓
+Parsing & Chunking
+   ↓
+Embedding (all-MiniLM)
+   ↓
+SQLite Vector Database
+   ↓
+Query → Vector Retrieval
+   ↓
+Selected LLM (Local / BYOM / Cloud)
+   ↓
+Grounded AI Response
+```
+
+For Images:
+
+```
+Image
+  ↓
+Vision-Language Model
+  ↓
+Caption + Metadata
+  ↓
+Embedding
+  ↓
+Vector Database
+  ↓
+Semantic Search
+```
+
+---
+
+# 🛠 Technology Stack
+
+## Frontend
+
+* Next.js
+* Electron
+* Tailwind CSS
+
+## Backend
+
+* FastAPI (Python)
+* Model Manager Engine
+* Ollama (Local Model Inference)
+
+## AI & ML
+
+* all-MiniLM-L6-v2 (Embeddings)
+* Phi-2 (Default Lightweight LLM)
+* SmolVLM / LLaVA / Qwen2-VL (Multimodal Support)
+* Custom GGUF Model Support
+
+## Database
+
+* SQLite + Vector Indexing
+
+## Cloud Integration (Optional)
+
+* OpenRouter
+* Gemini
+* Grok
+
+---
+
+# 🧠 Model Tiers
+
+| Tier      | Hardware    | Suggested Model          |
+| --------- | ----------- | ------------------------ |
+| Low-End   | <4GB RAM    | SmolVLM / Lightweight 3B |
+| Mid-Range | 8–16GB RAM  | LLaVA-7B (Quantized)     |
+| High-End  | 16GB+ / GPU | Qwen2-VL-7B              |
+
+---
+
+# 🔒 Privacy Philosophy
+
+Smart Files AI is built on the principle that:
+
+> Your files should never leave your device unless you explicitly choose.
+
+* No background telemetry
+* No forced cloud upload
+* Full local indexing
+* API usage only with user consent
+
+---
+
+# 🚀 Installation
 
 ### Prerequisites
 
@@ -35,29 +148,40 @@ A privacy-first desktop application that semantically indexes and queries your l
 - Python 3.8+
 - Git
 
-### 1. Clone the repository
+### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/smartfile-ai.git
-cd smartfile-ai
+git clone https://github.com/prawinkumar1506/Smart-Files-AI.git
+cd Smart-Files-AI
 ```
 
-### 2. Backend Setup (Python/FastAPI)
-
-It's recommended to use a virtual environment for Python dependencies.
+### 2️⃣ Backend Setup
 
 ```bash
 cd backend
 python -m venv venv        # Create virtual environment
 source venv/bin/activate   # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cd ..
+uvicorn main:app --reload
 ```
 
-### 3. Frontend Setup (React/Electron)
+### 3️⃣ Frontend + Electron
 
 ```bash
+cd ..
 npm install
+npm run electron
+```
+
+### 4️⃣ Install Ollama (Optional for Local Models)
+
+Download and install Ollama from:
+https://ollama.com
+
+Pull a model:
+
+```bash
+ollama pull phi
 ```
 
 ---
@@ -97,39 +221,21 @@ npm run dev
 
 ---
 
-## Production Build
-
-### Build Electron App for Your Platform
-
-```bash
-npm run dist
-```
-
-### Build for All Platforms
-
-```bash
-npm run dist-all
-```
-
-- The built applications will be available in the `dist` folder.
-
----
-
 ## Configuration
 
-### Gemini API Setup
+### Gemini API Setup (Optional)
 
 1. Get your API key from [Google AI Studio](https://ai.google.dev/)
-2. Open SmartFile AI and go to Settings
+2. Open Smart Files AI and go to Settings
 3. Enter your API key in the LLM Configuration section
 
 ### Local LLM Setup
 
 For offline operation with local models:
 
-1. Install additional dependencies for local models
-2. Download a compatible model (e.g., Mistral-7B)
-3. Configure the model path in SmartFile AI settings
+1. Install Ollama from https://ollama.com
+2. Download a compatible model (e.g., `ollama pull phi`)
+3. Configure the model in Smart Files AI settings
 
 ---
 
@@ -155,16 +261,6 @@ For offline operation with local models:
 
 ---
 
-## Privacy & Security
-
-- **Local Processing:** All file indexing and searching happens on your device
-- **No Data Collection:** No telemetry or analytics are collected
-- **Encrypted Storage:** Optional database encryption for sensitive data
-- **Selective Access:** Only index folders you explicitly choose
-- **Easy Removal:** Remove folders and clear data at any time
-
----
-
 ## File Support
 
 Currently supported file types:
@@ -178,27 +274,30 @@ Currently supported file types:
 
 ---
 
-## Architecture
+## Production Build
 
+### Build Electron App for Your Platform
+
+```bash
+npm run dist
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   React UI      │    │   FastAPI        │    │   SQLite +      │
-│   (Electron)    │◄──►│   Backend        │◄──►│   Vector Store  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │   LLM Client     │
-                       │   (Gemini/Local) │
-                       └──────────────────┘
+
+### Build for Specific Platforms
+
+```bash
+npm run dist:win    # Windows
+npm run dist:mac    # macOS
+npm run dist:linux  # Linux
 ```
+
+- The built applications will be available in the `dist` folder.
 
 ---
 
 ## Project Structure
 
 ```
-smartfile-ai/
+Smart-Files-AI/
 ├── backend/                 # Python FastAPI backend
 │   ├── services/           # Core services (indexing, search, LLM)
 │   ├── models/             # Data models and schemas
@@ -233,6 +332,29 @@ npm test
 
 ---
 
+# 📌 Roadmap
+
+* [ ] Face recognition for image clustering
+* [ ] Multi-folder intelligent organization
+* [ ] Encrypted local vector database
+* [ ] Plugin system for community models
+* [ ] Mobile companion app
+* [ ] Advanced search filters and operators
+* [ ] Document summarization features
+* [ ] Integration with cloud storage providers
+
+---
+
+# 🎯 Target Users
+
+* Students & Researchers
+* Developers & AI Enthusiasts
+* Privacy-conscious professionals
+* Users with low-end hardware
+* Open-source model experimenters
+
+---
+
 ## Contributing
 
 1. Fork the repository
@@ -243,9 +365,17 @@ npm test
 
 ---
 
-## License
+# 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+# 💡 Vision
+
+Smart Files AI aims to become:
+
+> The AI layer for personal computing — adaptive, private, and fully under user control.
 
 ---
 
@@ -254,16 +384,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - Open an issue on GitHub
 - Check the documentation
 - Join our community discussions
-
----
-
-## Roadmap
-
-- [ ] Support for more file types (images, audio, video)
-- [ ] Advanced search filters and operators
-- [ ] Document summarization features
-- [ ] Integration with cloud storage providers
-- [ ] Plugin system for custom processors
-- [ ] Mobile companion app
 
 ---
