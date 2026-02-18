@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Folder, Plus, Trash2, RefreshCw, AlertCircle, FolderOpen, Files, Clock, BarChart3, Upload } from "lucide-react"
 import { ApiService } from "../services/api"
+import FolderPicker from "./FolderPicker"
 
 interface FolderInfo {
   id: number
@@ -20,6 +21,7 @@ const Folders: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo | null>(null)
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [showFolderPicker, setShowFolderPicker] = useState(false)
 
   useEffect(() => {
     loadFolders()
@@ -47,12 +49,16 @@ const Folders: React.FC = () => {
       return
     }
 
-    try {
-      const selectedPaths = await window.electronAPI.selectFolders()
+    setShowFolderPicker(true)
+  }
 
-      if (selectedPaths && selectedPaths.length > 0) {
-        setIsIndexing(true)
+  const handleFoldersSelected = async (selectedPaths: string[]) => {
+    setShowFolderPicker(false)
 
+    if (selectedPaths && selectedPaths.length > 0) {
+      setIsIndexing(true)
+
+      try {
         await ApiService.indexFolders({
           folder_paths: selectedPaths,
         })
@@ -62,11 +68,15 @@ const Folders: React.FC = () => {
           loadFolders()
           setIsIndexing(false)
         }, 1000)
+      } catch (error) {
+        console.error("Error indexing folders:", error)
+        setIsIndexing(false)
       }
-    } catch (error) {
-      console.error("Error adding folders:", error)
-      setIsIndexing(false)
     }
+  }
+
+  const handleFolderPickerCancel = () => {
+    setShowFolderPicker(false)
   }
 
   const handleRemoveFolder = async (folderId: number, folderPath: string) => {
@@ -354,6 +364,13 @@ const Folders: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showFolderPicker && (
+        <FolderPicker 
+          onSelect={handleFoldersSelected}
+          onCancel={handleFolderPickerCancel}
+        />
       )}
     </div>
   )

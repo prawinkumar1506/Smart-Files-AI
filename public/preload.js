@@ -22,6 +22,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onMenuAddFolders: (callback) => ipcRenderer.on("menu-add-folders", callback),
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
 
+  // Custom folder picker
+  getHomeDirectory: () => ipcRenderer.invoke("get-home-directory"),
+  getDrives: () => ipcRenderer.invoke("get-drives"),
+  readDirectory: (dirPath) => ipcRenderer.invoke("read-directory", dirPath),
+  statPath: (targetPath) => ipcRenderer.invoke("stat-path", targetPath),
+
   // Port communication
   onBackendPort: (callback) => ipcRenderer.on('backend-port', callback)
 })

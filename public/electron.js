@@ -279,6 +279,73 @@ ipcMain.handle('update-backend-port', (_, port) => {
   mainWindow.webContents.send('backend-port', port);
 });
 
+// Custom folder picker handlers
+ipcMain.handle("get-home-directory", async () => {
+  return app.getPath("home")
+})
+
+ipcMain.handle("get-drives", async () => {
+  const fs = require("fs")
+  if (process.platform === "win32") {
+    const drives = []
+    for (let code = 65; code <= 90; code += 1) {
+      const drive = `${String.fromCharCode(code)}:\\`
+      if (fs.existsSync(drive)) {
+        drives.push(drive)
+      }
+    }
+    return drives
+  }
+
+  return ["/"]
+})
+
+ipcMain.handle("read-directory", async (event, dirPath) => {
+  const fs = require("fs").promises
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true })
+    const items = await Promise.all(
+      entries.map(async (entry) => {
+        const fullPath = path.join(dirPath, entry.name)
+        try {
+          return {
+            name: entry.name,
+            path: fullPath,
+            isDirectory: entry.isDirectory(),
+          }
+        } catch (error) {
+          return null
+        }
+      })
+    )
+    // Filter out null entries (permission errors) and sort: directories first
+    return items
+      .filter(item => item !== null)
+      .sort((a, b) => {
+        if (a.isDirectory && !b.isDirectory) return -1
+        if (!a.isDirectory && b.isDirectory) return 1
+        return a.name.localeCompare(b.name)
+      })
+  } catch (error) {
+    console.error("Error reading directory:", error)
+    return []
+  }
+})
+
+ipcMain.handle("stat-path", async (event, targetPath) => {
+  const fs = require("fs").promises
+  try {
+    const stats = await fs.stat(targetPath)
+    return {
+      exists: true,
+      isDirectory: stats.isDirectory(),
+      path: targetPath,
+    }
+  } catch (error) {
+    return { exists: false, isDirectory: false, path: targetPath }
+  }
+})
+
 app.whenReady().then(createWindow)
 
 app.on("window-all-closed", () => {

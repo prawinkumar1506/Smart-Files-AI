@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { ApiService } from "../services/api"
 import { Files, Folder, Clock, Activity, Plus, RefreshCw, Sparkles, TrendingUp, Database, Zap, Check, FolderOpen } from "lucide-react"
+import FolderPicker from "./FolderPicker"
 
 interface IndexStatus {
   is_indexing: boolean
@@ -33,6 +34,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewChange }) => {
   const [indexStatus, setIndexStatus] = useState<IndexStatus | null>(null)
   const [folders, setFolders] = useState<FolderInfo[]>([])
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
+  const [showFolderPicker, setShowFolderPicker] = useState(false)
   const [stats, setStats] = useState({
     totalFolders: 0,
     totalFiles: 0,
@@ -107,15 +109,24 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewChange }) => {
       return
     }
 
-    try {
-      const selectedPaths = await window.electronAPI.selectFolders()
-      if (selectedPaths && selectedPaths.length > 0) {
+    setShowFolderPicker(true)
+  }
+
+  const handleFoldersSelected = async (selectedPaths: string[]) => {
+    setShowFolderPicker(false)
+
+    if (selectedPaths && selectedPaths.length > 0) {
+      try {
         await ApiService.indexFolders({ folder_paths: selectedPaths })
         setTimeout(() => loadDashboardData(), 1000)
+      } catch (error) {
+        console.error("Error indexing folders:", error)
       }
-    } catch (error) {
-      console.error("Error adding folders:", error)
     }
+  }
+
+  const handleFolderPickerCancel = () => {
+    setShowFolderPicker(false)
   }
 
   const handleReindex = async () => {
@@ -354,6 +365,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewChange }) => {
             ))}
           </div>
         </div>
+      )}
+
+      {showFolderPicker && (
+        <FolderPicker 
+          onSelect={handleFoldersSelected}
+          onCancel={handleFolderPickerCancel}
+        />
       )}
     </div>
   )
