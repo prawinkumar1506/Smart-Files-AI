@@ -3543,15 +3543,18 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Modern Folders Page Styles */
 .folders-page-modern {
-  padding: 40px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 30px 32px 50px;
+  background: #f9fafb;
   min-height: 100vh;
 }
 
 .folders-header {
-  margin-bottom: 40px;
-  padding-bottom: 30px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 28px;
+  padding: 20px 24px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
 .folders-header-content {
@@ -3565,19 +3568,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .folders-header-text h1 {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 700;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin-bottom: 6px;
+  color: #1e3a8a;
 }
 
 .folders-header-text .subtitle-text {
-  font-size: 16px;
-  color: #718096;
-  opacity: 0.8;
+  font-size: 15px;
+  color: #6b7280;
+  opacity: 1;
 }
 
 .folders-actions-modern {

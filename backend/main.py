@@ -7,13 +7,14 @@ import uvicorn
 import json
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import logging
 import traceback
 import argparse
 import socket
 from contextlib import asynccontextmanager
+import mimetypes
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -208,6 +209,40 @@ async def get_indexed_images():
         return {"success": True, "images": images}
     except Exception as e:
         logger.error(f"Error getting images: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/images/{image_id}/content")
+async def get_image_content(image_id: int):
+    """Return raw image bytes for display in the UI."""
+    try:
+        image = await vector_store.get_image_by_id(image_id)
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+
+        file_path = image.get("file_path")
+        if not file_path or not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Image file missing")
+
+        media_type, _ = mimetypes.guess_type(file_path)
+        return FileResponse(file_path, media_type=media_type or "application/octet-stream")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error serving image content for {image_id}: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/images/{image_id}")
+async def remove_image(image_id: int):
+    """Remove a single image from the index."""
+    try:
+        logger.info(f"Removing image with ID: {image_id}")
+        await vector_store.remove_file(image_id)
+        logger.info(f"Image {image_id} removed successfully")
+        return {"success": True, "message": "Image removed successfully"}
+    except Exception as e:
+        logger.error(f"Error removing image {image_id}: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 

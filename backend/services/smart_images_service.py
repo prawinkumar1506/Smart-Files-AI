@@ -20,25 +20,9 @@ class SmartImagesService:
         try:
             images = await self.vector_store.get_all_images()
 
-            # Ensure each image has a caption
             for image in images:
-                if not image.get("caption") or image["caption"].startswith("A detailed description"):
-                    # Generate a caption if missing or default
-                    if self.llm_client:
-                        try:
-                            prompt = f"""
-                            Provide a detailed 4-5 sentence description of an image with filename: {image.get("file_name", "unknown")}.
-                            Include all important visual elements, describe the context and purpose of the image.
-                            Be clear, accurate, and professional.
-                            """
-                            caption = await self.llm_client.generate_answer(
-                                question=f"Describe this image: {image.get('file_name', 'unknown')}",
-                                context=f"Filename: {image.get('file_name', 'unknown')}"
-                            )
-                            image["caption"] = caption
-                        except Exception as e:
-                            print(f"Error generating caption for {image.get('file_name', 'unknown')}: {e}")
-                            image["caption"] = "Description not available"
+                if not image.get("caption"):
+                    image["caption"] = "Description not available"
 
             return images
         except Exception as e:

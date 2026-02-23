@@ -61,6 +61,14 @@ export interface Image {
 }
 
 export class ApiService {
+  static getApiBaseUrl() {
+    return api.defaults.baseURL || baseURL;
+  }
+
+  static getImageContentUrl(imageId: number) {
+    return `${ApiService.getApiBaseUrl()}/api/images/${imageId}/content`;
+  }
+
   static async healthCheck() {
     const response = await api.get("/health")
     return response.data
@@ -86,6 +94,14 @@ export class ApiService {
     const response = await api.post("/api/images/rename", { image_id: imageId, new_name: newName });
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to rename image');
+    }
+    return response.data.success;
+  }
+
+  static async deleteImage(imageId: number): Promise<boolean> {
+    const response = await api.delete(`/api/images/${imageId}`);
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete image');
     }
     return response.data.success;
   }

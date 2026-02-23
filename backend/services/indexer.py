@@ -114,6 +114,7 @@ class FileIndexer:
                 'type': file_path.suffix.lower(),
                 'size': stat.st_size,
                 'modified': datetime.fromtimestamp(stat.st_mtime),
+                'created': datetime.fromtimestamp(stat.st_ctime),
                 'hash': self._calculate_file_hash(file_path)
             }
 
@@ -142,6 +143,14 @@ class FileIndexer:
                     content_data = json.loads(content)
                     caption = content_data.get("caption", "")
                     metadata = content_data.get("metadata", {})
+                    analysis = content_data.get("analysis", {})
+                    if analysis:
+                        metadata["analysis"] = analysis
+                    if "tags" not in metadata and analysis:
+                        metadata["tags"] = [
+                            tag for tag in (analysis.get("objects") or [])
+                            if isinstance(tag, str)
+                        ]
 
                     # If caption is empty or default, generate a better one
                     if not caption or caption.startswith("A detailed description") or caption.startswith("Error"):
@@ -199,7 +208,7 @@ class FileIndexer:
 
                     await self.vector_store.add_image_embedding(
                         file_id,
-                        None,  # No image embedding
+                        embedding_result["text_embedding"],  # Use text embedding for image embedding too
                         embedding_result["text_embedding"],
                         image_metadata
                     )
