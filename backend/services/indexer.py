@@ -176,9 +176,15 @@ class FileIndexer:
                     metadata = {}
 
                 # Store the image metadata and caption
+                # Include date_modified from filesystem
+                date_modified = datetime.fromtimestamp(stat.st_mtime).isoformat()
                 image_metadata = {
                     "caption": caption,
-                    "metadata": metadata,
+                    "metadata": {
+                        **metadata,
+                        "date_modified": date_modified,
+                        "file_name": file_path.name
+                    },
                     "file_info": file_info
                 }
 

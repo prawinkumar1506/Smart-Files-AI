@@ -12,6 +12,7 @@ interface Image {
   file_size: number | string;
   date_created: string;
   date_indexed: string;
+  date_modified?: string;
   format: string;
   file_type?: string;
   resolution: string;
@@ -362,6 +363,11 @@ const SmartImages: React.FC = () => {
                   <span className="meta-item">
                     <strong>Resolution:</strong> {image.resolution || 'unknown'}
                   </span>
+                  {image.date_modified && (
+                    <span className="meta-item">
+                      <strong>Modified:</strong> {new Date(image.date_modified).toLocaleDateString()}
+                    </span>
+                  )}
                   {image.date_taken && (
                     <span className="meta-item">
                       <strong>Date:</strong> {image.date_taken}
@@ -464,6 +470,7 @@ const SmartImages: React.FC = () => {
                   <span><strong>Format:</strong> {activeImage.format || activeImage.file_type || 'unknown'}</span>
                   <span><strong>Size:</strong> {formatBytes(activeImage.file_size)}</span>
                   <span><strong>Resolution:</strong> {activeImage.resolution || 'unknown'}</span>
+                  {activeImage.date_modified && <span><strong>Modified:</strong> {new Date(activeImage.date_modified).toLocaleDateString()}</span>}
                   {activeImage.date_taken && <span><strong>Date:</strong> {activeImage.date_taken}</span>}
                   {activeImage.camera_model && <span><strong>Camera:</strong> {activeImage.camera_model}</span>}
                   {activeImage.gps && (activeImage.gps.lat || activeImage.gps.lon) && (

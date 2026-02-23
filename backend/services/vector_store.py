@@ -802,8 +802,10 @@ class VectorStore:
                         date_taken = image_meta.get('date_taken')
                         camera_model = image_meta.get('camera_model')
                         gps = image_meta.get('gps')
+                        date_modified = image_meta.get('date_modified')  # Get date_modified from metadata
                     except (json.JSONDecodeError, KeyError, TypeError):
                         metadata = {}
+                        date_modified = None
 
                 image_data = {
                     'id': row['id'],
@@ -813,6 +815,7 @@ class VectorStore:
                     'format': row['file_type'],
                     'file_size': row['file_size'],
                     'last_modified': row['last_modified'],
+                    'date_modified': date_modified,  # Include date_modified from metadata
                     'folder_path': row['folder_path'],
                     'caption': row['caption'] or '',  # Default empty caption if null
                     'tags': tags,
@@ -885,22 +888,30 @@ class VectorStore:
                             if similarity >= threshold:
                                 # Parse metadata
                                 metadata = {}
+                                date_modified = None
+                                tags = []
                                 if row['metadata']:
                                     try:
                                         metadata = json.loads(row['metadata'])
+                                        image_meta = metadata.get('metadata', {}) if isinstance(metadata, dict) else {}
+                                        date_modified = image_meta.get('date_modified')
+                                        tags = image_meta.get('tags', []) or []
                                     except json.JSONDecodeError:
                                         pass
 
                                 all_results.append({
+                                    'id': row['file_id'],
                                     'file_id': row['file_id'],
                                     'file_path': row['file_path'],
                                     'file_name': row['file_name'],
                                     'file_type': row['file_type'],
                                     'file_size': row['file_size'],
                                     'last_modified': row['last_modified'],
+                                    'date_modified': date_modified,
                                     'folder_path': row['folder_path'],
                                     'caption': row['caption'] or '',
                                     'similarity_score': float(similarity),
+                                    'tags': tags,
                                     'metadata': metadata.get('metadata', {})
                                 })
 

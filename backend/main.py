@@ -246,6 +246,22 @@ async def remove_image(image_id: int):
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/images/search")
+async def search_images(request: SearchRequest):
+    """Search for images using semantic similarity across text, tags, dates, and metadata."""
+    try:
+        logger.info(f"Searching images with query: '{request.query}'")
+        
+        # Use SmartImagesService to search
+        results = await smart_images_service.search_images(request.query)
+        
+        logger.info(f"Image search completed: {len(results)} results found")
+        return {"success": True, "images": results}
+    except Exception as e:
+        logger.error(f"Error searching images: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/search", response_model=SearchResponse)
 async def search_files(request: SearchRequest):
     """Search for files using semantic similarity"""
