@@ -1,6 +1,6 @@
 import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { ApiService } from '../services/api';
-import { Plus, Folder, RefreshCw, Image as ImageIcon, ExternalLink, FolderOpen, X } from 'lucide-react';
+import { Plus, Folder, RefreshCw, Image as ImageIcon, ExternalLink, FolderOpen, X, Trash2 } from 'lucide-react';
 import FolderPicker from './FolderPicker';
 import './SmartImages.css';
 
@@ -35,6 +35,7 @@ const SmartImages: React.FC = () => {
   const [images, setImages] = useState<Image[]>([]);
   const [loading, setLoading] = useState(true);
   const [indexing, setIndexing] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
@@ -114,10 +115,13 @@ const SmartImages: React.FC = () => {
         loadImages();
         return;
       }
+      setIsSearching(true);
       const searchedImages = await ApiService.searchImages(searchQuery);
       setImages(searchedImages);
     } catch (error) {
       console.error('Error searching images:', error);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -258,8 +262,15 @@ const SmartImages: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
+          disabled={isSearching}
         />
-        <button onClick={handleSearch} className="search-button">Search</button>
+        <button 
+          onClick={handleSearch} 
+          className="search-button"
+          disabled={isSearching}
+        >
+          {isSearching ? 'Searching...' : 'Search'}
+        </button>
       </div>
 
       {/* Indexed Folders */}
@@ -414,28 +425,18 @@ const SmartImages: React.FC = () => {
                     >
                       <ExternalLink size={16} />
                     </button>
+                    <button
+                      className="icon-btn delete-icon-btn"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDeleteImage(image.id);
+                      }}
+                      title="Remove from index"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
-
-                <button
-                  className="rename-btn"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setSelectedImageId(image.id);
-                    setNewName(image.file_name);
-                  }}
-                >
-                  Rename
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    handleDeleteImage(image.id);
-                  }}
-                >
-                  Remove from Index
-                </button>
               </div>
             </div>
           ))

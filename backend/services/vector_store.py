@@ -790,6 +790,9 @@ class VectorStore:
                 date_taken = None
                 camera_model = None
                 gps = None
+                date_modified = None
+                image_meta = {}  # Initialize to prevent NameError in except block
+                
                 if row['metadata']:
                     try:
                         metadata = json.loads(row['metadata'])
@@ -799,6 +802,9 @@ class VectorStore:
                             tags = (image_meta.get('analysis', {}) or {}).get('objects', []) or []
                         if 'size' in image_meta and isinstance(image_meta['size'], (list, tuple)):
                             resolution = f"{image_meta['size'][0]}x{image_meta['size'][1]}"
+                        # Also check for extracted image resolution from PIL
+                        if 'resolution' in image_meta and resolution == 'unknown':
+                            resolution = image_meta['resolution']
                         date_taken = image_meta.get('date_taken')
                         camera_model = image_meta.get('camera_model')
                         gps = image_meta.get('gps')
@@ -806,6 +812,7 @@ class VectorStore:
                     except (json.JSONDecodeError, KeyError, TypeError):
                         metadata = {}
                         date_modified = None
+                        image_meta = {}
 
                 image_data = {
                     'id': row['id'],
@@ -819,7 +826,7 @@ class VectorStore:
                     'folder_path': row['folder_path'],
                     'caption': row['caption'] or '',  # Default empty caption if null
                     'tags': tags,
-                    'resolution': resolution,
+                    'resolution': resolution,  # Use extracted or PIL-derived resolution
                     'date_taken': date_taken,
                     'camera_model': camera_model,
                     'gps': gps

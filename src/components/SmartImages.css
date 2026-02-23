@@ -90,6 +90,12 @@
   box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
 }
 
+.search-box-modern input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
 .search-box-modern input::placeholder {
   color: #9ca3af;
 }
@@ -105,9 +111,15 @@
   transition: all 0.3s ease;
 }
 
-.search-button:hover {
+.search-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
+.search-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
 .image-grid {
@@ -208,10 +220,9 @@
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.85em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
+  word-break: break-word;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .tag-more {
@@ -297,6 +308,23 @@
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.12);
 }
 
+.delete-icon-btn {
+  color: #ef4444;
+  border-color: #fecaca;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.delete-icon-btn:hover {
+  border-color: #fca5a5;
+  color: #dc2626;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+
+.image-card:hover .delete-icon-btn {
+  opacity: 1;
+}
+
 .rename-btn {
   width: 100%;
   padding: 10px;
@@ -308,6 +336,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: none;
 }
 
 .rename-btn:hover {
@@ -326,6 +355,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: none;
 }
 
 .delete-btn:hover {

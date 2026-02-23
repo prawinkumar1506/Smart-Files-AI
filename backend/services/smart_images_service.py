@@ -41,8 +41,8 @@ class SmartImagesService:
             # Generate text embedding for the query
             query_embedding = await self.embedding_service.generate_embedding(f"query: {query}")
             
-            # Get semantic matches from vector store
-            similar_images = await self.vector_store.search_images(query_embedding, limit=100, threshold=0.1)
+            # Get semantic matches from vector store with higher threshold for better quality
+            similar_images = await self.vector_store.search_images(query_embedding, limit=100, threshold=0.4)
             
             # Enhance rankings by also matching metadata
             query_lower = query.lower()
@@ -57,18 +57,21 @@ class SmartImagesService:
                 file_name = image.get("file_name", "").lower()
                 tags = metadata.get("tags", [])
                 
-                # Bonus for caption match
+                # Bonus for exact or partial caption match
                 if query_lower in caption:
-                    relevance_score += 0.15
+                    relevance_score += 0.25  # Increased bonus for direct match
                 
                 # Bonus for filename match
                 if query_lower in file_name:
-                    relevance_score += 0.20
+                    relevance_score += 0.30  # Highest priority for filename
                 
-                # Bonus for tag matches
+                # Bonus for tag matches (keyword-based)
+                tag_match_found = False
                 for tag in tags:
-                    if query_lower in str(tag).lower():
-                        relevance_score += 0.10
+                    tag_str = str(tag).lower()
+                    if query_lower in tag_str or tag_str in query_lower:
+                        relevance_score += 0.25
+                        tag_match_found = True
                 
                 # Check for date-related queries
                 if any(word in query_lower for word in ['date', 'recent', 'old', 'today', 'week', 'month', 'year']):
@@ -89,13 +92,24 @@ class SmartImagesService:
                         except:
                             pass
                 
-                # Update the similarity score with enhanced relevance
+                # Update the similarity score with enhanced relevance (cap at 1.0)
                 image["similarity_score"] = min(1.0, relevance_score)
             
             # Sort by enhanced relevance score
             similar_images.sort(key=lambda x: x.get("similarity_score", 0), reverse=True)
             
-            return similar_images[:50]  # Return top 50 results
+            # Filter out results with too low relevance (if they don't have metadata matches)
+            filtered_results = []
+            for img in similar_images:
+                score = img.get("similarity_score", 0)
+                # Keep results that either have:
+                # 1. Good semantic similarity (0.4+) OR
+                # 2. Strong metadata match (enhanced score 0.5+)
+                if score >= 0.4:
+                    filtered_results.append(img)
+            
+            # Return top results (at least show 1-2 relevant results if found)
+            return filtered_results[:20] if filtered_results else similar_images[:3]
         except Exception as e:
             print(f"Error searching images: {e}")
             import traceback

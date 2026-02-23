@@ -134,11 +134,14 @@ class FileIndexer:
             }
 
             if is_image_file and hasattr(processor, 'get_image_embedding'):
-                # Special handling for image files using Gemini LLM
-                logger.info(f"Processing image file with Gemini LLM: {file_path}")
+                # Fast image processing using only Ollama LLaVA (skip LLM to save time)
+                logger.info(f"Processing image file with LLaVA: {file_path}")
 
-                # Get the caption from the image processor
+                # Get caption and metadata from image processor (Ollama LLaVA)
                 content = await processor.extract_text(file_path)
+                caption = ""
+                metadata = {}
+                
                 try:
                     content_data = json.loads(content)
                     caption = content_data.get("caption", "")
@@ -151,35 +154,24 @@ class FileIndexer:
                             tag for tag in (analysis.get("objects") or [])
                             if isinstance(tag, str)
                         ]
-
-                    # If caption is empty or default, generate a better one
-                    if not caption or caption.startswith("A detailed description") or caption.startswith("Error"):
-                        logger.info(f"No valid caption found for {file_path}, generating a new one")
-                        if self.llm_client:
-                            try:
-                                # Generate a more detailed caption using the LLM client
-                                prompt = f"""
-                                Provide a detailed 4-5 sentence description of an image with filename: {file_path.name}.
-                                Include all important visual elements, describe the context and purpose of the image.
-                                Be clear, accurate, and professional.
-                                """
-                                caption = await self.llm_client.generate_answer(
-                                    question=f"Describe this image: {file_path.name}",
-                                    context=f"Filename: {file_path.name}, Metadata: {json.dumps(metadata)}"
-                                )
-                                logger.info(f"Generated new caption for {file_path.name}: {caption[:100]}...")
-                            except Exception as e:
-                                logger.error(f"Error generating caption with LLM: {str(e)}")
-                                caption = f"Error generating caption: {str(e)}"
                 except json.JSONDecodeError:
-                    caption = ""
-                    metadata = {}
+                    pass
+
+                # Extract image resolution using PIL
+                try:
+                    from PIL import Image as PILImage
+                    img = PILImage.open(file_path)
+                    width, height = img.size
+                    metadata["resolution"] = f"{width}x{height}"
+                    logger.debug(f"Extracted image resolution: {width}x{height}")
+                except Exception as e:
+                    logger.debug(f"Could not extract image resolution: {e}")
 
                 # Store the image metadata and caption
                 # Include date_modified from filesystem
                 date_modified = datetime.fromtimestamp(stat.st_mtime).isoformat()
                 image_metadata = {
-                    "caption": caption,
+                    "caption": caption or "Image indexed",  # Use default caption if none
                     "metadata": {
                         **metadata,
                         "date_modified": date_modified,
@@ -193,36 +185,15 @@ class FileIndexer:
 
                 # Store the image embeddings
                 if embedding_result["text_embedding"] is not None:
-                    # Make sure we have a valid caption
-                    if not image_metadata["caption"] or image_metadata["caption"].startswith("A detailed description"):
-                        # Generate a better caption if needed
-                        if self.llm_client:
-                            try:
-                                prompt = f"""
-                                Provide a detailed 4-5 sentence description of an image with filename: {file_path.name}.
-                                Include all important visual elements, describe the context and purpose of the image.
-                                Be clear, accurate, and professional.
-                                """
-                                image_metadata["caption"] = await self.llm_client.generate_answer(
-                                    question=f"Describe this image: {file_path.name}",
-                                    context=f"Filename: {file_path.name}"
-                                )
-                                logger.info(f"Generated new caption for {file_path.name}: {image_metadata['caption'][:100]}...")
-                            except Exception as e:
-                                logger.error(f"Error generating caption with LLM: {str(e)}")
-                                image_metadata["caption"] = f"Error generating caption: {str(e)}"
-
                     await self.vector_store.add_image_embedding(
                         file_id,
-                        embedding_result["text_embedding"],  # Use text embedding for image embedding too
+                        embedding_result["text_embedding"],
                         embedding_result["text_embedding"],
                         image_metadata
                     )
-                    logger.info(f"Successfully indexed image {file_path} with caption: {image_metadata['caption'][:100] if image_metadata['caption'] else 'No caption'}")
+                    logger.info(f"Successfully indexed image {file_path} with caption: {image_metadata['caption'][:80]}")
                 else:
                     logger.error(f"Failed to generate text embedding for image {file_path}")
-
-                logger.info(f"Successfully indexed image {file_path} with caption: {caption[:100] if caption else 'No caption'}")
             else:
                 # Regular text processing for non-image files
                 content = await processor.extract_text(file_path)
