@@ -1,6 +1,9 @@
 #backend\services\file_processors.py
 import os
 import json
+import base64
+import io
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Protocol, Dict
 import logging
@@ -242,14 +245,14 @@ class ImageProcessor:
 
     def __init__(self, llm_client=None):
         self.llm_client = llm_client
-        logger.info("ImageProcessor initialized with Gemini LLM client")
+        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.vision_model = os.getenv("OLLAMA_VISION_MODEL", "llava:latest")
+        logger.info("ImageProcessor initialized")
 
     async def extract_text(self, file_path: Path) -> str:
         """Extract text content from an image file using Gemini LLM for detailed captioning"""
         try:
             from PIL import Image
-            import base64
-            import io
 
             # Open the image
             raw_image = Image.open(file_path).convert('RGB')
@@ -257,40 +260,26 @@ class ImageProcessor:
             # Extract basic metadata
             metadata = self._extract_image_metadata(file_path)
 
-            # Generate detailed caption using Gemini LLM
-            detailed_caption = "A detailed description of the image will be generated here."
+            # Build a structured prompt for LLaVA
+            prompt = (
+                "Analyze the image and return JSON with these fields:\n"
+                "caption (1-2 sentences), objects (array), people_count (number), "
+                "clothing (array), colors (array), scene (string), activity (string), "
+                "context (string). Return ONLY valid JSON."
+            )
 
-            if self.llm_client:
-                try:
-                    # Create a detailed prompt for image description
-                    prompt = f"""
-                    You are an expert image description assistant. Provide a detailed 4-5 sentence description of this image.
-                    Image filename: {file_path.name}
-                    Image metadata: {json.dumps(metadata)}
+            analysis = await self._generate_vision_analysis(raw_image, prompt)
+            caption = analysis.get("caption") or f"Image file {file_path.name}"
 
-                    Your detailed description should:
-                    1. Be 4-5 complete sentences
-                    2. Include all important visual elements
-                    3. Describe the context and purpose of the image
-                    4. Be clear, accurate, and professional
-                    """
-
-                    # Generate the caption using the LLM client
-                    response = await self.llm_client.generate_answer(
-                        question=f"Describe this image in detail: {file_path.name}",
-                        context=f"Image metadata: {json.dumps(metadata)}"
-                    )
-
-                    if response and response.strip():
-                        detailed_caption = response.strip()
-                        logger.info(f"Generated caption for {file_path.name}: {detailed_caption[:100]}...")
-                except Exception as e:
-                    logger.error(f"Error generating detailed caption with Gemini: {str(e)}")
-                    detailed_caption = f"Error generating caption: {str(e)}"
+            # Normalize tags for easier display
+            tags = self._build_tags(analysis)
+            metadata["analysis"] = analysis
+            metadata["tags"] = tags
 
             # Return structured data as JSON string
             return json.dumps({
-                "caption": detailed_caption,
+                "caption": caption,
+                "analysis": analysis,
                 "metadata": metadata
             })
 
@@ -305,16 +294,48 @@ class ImageProcessor:
         """Extract basic metadata from image file"""
         try:
             from PIL import Image
-            import os
+            import piexif
 
             with Image.open(file_path) as img:
-                return {
+                stat = os.stat(file_path)
+                metadata = {
                     "format": img.format,
                     "size": img.size,
                     "mode": img.mode,
                     "file_size": os.path.getsize(file_path),
-                    "file_name": os.path.basename(file_path)
+                    "file_name": os.path.basename(file_path),
+                    "created_at": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc).isoformat(),
+                    "modified_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+                    "exif": {}
                 }
+
+                try:
+                    exif_dict = piexif.load(str(file_path))
+                    exif = {}
+
+                    date_taken = exif_dict.get("Exif", {}).get(piexif.ExifIFD.DateTimeOriginal)
+                    if date_taken:
+                        try:
+                            exif["date_taken"] = datetime.strptime(date_taken.decode("utf-8"), "%Y:%m:%d %H:%M:%S").date().isoformat()
+                        except Exception:
+                            exif["date_taken"] = None
+
+                    camera_model = exif_dict.get("0th", {}).get(piexif.ImageIFD.Model)
+                    if camera_model:
+                        exif["camera_model"] = camera_model.decode("utf-8", errors="ignore")
+
+                    orientation = exif_dict.get("0th", {}).get(piexif.ImageIFD.Orientation)
+                    if orientation:
+                        exif["orientation"] = int(orientation)
+
+                    gps_info = exif_dict.get("GPS", {})
+                    exif["gps"] = self._parse_gps(gps_info)
+
+                    metadata["exif"] = exif
+                except Exception as exif_error:
+                    logger.debug(f"No EXIF data for {file_path}: {exif_error}")
+
+                return metadata
         except Exception as e:
             logger.error(f"Error extracting image metadata {file_path}: {str(e)}")
             return {
@@ -322,7 +343,10 @@ class ImageProcessor:
                 "size": "",
                 "mode": "",
                 "file_size": os.path.getsize(file_path),
-                "file_name": os.path.basename(file_path)
+                "file_name": os.path.basename(file_path),
+                "created_at": None,
+                "modified_at": None,
+                "exif": {}
             }
 
     async def get_image_embedding(self, file_path: Path) -> Dict:
@@ -331,32 +355,20 @@ class ImageProcessor:
             from services.embedding_service import EmbeddingService
             import numpy as np
 
-            # Get the caption from the image
+            # Get the caption and analysis from the image
             caption_data = json.loads(await self.extract_text(file_path))
-            caption = caption_data["caption"]
+            caption = caption_data.get("caption", "")
+            analysis = caption_data.get("analysis", {})
+            metadata = caption_data.get("metadata", {})
 
-            # If caption is empty or default, generate a better one
-            if not caption or caption.startswith("A detailed description") or caption.startswith("Error"):
-                logger.info(f"No valid caption found for {file_path}, generating a new one")
-                if self.llm_client:
-                    try:
-                        prompt = f"""
-                        Provide a detailed 4-5 sentence description of an image with filename: {file_path.name}.
-                        Include all important visual elements, describe the context and purpose of the image.
-                        Be clear, accurate, and professional.
-                        """
-                        caption = await self.llm_client.generate_answer(
-                            question=f"Describe this image: {file_path.name}",
-                            context=f"Filename: {file_path.name}"
-                        )
-                        logger.info(f"Generated new caption for {file_path.name}: {caption[:100]}...")
-                    except Exception as e:
-                        logger.error(f"Error generating caption with LLM: {str(e)}")
-                        caption = f"Error generating caption: {str(e)}"
+            if not caption:
+                caption = f"Image file {file_path.name}"
+
+            search_text = self._build_search_text(caption, analysis, metadata)
 
             # Generate text embedding for the caption using the embedding service
             embedding_service = EmbeddingService()
-            text_embedding = await embedding_service.generate_embedding(f"image: {caption}")
+            text_embedding = await embedding_service.generate_embedding(f"image: {search_text}")
 
             # Convert to numpy array if it's not already
             if text_embedding is not None and not isinstance(text_embedding, np.ndarray):
@@ -365,7 +377,10 @@ class ImageProcessor:
             return {
                 "image_embedding": None,  # We're not using image embeddings anymore
                 "text_embedding": text_embedding,
-                "caption": caption
+                "caption": caption,
+                "metadata": metadata,
+                "analysis": analysis,
+                "search_text": search_text
             }
 
         except Exception as e:
@@ -375,6 +390,156 @@ class ImageProcessor:
                 "text_embedding": None,
                 "caption": ""
             }
+
+    async def _generate_vision_analysis(self, image, prompt: str) -> Dict:
+        try:
+            import httpx
+
+            resized = self._resize_image(image)
+            image_b64 = self._encode_image(resized)
+
+            payload = {
+                "model": self.vision_model,
+                "prompt": prompt,
+                "images": [image_b64],
+                "stream": False
+            }
+
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(f"{self.ollama_base_url}/api/generate", json=payload)
+
+            if response.status_code != 200:
+                logger.error(f"Ollama vision request failed: {response.status_code} - {response.text}")
+                return {}
+
+            response_json = response.json()
+            raw_text = response_json.get("response", "")
+            parsed = self._parse_json_from_text(raw_text)
+
+            if not parsed:
+                logger.warning("Ollama response did not contain valid JSON")
+                return {}
+
+            return parsed
+        except Exception as e:
+            logger.error(f"Error calling Ollama vision model: {e}")
+            return {}
+
+    def _resize_image(self, image, max_dim: int = 512):
+        if max(image.size) <= max_dim:
+            return image
+
+        resized = image.copy()
+        resized.thumbnail((max_dim, max_dim))
+        return resized
+
+    def _encode_image(self, image) -> str:
+        buffer = io.BytesIO()
+        image.save(buffer, format="JPEG", quality=85)
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+    def _parse_json_from_text(self, text: str) -> Dict:
+        if not text:
+            return {}
+
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            return {}
+
+        try:
+            return json.loads(text[start:end + 1])
+        except Exception:
+            return {}
+
+    def _build_tags(self, analysis: Dict) -> list:
+        tags = []
+        for key in ("objects", "clothing", "colors"):
+            values = analysis.get(key) or []
+            if isinstance(values, list):
+                tags.extend([str(v).strip() for v in values if str(v).strip()])
+
+        for key in ("scene", "activity", "context"):
+            value = analysis.get(key)
+            if value:
+                tags.append(str(value).strip())
+
+        deduped = []
+        seen = set()
+        for tag in tags:
+            lowered = tag.lower()
+            if lowered and lowered not in seen:
+                seen.add(lowered)
+                deduped.append(tag)
+        return deduped
+
+    def _build_search_text(self, caption: str, analysis: Dict, metadata: Dict) -> str:
+        parts = [caption]
+
+        date_hint = metadata.get("exif", {}).get("date_taken") or metadata.get("created_at")
+        if date_hint:
+            parts.append(f"Taken around {date_hint}.")
+
+        objects = analysis.get("objects") or []
+        if objects:
+            parts.append("Objects: " + ", ".join(objects))
+
+        scene = analysis.get("scene")
+        if scene:
+            parts.append(f"Scene: {scene}.")
+
+        activity = analysis.get("activity")
+        if activity:
+            parts.append(f"Activity: {activity}.")
+
+        colors = analysis.get("colors") or []
+        if colors:
+            parts.append("Colors: " + ", ".join(colors))
+
+        clothing = analysis.get("clothing") or []
+        if clothing:
+            parts.append("Clothing: " + ", ".join(clothing))
+
+        return " ".join(parts).strip()
+
+    def _parse_gps(self, gps_info: Dict) -> Dict:
+        try:
+            import piexif
+
+            def _rational_to_float(value):
+                if isinstance(value, tuple) and len(value) == 2 and value[1] != 0:
+                    return value[0] / value[1]
+                return None
+
+            def _convert_to_degrees(values):
+                degrees = _rational_to_float(values[0])
+                minutes = _rational_to_float(values[1])
+                seconds = _rational_to_float(values[2])
+                if degrees is None or minutes is None or seconds is None:
+                    return None
+                return degrees + (minutes / 60.0) + (seconds / 3600.0)
+
+            gps_latitude = gps_info.get(piexif.GPSIFD.GPSLatitude)
+            gps_latitude_ref = gps_info.get(piexif.GPSIFD.GPSLatitudeRef)
+            gps_longitude = gps_info.get(piexif.GPSIFD.GPSLongitude)
+            gps_longitude_ref = gps_info.get(piexif.GPSIFD.GPSLongitudeRef)
+
+            if not (gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref):
+                return {}
+
+            lat = _convert_to_degrees(gps_latitude)
+            lon = _convert_to_degrees(gps_longitude)
+            if lat is None or lon is None:
+                return {}
+
+            if gps_latitude_ref.decode("utf-8", errors="ignore") != "N":
+                lat = -lat
+            if gps_longitude_ref.decode("utf-8", errors="ignore") != "E":
+                lon = -lon
+
+            return {"lat": lat, "lon": lon}
+        except Exception:
+            return {}
 
 class FileProcessorFactory:
     """Factory for creating file processors"""

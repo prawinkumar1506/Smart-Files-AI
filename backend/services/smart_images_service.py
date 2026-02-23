@@ -20,25 +20,9 @@ class SmartImagesService:
         try:
             images = await self.vector_store.get_all_images()
 
-            # Ensure each image has a caption
             for image in images:
-                if not image.get("caption") or image["caption"].startswith("A detailed description"):
-                    # Generate a caption if missing or default
-                    if self.llm_client:
-                        try:
-                            prompt = f"""
-                            Provide a detailed 4-5 sentence description of an image with filename: {image.get("file_name", "unknown")}.
-                            Include all important visual elements, describe the context and purpose of the image.
-                            Be clear, accurate, and professional.
-                            """
-                            caption = await self.llm_client.generate_answer(
-                                question=f"Describe this image: {image.get('file_name', 'unknown')}",
-                                context=f"Filename: {image.get('file_name', 'unknown')}"
-                            )
-                            image["caption"] = caption
-                        except Exception as e:
-                            print(f"Error generating caption for {image.get('file_name', 'unknown')}: {e}")
-                            image["caption"] = "Description not available"
+                if not image.get("caption"):
+                    image["caption"] = "Description not available"
 
             return images
         except Exception as e:
@@ -46,16 +30,90 @@ class SmartImagesService:
             return []
 
     async def search_images(self, query: str) -> List[Dict]:
-        """Search images by text query using text embeddings."""
+        """
+        Search images using semantic similarity across text embeddings, captions, tags,
+        filenames, and metadata. Returns results ranked by relevance.
+        """
         try:
+            import re
+            from datetime import datetime
+            
             # Generate text embedding for the query
             query_embedding = await self.embedding_service.generate_embedding(f"query: {query}")
-
-            # Search for similar images using text embeddings
-            similar_images = await self.vector_store.search_images(query_embedding)
-            return similar_images
+            
+            # Get semantic matches from vector store with higher threshold for better quality
+            similar_images = await self.vector_store.search_images(query_embedding, limit=100, threshold=0.4)
+            
+            # Enhance rankings by also matching metadata
+            query_lower = query.lower()
+            
+            for image in similar_images:
+                # Start with semantic similarity score
+                relevance_score = image.get("similarity_score", 0)
+                
+                # Extract metadata
+                metadata = image.get("metadata", {})
+                caption = image.get("caption", "").lower()
+                file_name = image.get("file_name", "").lower()
+                tags = metadata.get("tags", [])
+                
+                # Bonus for exact or partial caption match
+                if query_lower in caption:
+                    relevance_score += 0.25  # Increased bonus for direct match
+                
+                # Bonus for filename match
+                if query_lower in file_name:
+                    relevance_score += 0.30  # Highest priority for filename
+                
+                # Bonus for tag matches (keyword-based)
+                tag_match_found = False
+                for tag in tags:
+                    tag_str = str(tag).lower()
+                    if query_lower in tag_str or tag_str in query_lower:
+                        relevance_score += 0.25
+                        tag_match_found = True
+                
+                # Check for date-related queries
+                if any(word in query_lower for word in ['date', 'recent', 'old', 'today', 'week', 'month', 'year']):
+                    date_modified = metadata.get("date_modified", "")
+                    if date_modified:
+                        try:
+                            # Parse date and check relevance
+                            date_obj = datetime.fromisoformat(date_modified)
+                            now = datetime.now(date_obj.tzinfo) if date_obj.tzinfo else datetime.now()
+                            days_ago = (now - date_obj).days
+                            
+                            # Boost recent files for "recent" queries
+                            if 'recent' in query_lower and days_ago < 30:
+                                relevance_score += 0.20
+                            # Boost old files for "old" queries  
+                            elif 'old' in query_lower and days_ago > 365:
+                                relevance_score += 0.20
+                        except:
+                            pass
+                
+                # Update the similarity score with enhanced relevance (cap at 1.0)
+                image["similarity_score"] = min(1.0, relevance_score)
+            
+            # Sort by enhanced relevance score
+            similar_images.sort(key=lambda x: x.get("similarity_score", 0), reverse=True)
+            
+            # Filter out results with too low relevance (if they don't have metadata matches)
+            filtered_results = []
+            for img in similar_images:
+                score = img.get("similarity_score", 0)
+                # Keep results that either have:
+                # 1. Good semantic similarity (0.4+) OR
+                # 2. Strong metadata match (enhanced score 0.5+)
+                if score >= 0.4:
+                    filtered_results.append(img)
+            
+            # Return top results (at least show 1-2 relevant results if found)
+            return filtered_results[:20] if filtered_results else similar_images[:3]
         except Exception as e:
             print(f"Error searching images: {e}")
+            import traceback
+            traceback.print_exc()
             return []
 
     def rename_image(self, image_id: int, new_name: str) -> bool:

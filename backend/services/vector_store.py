@@ -519,6 +519,59 @@ class VectorStore:
             logger.error(f"Error adding file {file_path}: {str(e)}")
             raise
 
+    async def get_file_by_id(self, file_id: int) -> Optional[Dict[str, Any]]:
+        """Get file metadata by id."""
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+                SELECT id, file_path, file_name, file_type, file_size, last_modified
+                FROM files
+                WHERE id = ?
+            """, (file_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        except Exception as e:
+            logger.error(f"Error getting file by id {file_id}: {str(e)}")
+            raise
+
+    async def get_image_by_id(self, file_id: int) -> Optional[Dict[str, Any]]:
+        """Get image metadata by file id."""
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+                SELECT
+                    f.id,
+                    f.file_path,
+                    f.file_name,
+                    f.file_type,
+                    f.file_size,
+                    f.last_modified,
+                    ie.caption,
+                    ie.metadata
+                FROM files f
+                LEFT JOIN image_embeddings ie ON f.id = ie.file_id
+                WHERE f.id = ?
+            """, (file_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        except Exception as e:
+            logger.error(f"Error getting image by id {file_id}: {str(e)}")
+            raise
+
+    async def update_file_record(self, file_id: int, file_path: str, file_name: str) -> None:
+        """Update file path and name after rename."""
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+                UPDATE files
+                SET file_path = ?, file_name = ?
+                WHERE id = ?
+            """, (file_path, file_name, file_id))
+            self.connection.commit()
+        except Exception as e:
+            logger.error(f"Error updating file record {file_id}: {str(e)}")
+            raise
+
     async def add_document_chunk(self, file_id: int, chunk_index: int, content: str, embedding: np.ndarray):
         """Add a document chunk with its embedding"""
         cursor = self.connection.cursor()
@@ -731,27 +784,53 @@ class VectorStore:
 
             images = []
             for row in cursor.fetchall():
+                metadata = {}
+                tags = []
+                resolution = 'unknown'
+                date_taken = None
+                camera_model = None
+                gps = None
+                date_modified = None
+                image_meta = {}  # Initialize to prevent NameError in except block
+                
+                if row['metadata']:
+                    try:
+                        metadata = json.loads(row['metadata'])
+                        image_meta = metadata.get('metadata', {}) if isinstance(metadata, dict) else {}
+                        tags = image_meta.get('tags', []) or []
+                        if not tags:
+                            tags = (image_meta.get('analysis', {}) or {}).get('objects', []) or []
+                        if 'size' in image_meta and isinstance(image_meta['size'], (list, tuple)):
+                            resolution = f"{image_meta['size'][0]}x{image_meta['size'][1]}"
+                        # Also check for extracted image resolution from PIL
+                        if 'resolution' in image_meta and resolution == 'unknown':
+                            resolution = image_meta['resolution']
+                        date_taken = image_meta.get('date_taken')
+                        camera_model = image_meta.get('camera_model')
+                        gps = image_meta.get('gps')
+                        date_modified = image_meta.get('date_modified')  # Get date_modified from metadata
+                    except (json.JSONDecodeError, KeyError, TypeError):
+                        metadata = {}
+                        date_modified = None
+                        image_meta = {}
+
                 image_data = {
                     'id': row['id'],
                     'file_path': row['file_path'],
                     'file_name': row['file_name'],
                     'file_type': row['file_type'],
+                    'format': row['file_type'],
                     'file_size': row['file_size'],
                     'last_modified': row['last_modified'],
+                    'date_modified': date_modified,  # Include date_modified from metadata
                     'folder_path': row['folder_path'],
                     'caption': row['caption'] or '',  # Default empty caption if null
-                    'tags': [],     # Default empty tags
-                    'resolution': 'unknown'  # Default resolution
+                    'tags': tags,
+                    'resolution': resolution,  # Use extracted or PIL-derived resolution
+                    'date_taken': date_taken,
+                    'camera_model': camera_model,
+                    'gps': gps
                 }
-
-                # Parse metadata if available
-                if row['metadata']:
-                    try:
-                        metadata = json.loads(row['metadata'])
-                        if 'metadata' in metadata and isinstance(metadata['metadata'], dict):
-                            image_data['resolution'] = f"{metadata['metadata'].get('size', ['unknown', 'unknown'])[0]}x{metadata['metadata'].get('size', ['unknown', 'unknown'])[1]}" if 'size' in metadata['metadata'] else 'unknown'
-                    except (json.JSONDecodeError, KeyError):
-                        pass
 
                 images.append(image_data)
 
@@ -816,22 +895,30 @@ class VectorStore:
                             if similarity >= threshold:
                                 # Parse metadata
                                 metadata = {}
+                                date_modified = None
+                                tags = []
                                 if row['metadata']:
                                     try:
                                         metadata = json.loads(row['metadata'])
+                                        image_meta = metadata.get('metadata', {}) if isinstance(metadata, dict) else {}
+                                        date_modified = image_meta.get('date_modified')
+                                        tags = image_meta.get('tags', []) or []
                                     except json.JSONDecodeError:
                                         pass
 
                                 all_results.append({
+                                    'id': row['file_id'],
                                     'file_id': row['file_id'],
                                     'file_path': row['file_path'],
                                     'file_name': row['file_name'],
                                     'file_type': row['file_type'],
                                     'file_size': row['file_size'],
                                     'last_modified': row['last_modified'],
+                                    'date_modified': date_modified,
                                     'folder_path': row['folder_path'],
                                     'caption': row['caption'] or '',
                                     'similarity_score': float(similarity),
+                                    'tags': tags,
                                     'metadata': metadata.get('metadata', {})
                                 })
 
@@ -960,6 +1047,25 @@ class VectorStore:
             logger.error(f"Error removing folder {folder_id}: {str(e)}")
             logger.error(traceback.format_exc())
             self.connection.rollback()  # Rollback on error
+            raise
+
+    async def remove_file(self, file_id: int):
+        """Remove a single file and its associated data from the index."""
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("SELECT file_path FROM files WHERE id = ?", (file_id,))
+            row = cursor.fetchone()
+            if not row:
+                logger.warning(f"File with ID {file_id} not found for deletion.")
+                return
+
+            logger.info(f"Removing indexed file: {row['file_path']} (ID: {file_id})")
+            cursor.execute("DELETE FROM files WHERE id = ?", (file_id,))
+            self.connection.commit()
+        except Exception as e:
+            logger.error(f"Error removing file {file_id}: {str(e)}")
+            logger.error(traceback.format_exc())
+            self.connection.rollback()
             raise
 
     async def clear_all(self):
