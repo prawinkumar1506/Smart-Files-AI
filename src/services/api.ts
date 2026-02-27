@@ -1,4 +1,5 @@
 import axios from "axios";
+import { tauriAPI } from "./tauriApi";
 
 // Default base URL (works for both SSR and browser)
 let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
@@ -8,9 +9,9 @@ const api = axios.create({
   timeout: 45000,
 });
 
-// Client-side only: Listen for port updates from Electron
-if (typeof window !== 'undefined' && window.electronAPI) {
-  window.electronAPI.onBackendPort((event, port) => {
+// Client-side only: Listen for port updates from Tauri
+if (typeof window !== 'undefined') {
+  tauriAPI.onBackendPort((port) => {
     baseURL = `http://localhost:${port}`;
     api.defaults.baseURL = baseURL;
     console.log(`Updated backend URL: ${baseURL}`);

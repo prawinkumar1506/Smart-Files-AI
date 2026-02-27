@@ -66,14 +66,17 @@ logger = logging.getLogger(__name__)
 
 class EmbeddingService:
     def __init__(self, model_name: str = "intfloat/e5-small-v2"):
-        """Initialize the embedding service with a sentence transformer model"""
+        """Initialize the embedding service with a sentence transformer model (lazy-loaded)"""
         self.model_name = model_name
         self.model = None
         self.local_model_path = os.path.join(os.path.dirname(__file__), '..', 'embedding_model', self.model_name.replace('/', '_'))
-        self._load_model()
+        self._model_loaded = False
 
     def _load_model(self):
         """Load the sentence transformer model from local path if available, otherwise download and save it."""
+        if self._model_loaded and self.model is not None:
+            return  # Already loaded
+        
         try:
             logger.info(f"Loading embedding model: {self.model_name}")
 
@@ -87,7 +90,7 @@ class EmbeddingService:
             # Always use the local model path
             logger.info(f"Loading model from local path: {self.local_model_path}")
             self.model = SentenceTransformer(self.local_model_path)
-
+            self._model_loaded = True
 
             # Test the model with a simple sentence
             test_embedding = self.model.encode("test sentence", convert_to_numpy=True)
@@ -101,8 +104,7 @@ class EmbeddingService:
 
     async def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding for a single text"""
-        if not self.model:
-            raise RuntimeError("Embedding model not loaded")
+        self._load_model()  # Lazy load model on first use
 
         try:
             # Clean and validate input text
@@ -135,8 +137,7 @@ class EmbeddingService:
 
     async def generate_embeddings(self, texts: List[str]) -> List[np.ndarray]:
         """Generate embeddings for multiple texts"""
-        if not self.model:
-            raise RuntimeError("Embedding model not loaded")
+        self._load_model()  # Lazy load model on first use
 
         try:
             logger.info(f"Generating embeddings for {len(texts)} texts")

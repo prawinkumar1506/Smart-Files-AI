@@ -62,29 +62,18 @@ async def lifespan(app: FastAPI):
         logger.info("STARTING SMARTFILE AI BACKEND")
         logger.info("=" * 50)
 
-        # Initialize services
+        # Initialize critical services only
         logger.info("Initializing vector store...")
         vector_store = VectorStore()
         await vector_store.initialize()
         logger.info("Vector store initialized successfully")
 
-        logger.info("Initializing file indexer...")
-        file_indexer = FileIndexer(vector_store, vector_store.embedding_service, llm_client)
+        logger.info("Initializing file indexer (without embedding model)...")
+        file_indexer = FileIndexer(vector_store, vector_store.embedding_service, None)
         logger.info("File indexer initialized successfully")
 
-        logger.info("Initializing LLM client...")
-        llm_client = LLMClientFactory.create_client()
-        logger.info("LLM client initialized successfully")
-
-        logger.info("Initializing file organiser...")
-        file_organiser = FileOrganiser(vector_store, llm_client)
-        logger.info("File organiser initialized successfully")
-
-        logger.info("Initializing smart images service...")
-        smart_images_service = SmartImagesService(vector_store=vector_store, embedding_service=vector_store.embedding_service)
-        # Update the service to use the LLM client
-        smart_images_service.llm_client = llm_client
-        logger.info("Smart images service initialized successfully")
+        # LLM client and smart images service will be initialized lazily on first use
+        logger.info("Backend services ready for lazy loading")
 
         # Check database status
         folders = await vector_store.get_indexed_folders()
@@ -122,6 +111,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # Next.js
         "http://127.0.0.1:3000",  # Next.js alternative
+        "http://localhost:3001",  # Next.js (Tauri dev)
+        "http://127.0.0.1:3001",  # Next.js (Tauri dev) alternative
         "app://*",                # Packaged Electron
         "file://*"                # Local file access
     ],
@@ -148,6 +139,36 @@ async def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return {"status": "unhealthy", "error": str(e)}
+
+async def ensure_llm_client():
+    """Lazily initialize LLM client on first use"""
+    global llm_client
+    if llm_client is None:
+        logger.info("Initializing LLM client (lazy load)...")
+        llm_client = LLMClientFactory.create_client()
+        logger.info("LLM client initialized successfully")
+    return llm_client
+
+async def ensure_file_organiser():
+    """Lazily initialize file organiser on first use"""
+    global file_organiser, llm_client
+    if file_organiser is None:
+        await ensure_llm_client()
+        logger.info("Initializing file organiser (lazy load)...")
+        file_organiser = FileOrganiser(vector_store, llm_client)
+        logger.info("File organiser initialized successfully")
+    return file_organiser
+
+async def ensure_smart_images_service():
+    """Lazily initialize smart images service on first use"""
+    global smart_images_service, llm_client
+    if smart_images_service is None:
+        await ensure_llm_client()
+        logger.info("Initializing smart images service (lazy load)...")
+        smart_images_service = SmartImagesService(vector_store=vector_store, embedding_service=vector_store.embedding_service)
+        smart_images_service.llm_client = llm_client
+        logger.info("Smart images service initialized successfully")
+    return smart_images_service
 
 @app.post("/api/index", response_model=IndexResponse)
 async def index_folders(request: IndexRequest, background_tasks: BackgroundTasks):
@@ -204,7 +225,8 @@ async def get_indexed_images():
     """Get list of all indexed images"""
     try:
         logger.info("Getting indexed images list...")
-        images = await smart_images_service.get_indexed_images()
+        service = await ensure_smart_images_service()
+        images = await service.get_indexed_images()
         logger.info(f"Retrieved {len(images)} indexed images")
         return {"success": True, "images": images}
     except Exception as e:
@@ -253,7 +275,8 @@ async def search_images(request: SearchRequest):
         logger.info(f"Searching images with query: '{request.query}'")
         
         # Use SmartImagesService to search
-        results = await smart_images_service.search_images(request.query)
+        service = await ensure_smart_images_service()
+        results = await service.search_images(request.query)
         
         logger.info(f"Image search completed: {len(results)} results found")
         return {"success": True, "images": results}
@@ -309,11 +332,12 @@ async def search_files(request: SearchRequest):
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 @app.post("/api/images/search")
-async def search_images(request: Dict):
+async def search_images_alt(request: Dict):
     """Search images by text query using CLIP embeddings."""
     try:
         search_query = request.get("query", "")
-        images = await smart_images_service.search_images(search_query)
+        service = await ensure_smart_images_service()
+        images = await service.search_images(search_query)
         return {"images": images}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -459,8 +483,9 @@ async def analyze_folder_for_organisation(request: OrganiseRequest):
     """Analyze a folder for organization opportunities"""
     try:
         logger.info(f"Analyzing folder {request.folder_id} for organization")
+        organiser = await ensure_file_organiser()
 
-        result = await file_organiser.analyze_folder_for_organisation(
+        result = await organiser.analyze_folder_for_organisation(
             request.folder_id,
             request.dry_run
         )
@@ -477,8 +502,9 @@ async def execute_organisation(request: ExecuteOrganiseRequest):
     """Execute file organization based on analysis"""
     try:
         logger.info(f"Executing organization for folder {request.folder_id}")
+        organiser = await ensure_file_organiser()
 
-        result = await file_organiser.execute_organisation(
+        result = await organiser.execute_organisation(
             request.folder_id,
             request.actions,
             request.confirm

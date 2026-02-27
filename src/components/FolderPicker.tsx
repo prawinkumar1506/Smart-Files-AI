@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { Folder, File, ChevronRight, Check, X } from "lucide-react"
+import { tauriAPI } from "../services/tauriApi"
 
 interface FolderPickerProps {
   onSelect: (paths: string[]) => void
@@ -49,20 +50,7 @@ const FolderPicker: React.FC<FolderPickerProps> = ({ onSelect, onCancel }) => {
 
   const loadDrives = async () => {
     try {
-      if (!window.electronAPI?.getDrives) {
-        const homeDir = await window.electronAPI?.getHomeDirectory?.()
-        if (homeDir) {
-          setCurrentPath(homeDir)
-          setPathInput(homeDir)
-          await loadDirectory(homeDir)
-          return
-        }
-
-        setItems([])
-        return
-      }
-
-      const drives = await window.electronAPI.getDrives()
+      const drives = await tauriAPI.getDrives()
       const driveItems = drives.map((drive: string) => ({
         name: drive,
         path: drive,
@@ -71,6 +59,18 @@ const FolderPicker: React.FC<FolderPickerProps> = ({ onSelect, onCancel }) => {
       setItems(driveItems)
     } catch (error) {
       console.error("Error loading drives:", error)
+      // Fallback to home directory
+      try {
+        const homeDir = await tauriAPI.getHomeDirectory()
+        if (homeDir) {
+          setCurrentPath(homeDir)
+          setPathInput(homeDir)
+          await loadDirectory(homeDir)
+          return
+        }
+      } catch (e) {
+        console.error("Error loading home directory:", e)
+      }
       setItems([])
     }
   }
@@ -78,7 +78,7 @@ const FolderPicker: React.FC<FolderPickerProps> = ({ onSelect, onCancel }) => {
   const loadDirectory = async (path: string) => {
     try {
       setLoading(true)
-      const contents = await window.electronAPI.readDirectory(path)
+      const contents = await tauriAPI.readDirectory(path)
       setItems(contents)
     } catch (error) {
       console.error("Error loading directory:", error)
@@ -173,7 +173,7 @@ const FolderPicker: React.FC<FolderPickerProps> = ({ onSelect, onCancel }) => {
       return
     }
 
-    const stat = await window.electronAPI.statPath(normalized)
+    const stat = await tauriAPI.statPath(normalized)
     if (!stat.exists) {
       return
     }

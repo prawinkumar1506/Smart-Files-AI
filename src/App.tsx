@@ -34,6 +34,7 @@ const [isBackendReady, setIsBackendReady] = useState(false)
   }, [])
 
   useEffect(() => {
+    // Start health check immediately without waiting
     checkBackendHealth()
 
     // Listen for menu events from Electron
@@ -52,12 +53,20 @@ const [isBackendReady, setIsBackendReady] = useState(false)
 
   const checkBackendHealth = async () => {
     try {
-      await ApiService.healthCheck()
-      setIsBackendReady(true)
+      const response = await fetch('http://localhost:8000/health', { 
+        method: 'GET',
+        signal: AbortSignal.timeout(2000) // 2 second timeout
+      })
+      if (response.ok) {
+        setIsBackendReady(true)
+      } else {
+        // Retry faster - only 1 second wait
+        setTimeout(checkBackendHealth, 1000)
+      }
     } catch (error) {
       console.error("Backend not ready:", error)
-      // Retry after 2 seconds
-      setTimeout(checkBackendHealth, 2000)
+      // Retry faster - only 500ms wait
+      setTimeout(checkBackendHealth, 500)
     }
   }
 

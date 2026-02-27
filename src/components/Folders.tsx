@@ -56,11 +56,7 @@ const Folders: React.FC = () => {
   }
 
   const handleAddFolders = async () => {
-    if (!window.electronAPI) {
-      alert("Folder selection is only available in the desktop app")
-      return
-    }
-
+    // Tauri is always available in desktop app
     setShowFolderPicker(true)
   }
 
