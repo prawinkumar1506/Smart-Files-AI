@@ -449,6 +449,85 @@ class LLMClassifier:
     def __init__(self, llm_client: LLMClient):
         self.llm_client = llm_client
 
+    def _extract_json(self, response_text: str) -> Optional[Dict[str, Any]]:
+        """Extract JSON from an LLM response with basic recovery."""
+        try:
+            cleaned = response_text.strip()
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+
+            start_idx = cleaned.find('{')
+            end_idx = cleaned.rfind('}')
+            if start_idx == -1 or end_idx == -1 or end_idx <= start_idx:
+                return None
+
+            json_text = cleaned[start_idx:end_idx + 1]
+            return json.loads(json_text)
+        except Exception:
+            return None
+
+    def _classify_by_rules(self, file_name: str, content_snippet: str) -> Optional[Tuple[str, float, str, str]]:
+        """Fast, deterministic classification for common file types."""
+        name_lower = file_name.lower()
+        content_lower = content_snippet.lower()
+
+        keyword_map = [
+            ("invoice", "Invoices", "Invoices", 0.9),
+            ("billing", "Invoices", "Invoices", 0.85),
+            ("bill", "Invoices", "Invoices", 0.8),
+            ("receipt", "Receipts", "Receipts", 0.9),
+            ("payment", "Receipts", "Receipts", 0.85),
+            ("transaction", "Receipts", "Receipts", 0.8),
+            ("statement", "Financial Statements", "Financial Statements", 0.85),
+            ("budget", "Financial Documents", "Financial Documents", 0.85),
+            ("resume", "Resumes", "Resumes", 0.9),
+            ("cv", "Resumes", "Resumes", 0.85),
+            ("cover letter", "Resumes", "Resumes", 0.8),
+            ("report", "Reports", "Reports", 0.85),
+            ("analysis", "Reports", "Reports", 0.8),
+            ("summary", "Reports", "Reports", 0.75),
+            ("presentation", "Presentations", "Presentations", 0.85),
+            ("slides", "Presentations", "Presentations", 0.85),
+            ("deck", "Presentations", "Presentations", 0.8),
+            ("pitch", "Presentations", "Presentations", 0.8),
+            ("photo", "Photos", "Photos", 0.8),
+            ("photo_", "Photos", "Photos", 0.8),
+            ("img_", "Photos", "Photos", 0.8),
+            ("screenshot", "Images", "Images", 0.85),
+            ("image", "Images", "Images", 0.75),
+            ("certificate", "Certificates", "Certificates", 0.85),
+            ("certification", "Certificates", "Certificates", 0.85),
+            ("contract", "Contracts", "Contracts", 0.85),
+            ("agreement", "Contracts", "Contracts", 0.85),
+            ("nda", "Contracts", "Contracts", 0.8),
+            ("proposal", "Proposals", "Proposals", 0.8),
+            ("threat", "Security Documents", "Security Documents", 0.75),
+            ("attack", "Security Documents", "Security Documents", 0.75),
+            ("security", "Security Documents", "Security Documents", 0.75),
+            ("lab", "Lab Records", "Lab Records", 0.7),
+            ("assignment", "Lab Records", "Lab Records", 0.7),
+            ("experiment", "Lab Records", "Lab Records", 0.7),
+            ("attendance", "Academic Records", "Academic Records", 0.7),
+            ("internal", "Academic Records", "Academic Records", 0.7),
+            ("marks", "Academic Records", "Academic Records", 0.7),
+            ("grades", "Academic Records", "Academic Records", 0.7),
+            ("transcript", "Academic Records", "Academic Records", 0.75),
+            ("syllabus", "Academic Records", "Academic Records", 0.7),
+            ("lecture", "Academic Notes", "Academic Notes", 0.7),
+            ("notes", "Academic Notes", "Academic Notes", 0.7),
+            ("project", "Projects", "Projects", 0.75),
+            ("thesis", "Research", "Research", 0.8),
+            ("paper", "Research", "Research", 0.75),
+        ]
+
+        for key, category, folder, conf in keyword_map:
+            if key in name_lower or key in content_lower:
+                return category, conf, f"Matched keyword '{key}'", folder
+
+        return None
+
     async def classify_file(self, file_path: str, file_content: str = "") -> Tuple[str, float, str, str]:
         """
         Classify a file and suggest a folder name using an LLM.
@@ -456,7 +535,11 @@ class LLMClassifier:
         """
         try:
             file_name = Path(file_path).name
-            content_snippet = file_content[:500].strip()
+            content_snippet = file_content[:300].strip()
+
+            rule_based = self._classify_by_rules(file_name, content_snippet)
+            if rule_based:
+                return rule_based
 
             prompt = f"""
 Analyze the following file and determine the most appropriate category and folder name for effective organization.
@@ -487,17 +570,19 @@ Respond strictly in the following JSON format:
 
             logger.debug(f"🔍 Classifying file: {file_name} with prompt:\n{prompt}")
 
-            response_text = await self.llm_client.generate_answer(
-                question="Classify this file for organization.",
-                context=prompt
-            )
+            response_json = None
 
-            # Extract JSON from the response
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if not json_match:
+            if hasattr(self.llm_client, "generate_json"):
+                response_json = await self.llm_client.generate_json(prompt)
+            else:
+                response_text = await self.llm_client.generate_answer(
+                    question="Classify this file for organization.",
+                    context=prompt
+                )
+                response_json = self._extract_json(response_text)
+
+            if not response_json:
                 raise ValueError("LLM response did not contain valid JSON.")
-            
-            response_json = json.loads(json_match.group())
 
             category = response_json.get("category", "miscellaneous")
             folder_name = response_json.get("folder_name", "Miscellaneous")

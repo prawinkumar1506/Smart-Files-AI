@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { SplashScreen } from "./components/SplashScreen"
 import Sidebar from "./components/Sidebar"
 import Dashboard from "./components/Dashboard"
 import Search from "./components/Search"
@@ -15,29 +16,29 @@ import "./App.css"
 import "./ModernEnhancements.css"
 
 function App() {
-const [isBackendReady, setIsBackendReady] = useState(false)
+  const [isBackendReady, setIsBackendReady] = useState(false)
   const [currentView, setCurrentView] = useState("dashboard")
-  const [currentTip, setCurrentTip] = useState(0)
 
-  const tips = [
-    "Tip: Add folders to start searching through your files",
-    "AI-powered file organization and search",
-    "Ask questions about your documents",
-  ]
+  const checkBackendHealth = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/health', { 
+        method: 'GET',
+        signal: AbortSignal.timeout(2000)
+      })
+      if (response.ok) {
+        setIsBackendReady(true)
+      } else {
+        setTimeout(checkBackendHealth, 1000)
+      }
+    } catch (error) {
+      console.error("Backend not ready:", error)
+      setTimeout(checkBackendHealth, 500)
+    }
+  }
 
   useEffect(() => {
-    const tipInterval = setInterval(() => {
-      setCurrentTip((prevTip) => (prevTip + 1) % tips.length)
-    }, 3000) // Change tip every 3 seconds
-
-    return () => clearInterval(tipInterval)
-  }, [])
-
-  useEffect(() => {
-    // Start health check immediately without waiting
     checkBackendHealth()
 
-    // Listen for menu events from Electron
     if (window.electronAPI) {
       window.electronAPI.onMenuAddFolders(() => {
         setCurrentView("folders")
@@ -51,73 +52,8 @@ const [isBackendReady, setIsBackendReady] = useState(false)
     }
   }, [])
 
-  const checkBackendHealth = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/health', { 
-        method: 'GET',
-        signal: AbortSignal.timeout(2000) // 2 second timeout
-      })
-      if (response.ok) {
-        setIsBackendReady(true)
-      } else {
-        // Retry faster - only 1 second wait
-        setTimeout(checkBackendHealth, 1000)
-      }
-    } catch (error) {
-      console.error("Backend not ready:", error)
-      // Retry faster - only 500ms wait
-      setTimeout(checkBackendHealth, 500)
-    }
-  }
-
   if (!isBackendReady) {
-    return (
-      <div className="app-loading-modern">
-        <div className="animated-background">
-          <div className="gradient-orb orb-1"></div>
-          <div className="gradient-orb orb-2"></div>
-          <div className="gradient-orb orb-3"></div>
-        </div>
-        
-        <div className="loading-content-modern">
-          <div className="loading-logo-modern">
-            <img src="/smartfilesAI.png" alt="Smart Files AI" className="logo-image logo-pulse" />
-            <div className="logo-glow-ring"></div>
-          </div>
-          
-          <h1 className="loading-title gradient-text-loading">Smart Files AI</h1>
-          <p className="loading-subtitle">Your Files. Your AI. Your Privacy.</p>
-          
-          <div className="loading-progress-modern">
-            <div className="progress-track">
-              <div className="progress-bar-animated"></div>
-              <div className="progress-shimmer"></div>
-            </div>
-          </div>
-          
-          <div className="loading-steps">
-            <div className="loading-step active">
-              <div className="step-dot"></div>
-              <span>Initializing AI Engine...</span>
-            </div>
-            <div className="loading-step">
-              <div className="step-dot"></div>
-              <span>Loading Embeddings...</span>
-            </div>
-            <div className="loading-step">
-              <div className="step-dot"></div>
-              <span>Connecting to Database...</span>
-            </div>
-          </div>
-          
-          <div className="loading-tips-modern">
-            <p key={currentTip} className="tip-item-animated">
-              {tips[currentTip]}
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+    return <SplashScreen />
   }
 
   const renderCurrentView = () => {

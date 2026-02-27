@@ -281,6 +281,43 @@ Answer:"""
             logger.error(f"Error generating answer with Ollama: {str(e)}")
             return f"Error generating answer: {str(e)}"
 
+    async def generate_json(self, prompt: str) -> dict:
+        """Generate a JSON-only response from Ollama using JSON mode."""
+        if not self.initialized:
+            return {}
+
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                        "format": "json",
+                        "options": {
+                            "temperature": 0.1
+                        }
+                    }
+                )
+
+            if response.status_code == 200:
+                raw_text = response.json().get("response", "")
+                try:
+                    return json.loads(raw_text)
+                except json.JSONDecodeError:
+                    return {}
+            else:
+                logger.error(f"Ollama JSON API error: {response.status_code} - {response.text}")
+                return {}
+
+        except httpx.TimeoutException:
+            logger.error("Ollama JSON API request timed out")
+            return {}
+        except Exception as e:
+            logger.error(f"Error generating JSON with Ollama: {str(e)}")
+            return {}
+
     async def rerank_results(self, query: str, results: list) -> list:
         """Rerank search results using Ollama."""
         try:
