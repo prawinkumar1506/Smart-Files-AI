@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { MessageSquare, Send, FileText, RefreshCw, ThumbsUp, ThumbsDown, Bot, User, ExternalLink, FolderOpen, PlusCircle, Trash2, Copy } from "lucide-react"
+import { MessageSquare, Send, FileText, RefreshCw, ThumbsUp, ThumbsDown, Bot, User, ExternalLink, FolderOpen, PlusCircle, Trash2, Copy, Edit2, Check, X } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
@@ -34,6 +34,8 @@ const Query: React.FC = () => {
   const [isQuerying, setIsQuerying] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
+  const [editingSessionName, setEditingSessionName] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -100,6 +102,34 @@ const Query: React.FC = () => {
       }
     } catch (error) {
       console.error(`Failed to delete session ${sessionId}:`, error);
+    }
+  };
+
+  const startEditingSession = (sessionId: number, currentName: string) => {
+    setEditingSessionId(sessionId);
+    setEditingSessionName(currentName);
+  };
+
+  const cancelEditingSession = () => {
+    setEditingSessionId(null);
+    setEditingSessionName("");
+  };
+
+  const saveSessionName = async (sessionId: number) => {
+    if (!editingSessionName.trim()) {
+      cancelEditingSession();
+      return;
+    }
+    try {
+      await ApiService.renameChatSession(sessionId, editingSessionName.trim());
+      const updatedSessions = sessions.map(session =>
+        session.id === sessionId ? { ...session, session_name: editingSessionName.trim() } : session
+      );
+      setSessions(updatedSessions);
+      setEditingSessionId(null);
+      setEditingSessionName("");
+    } catch (error) {
+      console.error(`Failed to rename session ${sessionId}:`, error);
     }
   };
 
@@ -191,12 +221,42 @@ const Query: React.FC = () => {
             <div
               key={session.id}
               className={`session-item ${session.id === activeSessionId ? 'active' : ''}`}
-              onClick={() => setActiveSessionId(session.id)}
+              onClick={() => editingSessionId !== session.id && setActiveSessionId(session.id)}
             >
-              <span className="session-name">{session.session_name}</span>
-              <button onClick={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }} className="delete-session-btn">
-                <Trash2 size={16} />
-              </button>
+              {editingSessionId === session.id ? (
+                <div className="session-edit-container">
+                  <input
+                    type="text"
+                    value={editingSessionName}
+                    onChange={(e) => setEditingSessionName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveSessionName(session.id);
+                      if (e.key === 'Escape') cancelEditingSession();
+                    }}
+                    className="session-edit-input"
+                    autoFocus
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button onClick={(e) => { e.stopPropagation(); saveSessionName(session.id); }} className="save-session-btn">
+                    <Check size={14} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); cancelEditingSession(); }} className="cancel-session-btn">
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span className="session-name" title={session.session_name}>{session.session_name}</span>
+                  <div className="session-actions">
+                    <button onClick={(e) => { e.stopPropagation(); startEditingSession(session.id, session.session_name); }} className="edit-session-btn">
+                      <Edit2 size={14} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }} className="delete-session-btn">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>

@@ -186,6 +186,11 @@ export class ApiService {
     return response.data;
   }
 
+  static async renameChatSession(sessionId: number, sessionName: string) {
+    const response = await api.put(`/api/chat/sessions/${sessionId}/rename`, { session_name: sessionName });
+    return response.data;
+  }
+
   static async generateChatName(message: string, sessionId: number) {
     const llm_provider = localStorage.getItem("llm_provider") || "gemini";
     const response = await api.post("/api/chat/generate-name", { message, session_id: sessionId, llm_provider });
@@ -199,6 +204,53 @@ export class ApiService {
 
   static async getApiKey() {
     const response = await api.get("/api/settings/api-key");
+    return response.data;
+  }
+
+  static async saveLLMConfig(config: { provider: string; api_key?: string; model?: string }) {
+    const response = await api.post("/api/settings/api-key", config);
+    return response.data;
+  }
+
+  static async getLLMConfig(provider?: string) {
+    const params = provider ? { provider } : {};
+    const response = await api.get("/api/settings/api-key", { params });
+    return response.data;
+  }
+
+  static async getLLMProviders() {
+    const response = await api.get("/api/settings/providers");
+    return response.data;
+  }
+
+  static async checkSystemRequirements() {
+    const response = await api.get("/api/settings/system-requirements");
+    return response.data;
+  }
+
+  static async getSystemTier() {
+    const response = await api.get("/api/settings/system-tier");
+    return response.data;
+  }
+
+  static async getOllamaModels(tier?: number) {
+    const params = tier !== undefined ? { tier } : {};
+    const response = await api.get("/api/ollama/models", { params });
+    return response.data;
+  }
+
+  static async downloadOllamaModel(modelName: string) {
+    const response = await api.post("/api/ollama/download", { model_name: modelName });
+    return response.data;
+  }
+
+  static async getModelDownloadStatus(modelName: string) {
+    const response = await api.get(`/api/ollama/download/status/${modelName}`);
+    return response.data;
+  }
+
+  static async deleteOllamaModel(modelName: string) {
+    const response = await api.delete(`/api/ollama/models/${modelName}`);
     return response.data;
   }
 }

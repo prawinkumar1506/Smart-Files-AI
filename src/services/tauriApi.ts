@@ -12,10 +12,36 @@ export interface DirectoryItem {
   isDirectory: boolean;
 }
 
+interface DirectoryItemRaw {
+  name: string;
+  path: string;
+  is_directory: boolean;
+}
+
 export interface PathStat {
   exists: boolean;
   isDirectory: boolean;
   path: string;
+}
+
+interface PathStatRaw {
+  exists: boolean;
+  is_directory: boolean;
+  path: string;
+}
+
+export interface SystemTierInfo {
+  tier: number;
+  tier_name: string;
+  ram_gb: number;
+  cpu_cores: number;
+  cpu_frequency_ghz: number;
+  gpu_available: boolean;
+  gpu_name?: string;
+  vram_gb?: number;
+  ollama_installed: boolean;
+  recommended_models: string[];
+  tier_description: string;
 }
 
 export const tauriAPI = {
@@ -40,7 +66,7 @@ export const tauriAPI = {
   },
 
   readDirectory: async (dirPath: string): Promise<DirectoryItem[]> => {
-    const items = await invoke<DirectoryItem[]>('read_directory', { dirPath });
+    const items = await invoke<DirectoryItemRaw[]>('read_directory', { dirPath });
     // Transform snake_case from Rust to match expected format
     return items.map(item => ({
       name: item.name,
@@ -50,13 +76,25 @@ export const tauriAPI = {
   },
 
   statPath: async (targetPath: string): Promise<PathStat> => {
-    const stat = await invoke<PathStat>('stat_path', { targetPath });
+    const stat = await invoke<PathStatRaw>('stat_path', { targetPath });
     // Transform snake_case from Rust to match expected format
     return {
       exists: stat.exists,
       isDirectory: stat.is_directory,
       path: stat.path
     };
+  },
+
+  getSystemTier: async (): Promise<SystemTierInfo> => {
+    return await invoke<SystemTierInfo>('get_system_tier');
+  },
+
+  downloadOllamaModel: async (model: string): Promise<string> => {
+    return await invoke<string>('download_ollama_model', { model });
+  },
+
+  isOllamaModelInstalled: async (model: string): Promise<boolean> => {
+    return await invoke<boolean>('is_ollama_model_installed', { model });
   },
 
   onBackendPort: (callback: (port: number) => void) => {

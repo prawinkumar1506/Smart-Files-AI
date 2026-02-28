@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { SplashScreen } from "./components/SplashScreen"
+import SetupWizard from "./components/SetupWizard"
 import Sidebar from "./components/Sidebar"
 import Dashboard from "./components/Dashboard"
 import Search from "./components/Search"
@@ -18,6 +19,8 @@ import "./ModernEnhancements.css"
 function App() {
   const [isBackendReady, setIsBackendReady] = useState(false)
   const [currentView, setCurrentView] = useState("dashboard")
+  const [showSetup, setShowSetup] = useState(false)
+  const [setupChecked, setSetupChecked] = useState(false)
 
   const checkBackendHealth = async () => {
     try {
@@ -39,6 +42,11 @@ function App() {
   useEffect(() => {
     checkBackendHealth()
 
+    // const setupCompleted = localStorage.getItem("setup_completed") === "true"
+    const setupCompleted = false // was: localStorage.getItem("setup_completed") === "true"
+    setShowSetup(!setupCompleted)
+    setSetupChecked(true)
+
     if (window.electronAPI) {
       window.electronAPI.onMenuAddFolders(() => {
         setCurrentView("folders")
@@ -51,6 +59,14 @@ function App() {
       }
     }
   }, [])
+
+  if (!setupChecked) {
+    return <SplashScreen />
+  }
+
+  if (showSetup) {
+    return <SetupWizard onComplete={() => setShowSetup(false)} />
+  }
 
   if (!isBackendReady) {
     return <SplashScreen />

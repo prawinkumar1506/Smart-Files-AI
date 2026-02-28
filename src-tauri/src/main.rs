@@ -6,6 +6,7 @@ use std::path::Path;
 use std::process::{Child, Command};
 use std::sync::Mutex;
 use tauri::{Emitter, Manager};
+use sysinfo::System;
 
 #[derive(Clone, Serialize)]
 struct BackendPortPayload {
@@ -33,6 +34,21 @@ struct PathStat {
 }
 
 struct BackendProcess(Mutex<Option<Child>>);
+
+#[derive(Serialize)]
+struct SystemTierInfo {
+    tier: u8,
+    tier_name: String,
+    ram_gb: f64,
+    cpu_cores: usize,
+    cpu_frequency_ghz: f64,
+    gpu_available: bool,
+    gpu_name: Option<String>,
+    vram_gb: Option<f64>,
+    ollama_installed: bool,
+    recommended_models: Vec<String>,
+    tier_description: String,
+}
 
 #[tauri::command]
 async fn select_folders(app: tauri::AppHandle) -> Result<Vec<String>, String> {
@@ -230,6 +246,151 @@ async fn stat_path(target_path: String) -> PathStat {
     }
 }
 
+fn get_nvidia_gpu_info() -> (bool, Option<String>, Option<f64>) {
+    let output = Command::new("nvidia-smi")
+        .args(["--query-gpu=name,memory.total", "--format=csv,noheader"])
+        .output();
+
+    if let Ok(result) = output {
+        if result.status.success() {
+            let stdout = String::from_utf8_lossy(&result.stdout);
+            let line = stdout.lines().next().unwrap_or("").trim();
+            if !line.is_empty() {
+                let parts: Vec<&str> = line.split(',').map(|p| p.trim()).collect();
+                let name = parts.get(0).map(|s| s.to_string());
+                let vram_gb = parts.get(1).and_then(|mem| {
+                    let mem_value = mem.replace("MiB", "").trim().parse::<f64>().ok()?;
+                    Some(mem_value / 1024.0)
+                });
+                return (true, name, vram_gb);
+            }
+        }
+    }
+
+    (false, None, None)
+}
+
+fn is_ollama_available() -> bool {
+    Command::new("ollama")
+        .arg("--version")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
+}
+
+fn classify_tier(ram_gb: f64, cpu_cores: usize) -> (u8, String, String, Vec<String>) {
+    if ram_gb >= 32.0 && cpu_cores >= 8 {
+        (
+            3,
+            "Enthusiast".to_string(),
+            "High-end system - Can run large models including 70B parameters".to_string(),
+            vec![
+                "tinyllama:1.1b".to_string(),
+                "llama3.2:3b".to_string(),
+                "qwen2.5:7b".to_string(),
+                "llava:7b".to_string(),
+                "llama3.2-vision:11b".to_string(),
+                "llama3.1:8b".to_string(),
+                "mistral:7b".to_string(),
+                "codellama:13b".to_string(),
+                "llama3.1:70b".to_string(),
+            ],
+        )
+    } else if ram_gb >= 16.0 && cpu_cores >= 4 {
+        (
+            2,
+            "Performance".to_string(),
+            "Mid-range system - Can run models up to 13B parameters".to_string(),
+            vec![
+                "tinyllama:1.1b".to_string(),
+                "llama3.2:3b".to_string(),
+                "qwen2.5:7b".to_string(),
+                "llava:7b".to_string(),
+                "llama3.2-vision:11b".to_string(),
+                "llama3.1:8b".to_string(),
+                "mistral:7b".to_string(),
+            ],
+        )
+    } else {
+        (
+            1,
+            "Basic".to_string(),
+            "Entry-level system - Optimized for small, efficient models".to_string(),
+            vec![
+                "tinyllama:1.1b".to_string(),
+                "llama3.2:3b".to_string(),
+                "qwen2.5:7b".to_string(),
+                "llava:7b".to_string(),
+            ],
+        )
+    }
+}
+
+#[tauri::command]
+async fn get_system_tier() -> Result<SystemTierInfo, String> {
+    let mut system = System::new_all();
+    system.refresh_all();
+
+    let ram_gb = system.total_memory() as f64 / (1024.0 * 1024.0);
+    let cpu_cores = system.cpus().len();
+    let cpu_frequency_ghz = system
+        .cpus()
+        .get(0)
+        .map(|cpu| cpu.frequency() as f64 / 1000.0)
+        .unwrap_or(0.0);
+
+    let (gpu_available, gpu_name, vram_gb) = get_nvidia_gpu_info();
+    let ollama_installed = is_ollama_available();
+
+    let (tier, tier_name, tier_description, recommended_models) =
+        classify_tier(ram_gb, cpu_cores);
+
+    Ok(SystemTierInfo {
+        tier,
+        tier_name,
+        ram_gb,
+        cpu_cores,
+        cpu_frequency_ghz,
+        gpu_available,
+        gpu_name,
+        vram_gb,
+        ollama_installed,
+        recommended_models,
+        tier_description,
+    })
+}
+
+#[tauri::command]
+async fn download_ollama_model(model: String) -> Result<String, String> {
+    let model_clone = model.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let status = Command::new("ollama")
+            .arg("pull")
+            .arg(&model_clone)
+            .status()
+            .map_err(|e| e.to_string())?;
+
+        if status.success() {
+            Ok(format!("Model {} downloaded successfully", model_clone))
+        } else {
+            Err(format!("Failed to download model {}", model_clone))
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn is_ollama_model_installed(model: String) -> Result<bool, String> {
+    let output = Command::new("ollama")
+        .arg("list")
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    Ok(stdout.lines().any(|line| line.contains(&model)))
+}
+
 fn start_backend(app: &tauri::AppHandle) -> Result<Child, std::io::Error> {
     let backend_path = if cfg!(debug_assertions) {
         // Development mode
@@ -310,7 +471,10 @@ fn main() {
             get_home_directory,
             get_drives,
             read_directory,
-            stat_path
+            stat_path,
+            get_system_tier,
+            download_ollama_model,
+            is_ollama_model_installed
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -102,6 +102,10 @@ class EmbeddingService:
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
 
+    def preload_model(self):
+        """Eagerly load embedding model during application startup."""
+        self._load_model()
+
     async def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding for a single text"""
         self._load_model()  # Lazy load model on first use
