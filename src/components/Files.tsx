@@ -8,6 +8,7 @@ import {
     TrendingUp, AlertCircle, Download, ExternalLink, FolderOpen
 } from "lucide-react"
 import { ApiService } from "../services/api"
+import { tauriAPI } from "../services/tauriApi"
 
 interface FileInfo {
     id: number
@@ -139,25 +140,25 @@ const Files: React.FC = () => {
     }
 
     const openFile = async (filePath: string) => {
-        if (window.electronAPI?.openFile) {
-            const result = await window.electronAPI.openFile(filePath)
+        try {
+            const result = await tauriAPI.openFile(filePath)
             if (!result?.success) {
                 console.error("Failed to open file:", result?.error)
             }
-            return
+        } catch (error) {
+            console.error("Error opening file:", error)
         }
-        console.warn("openFile is only available in the desktop app")
     }
 
     const showInFolder = async (filePath: string) => {
-        if (window.electronAPI?.showFileInFolder) {
-            const result = await window.electronAPI.showFileInFolder(filePath)
+        try {
+            const result = await tauriAPI.showFileInFolder(filePath)
             if (!result?.success) {
                 console.error("Failed to show file in folder:", result?.error)
             }
-            return
+        } catch (error) {
+            console.error("Error showing file in folder:", error)
         }
-        console.warn("showInFolder is only available in the desktop app")
     }
 
     const getFileTypeStats = () => {

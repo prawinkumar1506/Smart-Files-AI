@@ -141,6 +141,7 @@ import type React from "react"
 import { useState } from "react"
 import { SearchIcon, File, Clock, ExternalLink, FolderOpen } from "lucide-react"
 import { ApiService } from "../services/api"
+import { tauriAPI } from "../services/tauriApi"
 
 interface SearchResult {
   file_path: string
@@ -183,36 +184,26 @@ const Search: React.FC = () => {
   }
 
   const openFile = async (filePath: string) => {
-    if (window.electronAPI) {
-      try {
-        const result = await window.electronAPI.openFile(filePath)
-        if (!result.success) {
-          alert(`Failed to open file: ${result.error}`)
-        }
-      } catch (error) {
-        console.error("Error opening file:", error)
-        alert("Failed to open file")
+    try {
+      const result = await tauriAPI.openFile(filePath)
+      if (!result.success) {
+        alert(`Failed to open file: ${result.error}`)
       }
-    } else {
-      console.log("Opening file:", filePath)
-      alert("File opening is only available in the desktop app")
+    } catch (error) {
+      console.error("Error opening file:", error)
+      alert("Failed to open file")
     }
   }
 
   const showInFolder = async (filePath: string) => {
-    if (window.electronAPI) {
-      try {
-        const result = await window.electronAPI.showFileInFolder(filePath)
-        if (!result.success) {
-          alert(`Failed to show file in folder: ${result.error}`)
-        }
-      } catch (error) {
-        console.error("Error showing file in folder:", error)
-        alert("Failed to show file in folder")
+    try {
+      const result = await tauriAPI.showFileInFolder(filePath)
+      if (!result.success) {
+        alert(`Failed to show file in folder: ${result.error}`)
       }
-    } else {
-      console.log("Showing file in folder:", filePath)
-      alert("This feature is only available in the desktop app")
+    } catch (error) {
+      console.error("Error showing file in folder:", error)
+      alert("Failed to show file in folder")
     }
   }
 

@@ -127,8 +127,97 @@ class GenerateChatNameRequest(BaseModel):
     session_id: int
     llm_provider: Optional[str] = "gemini"
 
+class RenameSessionRequest(BaseModel):
+    session_name: str
+
 class ApiKey(BaseModel):
     key: str
+
+class LLMConfig(BaseModel):
+    """Configuration for LLM providers"""
+    provider: str  # gemini, openrouter, groq, openai, anthropic, ollama
+    api_key: Optional[str] = None
+    model: Optional[str] = None
+    custom_base_url: Optional[str] = None
+
+class LLMProviderInfo(BaseModel):
+    """Information about available LLM provider"""
+    name: str
+    display_name: str
+    type: str  # cloud or local
+    requires_key: bool
+    api_key_name: Optional[str] = None
+    env_var: Optional[str] = None
+    url: str
+    models: List[str]
+    default_model: str
+    capabilities: List[str]
+
+class SystemRequirement(BaseModel):
+    """System requirement check"""
+    name: str
+    met: bool
+    value: Optional[str] = None
+    message: str
+    critical: bool = False
+
+class SystemRequirementsCheck(BaseModel):
+    """System requirements check result"""
+    all_requirements_met: bool
+    timestamp: datetime
+    requirements: List[SystemRequirement]
+    warnings: List[str]
+
+class SystemTier(BaseModel):
+    """System hardware tier classification"""
+    tier: int  # 1 = low-end, 2 = mid-range, 3 = high-end
+    tier_name: str  # "Basic", "Performance", "Enthusiast"
+    ram_gb: float
+    cpu_cores: int
+    cpu_frequency_ghz: Optional[float] = None
+    gpu_available: bool
+    gpu_name: Optional[str] = None
+    vram_gb: Optional[float] = None
+    recommended_models: List[str]
+    tier_description: str
+
+class OllamaModel(BaseModel):
+    """Ollama model specification"""
+    name: str
+    tag: str
+    full_name: str  # e.g., "llava:7b"
+    display_name: str
+    description: str
+    size_gb: float
+    ram_required_gb: int
+    vram_required_gb: Optional[int] = None
+    min_tier: int  # Minimum system tier required
+    capabilities: List[str]  # ["text", "vision", "code", etc.]
+    context_length: int
+    parameters: str  # e.g., "7B", "13B"
+    quantization: Optional[str] = None
+    download_url: str
+    is_downloaded: bool = False
+    download_progress: float = 0.0
+
+class ModelDownloadRequest(BaseModel):
+    """Request to download an Ollama model"""
+    model_name: str  # e.g., "llava:7b"
+    
+class ModelDownloadStatus(BaseModel):
+    """Status of model download"""
+    model_name: str
+    status: str  # "pending", "downloading", "completed", "failed"
+    progress: float  # 0.0 to 100.0
+    downloaded_bytes: int
+    total_bytes: int
+    message: str
+
+class InstalledModelsResponse(BaseModel):
+    """Response with installed Ollama models"""
+    success: bool
+    models: List[OllamaModel]
+    total_size_gb: float
 
 # Update FolderHierarchy to handle forward references
 FolderHierarchy.model_rebuild()
